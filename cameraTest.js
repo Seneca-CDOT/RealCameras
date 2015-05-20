@@ -14,6 +14,16 @@ function init() {
 	renderer.setSize(canvasWidth, canvasHeight);
 
 	camera = new THREE.PerspectiveCamera(45, canvasRatio, 1, 100);
+	var filmwidth = 36.0;
+	var filmheight= 24.0;
+	var focallength= 30.0;
+
+	var verticalfieldofview = 2*(Math.atan(0.5*filmheight/focallength));
+	verticalfieldofview = verticalfieldofview*180/Math.PI;
+
+	camera.fov = verticalfieldofview;
+	camera.updateProjectionMatrix();
+
 	camera.position.set(0,10,4);
 
 	scene = new THREE.Scene();
@@ -34,7 +44,7 @@ function init() {
 	camera.lookAt(cube1.position);
 	document.body.appendChild(renderer.domElement);
 
-	window.alert("Camera"+ camera.rotation.x);
+	window.alert("Camera"+ verticalfieldofview);
 }
 
 function animate(){
