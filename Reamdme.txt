@@ -1,0 +1,5 @@
+Reamdme.txt
+
+Barbara de Graaf
+
+Testing files to see if I can calculate various values for a camera
