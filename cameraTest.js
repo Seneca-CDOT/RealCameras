@@ -8,15 +8,16 @@ var cube1, cube2;
 function init() {
 	var canvasWidth = window.innerWidth;
 	var canvasHeight = window.innerHeight;
-	var canvasRatio = canvasWidth/canvasHeight;
+	var filmwidth = 36.0;
+	var filmheight= 24.0;
+	var focallength= 50.0;
+	var canvasRatio = filmwidth/filmheight;
 
 	renderer = new THREE.WebGLRenderer();
 	renderer.setSize(canvasWidth, canvasHeight);
 
 	camera = new THREE.PerspectiveCamera(45, canvasRatio, 1, 100);
-	var filmwidth = 36.0;
-	var filmheight= 24.0;
-	var focallength= 30.0;
+	
 
 	var verticalfieldofview = 2*(Math.atan(0.5*filmheight/focallength));
 	verticalfieldofview = verticalfieldofview*180/Math.PI;
@@ -24,7 +25,7 @@ function init() {
 	camera.fov = verticalfieldofview;
 	camera.updateProjectionMatrix();
 
-	camera.position.set(0,10,4);
+	camera.position.set(-20,20,5);
 
 	scene = new THREE.Scene();
 
@@ -38,13 +39,18 @@ function init() {
 	cube2 = new THREE.Mesh(new THREE.CubeGeometry(2,10,2), new THREE.MeshNormalMaterial());
 	cube2.position.set(40,0,0);	
 
+	cube3 = new THREE.Mesh(new THREE.CubeGeometry(2,5,2), new THREE.MeshNormalMaterial());
+	cube3.position.set(20,0,-10);
+
 	scene.add(cube1);
 	scene.add(cube2);
+	scene.add(cube3);
 
+	
 	camera.lookAt(cube1.position);
 	document.body.appendChild(renderer.domElement);
 
-	window.alert("Camera"+ verticalfieldofview);
+	window.alert("Angle of view "+ verticalfieldofview);
 }
 
 function animate(){
