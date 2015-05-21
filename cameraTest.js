@@ -11,7 +11,8 @@ function init() {
 	var filmwidth = 36.0;
 	var filmheight= 24.0;
 	var focallength= 50.0;
-	var canvasRatio = filmwidth/filmheight;
+	//var canvasRatio = filmwidth/filmheight;
+	var canvasRatio = canvasWidth/canvasHeight;
 
 	renderer = new THREE.WebGLRenderer();
 	renderer.setSize(canvasWidth, canvasHeight);
@@ -32,6 +33,20 @@ function init() {
 	var light = new THREE.DirectionalLight(0xFFFFFF, 1.0);
 	light.position.set(200,400,500);
 	scene.add(light);
+
+	var size = 50;
+
+	var geo = new THREE.Geometry();
+	var mat = new THREE.LineBasicMaterial({color: 0xFFFFDD});
+	for (var i=-size; i<=size; i++ ){
+		geo.vertices.push(new THREE.Vector3(-size, 0,i));
+		geo.vertices.push(new THREE.Vector3(size,0,i));
+
+		geo.vertices.push(new THREE.Vector3(i,0,-size));
+		geo.vertices.push(new THREE.Vector3(i, 0, size));
+	}
+	var line = new THREE.Line(geo, mat, THREE.LinePieces);
+	scene.add(line);
 
 	cube1 = new THREE.Mesh(new THREE.CubeGeometry(2,5,2), new THREE.MeshNormalMaterial());
 	cube1.position.set(20,0,0);
