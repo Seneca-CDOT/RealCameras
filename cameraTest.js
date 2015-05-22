@@ -9,8 +9,11 @@ function init() {
 	var canvasWidth = window.innerWidth;
 	var canvasHeight = window.innerHeight;
 	var filmwidth = 36.0;
-	var filmheight= 24.0;
-	var focallength= 50.0;
+	var filmheight= 24.0;.01
+	var focallength= 9.50;
+	var cirofcon = 0.015;
+	var fstop = 2.8;
+
 	//var canvasRatio = filmwidth/filmheight;
 	var canvasRatio = canvasWidth/canvasHeight;
 
@@ -22,6 +25,8 @@ function init() {
 
 	var verticalfieldofview = 2*(Math.atan(0.5*filmheight/focallength));
 	verticalfieldofview = verticalfieldofview*180/Math.PI;
+
+	var hyperfocaldist = ((Math.pow(focallength,2))/(fstop*cirofcon))/1000;
 
 	camera.fov = verticalfieldofview;
 	camera.updateProjectionMatrix();
@@ -65,7 +70,8 @@ function init() {
 	camera.lookAt(cube1.position);
 	document.body.appendChild(renderer.domElement);
 
-	window.alert("Angle of view "+ verticalfieldofview);
+	//window.alert("Angle of view "+ verticalfieldofview);
+	window.alert("hyperfocal " + hyperfocaldist);
 }
 
 function animate(){
