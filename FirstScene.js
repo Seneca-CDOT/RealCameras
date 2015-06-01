@@ -28,7 +28,7 @@ function init() {
 	});
 
 	//create wall and ground
-	var geometry = new THREE.CubeGeometry(40,0.1,40);
+	var geometry = new THREE.BoxGeometry(40,0.1,40);
 
 	var texture = new THREE.ImageUtils.loadTexture("checker.png");
 	texture.wrapS = THREE.RepeatWrapping;
@@ -40,9 +40,9 @@ function init() {
 	var plane = new THREE.Mesh(geometry, material);
 	//wall
 	var back = new THREE.Mesh(geometry,material);
-
 	back.position.set(0,0,-20);
 	back.rotation.x = 90 *Math.PI/180;
+	
 	//add to scene
 	scene.add(plane);
 	scene.add(back);
@@ -53,20 +53,15 @@ function init() {
     scene.add( hemiLight );
 
     //adding gui
-    var inputs = new function(){
-    	this.camera= "";
-    	this.lens ="";
-    	this.aperture = 0;
-    	this.focallenght = 0;
-    	this.focusdistnace =0;
-    }
+    //GUI DOSENT WORK YET
+   
 
     var gui = new dat.GUI();
-    var f1 = gui.addFolder("Camera");
-    f1.add(inputs, 'camera','');
-    var f2 = gui.addFolder("Lens");
-    f2.add(inputs,'lens','');
-    var f3 = gui.addFolder("User");
+    var folder1 = gui.addFolder("Camera");
+ //   folder1.add(inputs, 'camera','');
+    var folder2 = gui.addFolder("Lens");
+ //   folder2.add(inputs,'lens','');
+    var folder3 = gui.addFolder("User");
 
 }
 
