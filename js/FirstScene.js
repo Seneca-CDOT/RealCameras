@@ -23,14 +23,14 @@ function init() {
 
 	//load scene made in other modeling software 
 	var loader = new THREE.ObjectLoader();
-	loader.load("testscene.scene/testscene.json",function (obj){
+	loader.load("resources/testscene.scene/testscene.json",function (obj){
 		scene.add(obj);
 	});
 
 	//create wall and ground
 	var geometry = new THREE.BoxGeometry(40,0.1,40);
 
-	var texture = new THREE.ImageUtils.loadTexture("checker.png");
+	var texture = new THREE.ImageUtils.loadTexture("resources/checker.png");
 	texture.wrapS = THREE.RepeatWrapping;
 	texture.wrapT = THREE.RepeatWrapping;
 	texture.repeat.set(20,20);
