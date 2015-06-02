@@ -52,16 +52,7 @@ function init() {
     hemiLight.position.set( 0, 500, 0 );
     scene.add( hemiLight );
 
-    //adding gui
-    //GUI DOSENT WORK YET
-   
-
-    var gui = new dat.GUI();
-    var folder1 = gui.addFolder("Camera");
- //   folder1.add(inputs, 'camera','');
-    var folder2 = gui.addFolder("Lens");
- //   folder2.add(inputs,'lens','');
-    var folder3 = gui.addFolder("User");
+    //TODO: Add gui here
 
 }
 
