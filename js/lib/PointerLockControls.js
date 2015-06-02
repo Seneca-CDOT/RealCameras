@@ -33,16 +33,16 @@ THREE.PointerLockControls = function ( camera ) {
 
 	var onMouseUp = function () {
 
-		document.removeEventListener( 'mousemove', onMouseMove, false );
+		document.removeEventListener('mousemove', onMouseMove, false);
 	};
 
 	var onMouseDown = function () {
 		
-		document.addEventListener( 'mousemove', onMouseMove, false );
+		document.addEventListener('mousemove', onMouseMove, false);
 	};
 
-	document.addEventListener( 'mouseup', onMouseUp, false );
-	document.addEventListener( 'mousedown', onMouseDown, false );
+	document.addEventListener('mouseup', onMouseUp, false);
+	document.addEventListener('mousedown', onMouseDown, false);
 
 
 	this.enabled = false;
