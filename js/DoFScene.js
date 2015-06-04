@@ -17,8 +17,6 @@ App.DoFScene = (function () {
 		this.devicePixelRatio = window.devicePixelRatio || 1,
 
         this.renderer = null;
-        this.depthRenderer = null;
-
         this.scene = null;
         this.camera = null;
         this.light = null;
@@ -26,7 +24,6 @@ App.DoFScene = (function () {
 
         this.depthMaterial = null;
         this.DoFMaterial = null;
-        this.DoFShader = null; 
 
         this.depthRendererTarget = null;
         this.diffuseRendererTarget = null;
@@ -75,7 +72,6 @@ App.DoFScene = (function () {
 		document.body.appendChild(DoFCanvasParent);
 		DoFCanvasParent.style.position = "absolute";
 		DoFCanvasParent.style.width = this.canvasWidth + "px";
- 
 	};
 	privateMethods.initScene = function() {
 
