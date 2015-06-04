@@ -67,28 +67,15 @@ App.DoFScene = (function () {
 
 	privateMethods.initRenderer = function () {
 
-		var factor = 1;
-
-
 		this.renderer = new THREE.WebGLRenderer();
-		this.renderer.setSize(factor * this.canvasWidth, this.canvasHeight);
+		this.renderer.setSize(this.canvasWidth, this.canvasHeight);
 
 		var DoFCanvasParent = document.createElement("div");
 		DoFCanvasParent.appendChild(this.renderer.domElement);
 		document.body.appendChild(DoFCanvasParent);
 		DoFCanvasParent.style.position = "absolute";
-		DoFCanvasParent.style.width = factor * this.canvasWidth + "px";
-        
-
-		// this.depthRenderer = new THREE.WebGLRenderer();
-		// this.depthRenderer.setSize(factor * this.canvasWidth, this.canvasHeight);
-
-		// var depthCanvasParent = document.createElement("div");
-		// depthCanvasParent.appendChild(this.depthRenderer.domElement);
-		// document.body.appendChild(depthCanvasParent);
-		// depthCanvasParent.style.position = "absolute";
-		// depthCanvasParent.style.width = factor * this.canvasWidth + "px";
-		// depthCanvasParent.style.left = factor * this.canvasWidth + "px";
+		DoFCanvasParent.style.width = this.canvasWidth + "px";
+ 
 	};
 	privateMethods.initScene = function() {
 
@@ -347,22 +334,16 @@ App.DoFScene = (function () {
 
 		// depth map rendrerring
 		this.scene.overrideMaterial = this.depthMaterial;
-		// this.renderer.render(this.scene, this.camera, this.depthRendererTarget);
-		this.renderer.render(this.scene, this.camera);
+		this.renderer.render(this.scene, this.camera, this.depthRendererTarget);
+		// this.renderer.render(this.scene, this.camera);
 		this.scene.overrideMaterial = null;
 	
-		// var depthScene = this.scene.clone(new THREE.Scene());
-		// var depthCamera = this.camera.clone(new THREE.PerspectiveCamera);
-		// depthScene.overrideMaterial = this.depthMaterial;
-		// this.depthRenderer.render(depthScene, this.camera);
-		// depthScene.overrideMaterial = null;
-
 		// diffuse map rendrerring
 		this.renderer.render(this.scene, this.camera, this.diffuseRendererTarget);
 
 		// DoF map renderring
 		App.Screen.quad.material = this.DoFMaterial;
-		// this.renderer.render(App.Screen.scene, App.Screen.camera);
+		this.renderer.render(App.Screen.scene, App.Screen.camera);
 		App.Screen.quad.material = null;	
 	};
 
