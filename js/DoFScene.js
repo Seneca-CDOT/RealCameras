@@ -17,6 +17,8 @@ App.DoFScene = (function () {
 		this.devicePixelRatio = window.devicePixelRatio || 1,
 
         this.renderer = null;
+        this.depthRenderer = null;
+
         this.scene = null;
         this.camera = null;
         this.light = null;
@@ -37,7 +39,6 @@ App.DoFScene = (function () {
 	DoFScene.prototype.destroy = function () {
 
 		// TODO:
-
 		if (this.requestedAnimationFrameId) {
 
             window.cancelAnimationFrame(this.requestedAnimationFrameId);
@@ -66,9 +67,28 @@ App.DoFScene = (function () {
 
 	privateMethods.initRenderer = function () {
 
+		var factor = 1;
+
+
 		this.renderer = new THREE.WebGLRenderer();
-		this.renderer.setSize(this.canvasWidth, this.canvasHeight);
-		document.body.appendChild(this.renderer.domElement);
+		this.renderer.setSize(factor * this.canvasWidth, this.canvasHeight);
+
+		var DoFCanvasParent = document.createElement("div");
+		DoFCanvasParent.appendChild(this.renderer.domElement);
+		document.body.appendChild(DoFCanvasParent);
+		DoFCanvasParent.style.position = "absolute";
+		DoFCanvasParent.style.width = factor * this.canvasWidth + "px";
+        
+
+		// this.depthRenderer = new THREE.WebGLRenderer();
+		// this.depthRenderer.setSize(factor * this.canvasWidth, this.canvasHeight);
+
+		// var depthCanvasParent = document.createElement("div");
+		// depthCanvasParent.appendChild(this.depthRenderer.domElement);
+		// document.body.appendChild(depthCanvasParent);
+		// depthCanvasParent.style.position = "absolute";
+		// depthCanvasParent.style.width = factor * this.canvasWidth + "px";
+		// depthCanvasParent.style.left = factor * this.canvasWidth + "px";
 	};
 	privateMethods.initScene = function() {
 
@@ -280,34 +300,34 @@ App.DoFScene = (function () {
 
 		DoFFolder.add(uniforms.showFocus, 'value').name('Show Focal Range');
 
-		DoFFolder.add(uniforms.manualdof, 'value').name('Manual DoF');
-		DoFFolder.add(uniforms.ndofstart, 'value', 0, 200).name('near start');
-		DoFFolder.add(uniforms.ndofdist, 'value', 0, 200).name('near falloff');
-		DoFFolder.add(uniforms.fdofstart, 'value', 0, 200).name('far start');
-		DoFFolder.add(uniforms.fdofdist, 'value', 0, 200).name('far falloff');
+		// DoFFolder.add(uniforms.manualdof, 'value').name('Manual DoF');
+		// DoFFolder.add(uniforms.ndofstart, 'value', 0, 200).name('near start');
+		// DoFFolder.add(uniforms.ndofdist, 'value', 0, 200).name('near falloff');
+		// DoFFolder.add(uniforms.fdofstart, 'value', 0, 200).name('far start');
+		// DoFFolder.add(uniforms.fdofdist, 'value', 0, 200).name('far falloff');
 
 		DoFFolder.add(uniforms.CoC, 'value', 0, 0.1).step(0.001).name('circle of confusion');
 
-		DoFFolder.add(uniforms.vignetting, 'value').name('Vignetting');
-		DoFFolder.add(uniforms.vignout, 'value', 0, 2).name('outer border');
-		DoFFolder.add(uniforms.vignin, 'value', 0, 1).step(0.01).name('inner border');
-		DoFFolder.add(uniforms.vignfade, 'value', 0, 22).name('fade at');
+		// DoFFolder.add(uniforms.vignetting, 'value').name('Vignetting');
+		// DoFFolder.add(uniforms.vignout, 'value', 0, 2).name('outer border');
+		// DoFFolder.add(uniforms.vignin, 'value', 0, 1).step(0.01).name('inner border');
+		// DoFFolder.add(uniforms.vignfade, 'value', 0, 22).name('fade at');
 
 		DoFFolder.add(uniforms.autofocus, 'value').name('Autofocus');
-		DoFFolder.add(uniforms.focus.value, 'x', 0, 1).name('focus x');
-		DoFFolder.add(uniforms.focus.value, 'y', 0, 1).name('focus y');
+		// DoFFolder.add(uniforms.focus.value, 'x', 0, 1).name('focus x');
+		// DoFFolder.add(uniforms.focus.value, 'y', 0, 1).name('focus y');
 
-		DoFFolder.add(uniforms.threshold, 'value', 0, 1).step(0.01).name('threshold');
-		DoFFolder.add(uniforms.gain, 'value', 0, 100).name('gain');
+		// DoFFolder.add(uniforms.threshold, 'value', 0, 1).step(0.01).name('threshold');
+		// DoFFolder.add(uniforms.gain, 'value', 0, 100).name('gain');
 
-		DoFFolder.add(uniforms.bias, 'value', 0, 4).step(0.01).name('bias');
-		DoFFolder.add(uniforms.fringe, 'value', 0, 5).step(0.01).name('fringe');
+		// DoFFolder.add(uniforms.bias, 'value', 0, 4).step(0.01).name('bias');
+		// DoFFolder.add(uniforms.fringe, 'value', 0, 5).step(0.01).name('fringe');
 
-		DoFFolder.add(uniforms.noise, 'value').name('Use Noise');
-		DoFFolder.add(uniforms.namount, 'value', 0, 0.001).step(0.0001).name('dither');
+		// DoFFolder.add(uniforms.noise, 'value').name('Use Noise');
+		// DoFFolder.add(uniforms.namount, 'value', 0, 0.001).step(0.0001).name('dither');
 
-		DoFFolder.add(uniforms.depthblur, 'value').name('Blur Depth');
-		DoFFolder.add(uniforms.dbsize, 'value', 0, 5).name('blur size');
+		// DoFFolder.add(uniforms.depthblur, 'value').name('Blur Depth');
+		// DoFFolder.add(uniforms.dbsize, 'value', 0, 5).name('blur size');
 
 		DoFFolder.open();
 	};
@@ -327,15 +347,22 @@ App.DoFScene = (function () {
 
 		// depth map rendrerring
 		this.scene.overrideMaterial = this.depthMaterial;
-		this.renderer.render(this.scene, this.camera, this.depthRendererTarget);
+		// this.renderer.render(this.scene, this.camera, this.depthRendererTarget);
+		this.renderer.render(this.scene, this.camera);
 		this.scene.overrideMaterial = null;
+	
+		// var depthScene = this.scene.clone(new THREE.Scene());
+		// var depthCamera = this.camera.clone(new THREE.PerspectiveCamera);
+		// depthScene.overrideMaterial = this.depthMaterial;
+		// this.depthRenderer.render(depthScene, this.camera);
+		// depthScene.overrideMaterial = null;
 
 		// diffuse map rendrerring
 		this.renderer.render(this.scene, this.camera, this.diffuseRendererTarget);
 
 		// DoF map renderring
 		App.Screen.quad.material = this.DoFMaterial;
-		this.renderer.render(App.Screen.scene, App.Screen.camera);
+		// this.renderer.render(App.Screen.scene, App.Screen.camera);
 		App.Screen.quad.material = null;	
 	};
 
