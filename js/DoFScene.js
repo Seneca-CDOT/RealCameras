@@ -222,9 +222,9 @@ App.DoFScene = (function () {
 		uniforms[ 'znear' ].value = this.camera.near; // camera clipping start
 		uniforms[ 'zfar' ].value = this.camera.far; // camera clipping end
 
-		uniforms[ 'focalDepth' ].value = 20; // focal distance value in meters, but you may use autofocus option below
+		uniforms[ 'focalDepth' ].value = 43; // focal distance value in meters, but you may use autofocus option below
 		uniforms[ 'focalLength' ].value	= this.camera.focalLength; //focal length in mm
-		uniforms[ 'fstop' ].value = 1.2; // f-stop value
+		uniforms[ 'fstop' ].value = 0.02; // f-stop value
 		uniforms[ 'showFocus' ].value = false; //show debug focus point and focal range (orange = focal point, blue = focal range)
 
 		uniforms[ 'manualdof' ].value = false; // manual dof calculation
@@ -241,7 +241,7 @@ App.DoFScene = (function () {
 		uniforms[ 'vignfade' ].value = 22.0; // f-stops till vignete fades	
 
 		uniforms[ 'autofocus' ].value = false; // use autofocus in shader? disable if you use external focalDepth value
-		uniforms[ 'focus' ].value.set(0.5, 0.5); // autofocus point on screen (0.0,0.0 - left lower corner, 1.0,1.0 - upper right) 
+		uniforms[ 'focus' ].value.set(0.5, 0.5); // autofocus point on screen (0.0, 0.0 - left lower corner, 1.0,1.0 - upper right) 
 		uniforms[ 'maxblur' ].value = 2.0; // clamp value of max blur (0.0 = no blur,1.0 default)	
 
 		uniforms[ 'threshold' ].value = 0.5; // highlight threshold;
@@ -275,11 +275,11 @@ App.DoFScene = (function () {
 
 		cameraFolder.open();
 
-		var DoFFolder = gui.addFolder('Depth of Field');
+		var DoFFolder = gui.addFolder('DoF');
 
 		DoFFolder.add(uniforms.focalDepth, 'value', 0, 100).name('Focal Depth');
-		DoFFolder.add(uniforms.fstop, 'value', 0, 22).name('F Stop');
-		DoFFolder.add(uniforms.maxblur, 'value', 0, 3).name('max blur');
+		DoFFolder.add(uniforms.fstop, 'value', 0, 2.0).step(0.0001).name('F - Stop');
+		DoFFolder.add(uniforms.maxblur, 'value', 0, 3).name('Max Blur');
 
 		DoFFolder.add(uniforms.showFocus, 'value').name('Show Focal Range');
 
@@ -289,7 +289,7 @@ App.DoFScene = (function () {
 		// DoFFolder.add(uniforms.fdofstart, 'value', 0, 200).name('far start');
 		// DoFFolder.add(uniforms.fdofdist, 'value', 0, 200).name('far falloff');
 
-		DoFFolder.add(uniforms.CoC, 'value', 0, 0.1).step(0.001).name('circle of confusion');
+		DoFFolder.add(uniforms.CoC, 'value', 0, 0.1).step(0.001).name('CoC');
 
 		// DoFFolder.add(uniforms.vignetting, 'value').name('Vignetting');
 		// DoFFolder.add(uniforms.vignout, 'value', 0, 2).name('outer border');
@@ -297,8 +297,8 @@ App.DoFScene = (function () {
 		// DoFFolder.add(uniforms.vignfade, 'value', 0, 22).name('fade at');
 
 		DoFFolder.add(uniforms.autofocus, 'value').name('Autofocus');
-		// DoFFolder.add(uniforms.focus.value, 'x', 0, 1).name('focus x');
-		// DoFFolder.add(uniforms.focus.value, 'y', 0, 1).name('focus y');
+		DoFFolder.add(uniforms.focus.value, 'x', 0, 1).name('Focus - x');
+		DoFFolder.add(uniforms.focus.value, 'y', 0, 1).name('Focus - y');
 
 		// DoFFolder.add(uniforms.threshold, 'value', 0, 1).step(0.01).name('threshold');
 		// DoFFolder.add(uniforms.gain, 'value', 0, 100).name('gain');
