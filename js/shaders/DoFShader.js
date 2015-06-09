@@ -89,14 +89,18 @@ THREE.DoFShader = {
 
 		"uniform float CoC;", // circle of confusion size in mm (35mm film = 0.03mm)
 
-		"uniform bool vignetting;", // use optical lens vignetting?
-		"uniform float vignout;", //vignetting outer border
-		"uniform float vignin;", //vignetting inner border
-		"uniform float vignfade;", //f-stops till vignete fades
+		"uniform bool vignetting;", // use optical lens vignetting
+		"uniform float vignout;", // vignetting outer border
+		"uniform float vignin;", // vignetting inner border
+		"uniform float vignfade;", // f-stops till vignete fades
 
 		"uniform bool autofocus;", //use autofocus in shader? disable if you use external focalDepth value
 		"uniform vec2 focus;", // autofocus point on screen (0.0, 0.0 - left lower corner, 1.0, 1.0 - upper right)
 		"uniform float maxblur;", //clamp value of max blur (0.0 = no blur,1.0 default)
+
+		"uniform bool depthblur;", // blur the depth buffer
+		"uniform float dbsize;", // depthblursize
+
 
 		"uniform float threshold;", // highlight threshold;
 		"uniform float gain;", // highlight gain;
@@ -104,8 +108,6 @@ THREE.DoFShader = {
 		"uniform float fringe;", // bokeh chromatic aberration/fringing
 		"uniform bool noise;", // use noise instead of pattern for sample dithering
 		"uniform float namount;", // dither amount
-		"uniform bool depthblur;", // blur the depth buffer?
-		"uniform float dbsize;", // depthblursize
 
 		// samples and rings need to be constants. no dynamic loop counters in OpenGL ES
 		// Can shader be broken into 2 pass? ... 
@@ -118,21 +120,9 @@ THREE.DoFShader = {
 		looks okay starting from samples = 4, rings = 4
 		*/
 
-		// "bool pentagon = false;", // use pentagon as bokeh shape
-		// "float feather = 0.4;", // pentagon shape feather
+		"bool pentagon = false;", // use pentagon as bokeh shape
+		"float feather = 0.4;", // pentagon shape feather
 		// }
-// **********	
-
-
-// **********
-		// RGBA depth	
-		"float unpackDepth(const in vec4 rgba_depth) {",
-
-			"const vec4 bit_shift = vec4(1.0 / (256.0 * 256.0 * 256.0), 1.0 / (256.0 * 256.0), 1.0 / 256.0, 1.0);",
-			"float depth = dot(rgba_depth, bit_shift);",
-
-			"return depth;",
-		"}",
 // **********	
 
 		// pentagonal shape
@@ -170,6 +160,24 @@ THREE.DoFShader = {
 
 		// 	"return clamp(inorout, 0.0, 1.0);",
 		// "}",
+
+		// "float vignette() {",
+		
+		// 	"float dist = distance(vUv, vec2(0.5, 0.5));",
+		// 	"dist = smoothstep(vignout + (fstop/vignfade), vignin + (fstop / vignfade), dist);",
+
+		// 	"return clamp(dist,0.0,1.0);",
+		// "}",
+
+// **********
+		// RGBA depth	
+		"float unpackDepth(const in vec4 rgba_depth) {",
+
+			"const vec4 bit_shift = vec4(1.0 / (256.0 * 256.0 * 256.0), 1.0 / (256.0 * 256.0), 1.0 / 256.0, 1.0);",
+			"float depth = dot(rgba_depth, bit_shift);",
+
+			"return depth;",
+		"}",
 
 		// blurring depth
 		"float bdepth(vec2 coords) {",
@@ -210,16 +218,42 @@ THREE.DoFShader = {
 	
 			"vec3 col = vec3(0.0);",
 
-			"col.r = texture2D(tDiffuse,coords + vec2(0.0,1.0)*texel*fringe*blur).r;",
-			"col.g = texture2D(tDiffuse,coords + vec2(-0.866,-0.5)*texel*fringe*blur).g;",
-			"col.b = texture2D(tDiffuse,coords + vec2(0.866,-0.5)*texel*fringe*blur).b;",
+			"col.r = texture2D(tDiffuse, coords + vec2(0.0, 1.0) * texel * fringe * blur).r;",
+			"col.g = texture2D(tDiffuse, coords + vec2(-0.866, -0.5) * texel * fringe * blur).g;",
+			"col.b = texture2D(tDiffuse, coords + vec2(0.866, -0.5) * texel * fringe * blur).b;",
 
-			"vec3 lumcoeff = vec3(0.299,0.587,0.114);",
+			"vec3 lumcoeff = vec3(0.299, 0.587, 0.114);",
 			"float lum = dot(col.rgb, lumcoeff);",
-			"float thresh = max((lum-threshold)*gain, 0.0);",
+			"float thresh = max((lum - threshold) * gain, 0.0);",
 
-			"return col+mix(vec3(0.0),col,thresh*blur);",
+			"return col + mix(vec3(0.0), col, thresh * blur);",
 		"}",
+
+		"vec3 debugFocus(vec3 col, float blur, float depth) {",
+
+			// distance based edge smoothing
+			"float edge = 0.002 * depth;",
+			"float m = clamp(smoothstep(0.0, edge, blur), 0.0, 1.0);",
+			"float e = clamp(smoothstep(1.0 - edge, 1.0, blur), 0.0, 1.0);",
+
+			"col = mix(col, vec3(1.0, 0.5, 0.0), (1.0 - m) * 0.6);",
+			"col = mix(col, vec3(0.0, 0.5, 1.0), ((1.0 - e) - (1.0 - m)) * 0.2);",
+
+			"return col;",
+		"}",
+// **********		
+
+
+
+
+
+
+
+
+
+
+
+
 
 		// generating noise/pattern texture for dithering
 		"vec2 rand(vec2 coord) {",
@@ -236,26 +270,6 @@ THREE.DoFShader = {
 			"return vec2(noiseX,noiseY);",
 		"}",
 
-		"vec3 debugFocus(vec3 col, float blur, float depth) {",
-			// distance based edge smoothing"
-			"float edge = 0.002 * depth;",
-			"float m = clamp(smoothstep(0.0, edge, blur), 0.0, 1.0);",
-			"float e = clamp(smoothstep(1.0-edge, 1.0, blur), 0.0, 1.0);",
-
-			"col = mix(col, vec3(1.0, 0.5, 0.0), (1.0 - m) * 0.6);",
-			"col = mix(col, vec3(0.0, 0.5, 1.0), ((1.0 - e) - (1.0 - m)) * 0.2);",
-
-			"return col;",
-		"}",
-
-
-		"float vignette() {",
-		
-			"float dist = distance(vUv, vec2(0.5, 0.5));",
-			"dist = smoothstep(vignout + (fstop/vignfade), vignin + (fstop/vignfade), dist);",
-
-			"return clamp(dist,0.0,1.0);",
-		"}",
 
 
 
@@ -264,7 +278,7 @@ THREE.DoFShader = {
 
 
 
-// **********	
+// **********
 		"float linearize(float depth) {",
 
 			"return zfar * znear / (zfar - depth * (zfar - znear));",
@@ -299,7 +313,7 @@ THREE.DoFShader = {
 			
 				"float a = depth - fDepth;", // focal plane
 				"float b = (a - fdofstart) / fdofdist;", // far DoF
-				"float c = (- a - ndofstart) / ndofdist;", // near DoF
+				"float c = (-a - ndofstart) / ndofdist;", // near DoF
 
 				"blur = (a > 0.0) ? b : c;",
 			"} else {",
@@ -329,7 +343,6 @@ THREE.DoFShader = {
 			"vec2 noise = rand(vUv) * namount * blur;",
 
 			// getting blur x and y step factor
-
 			"float w = (1.0 / size.x) * blur * maxblur + noise.x;",
 			"float h = (1.0 / size.y) * blur * maxblur + noise.y;",
 
@@ -337,7 +350,7 @@ THREE.DoFShader = {
 
 
 // **********
-			// calculation of final color
+			// final color calculation
 			// {
 			"vec3 col = texture2D(tDiffuse, vUv).rgb;",
 			"if (blur > 0.05) {",
@@ -354,7 +367,7 @@ THREE.DoFShader = {
 						
 			 			"float float_j = float(j);",
 
-						"float step = PI * 2.0 / ringsamples;",
+						"float step = 2.0 * PI / ringsamples;",
 						"float pw = float_i * cos(float_j * step);",
 						"float ph = float_i * sin(float_j * step);",
 						
@@ -365,7 +378,7 @@ THREE.DoFShader = {
 						// "}",
 
 						"float m = p * mix(1.0, float_i / float(rings), bias);",
-						"col += color(vUv + vec2(pw * w, ph * h), blur) * m;",
+						"col += m * color(vUv + vec2(pw * w, ph * h), blur);",
 						"s += m;",
 
 						"if (j == 3 * (i + 1)) {",
@@ -381,21 +394,18 @@ THREE.DoFShader = {
 			// }
 // **********
 
-
-
-
-			// TODO:
 			"if (showFocus) {",
 			
 				"col = debugFocus(col, blur, depth);",
 			"}",
 
-			"if (vignetting) {",
+
+
+
+			// "if (vignetting) {",
 			
-				"col *= vignette();",
-			"}",
-
-
+			// 	"col *= vignette();",
+			// "}",
 
 
 

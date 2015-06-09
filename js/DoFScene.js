@@ -11,10 +11,13 @@ App.DoFScene = (function () {
 
 	function DoFScene () {
 
+		// ACM p.13
+		var aspectRatio = 2.35; // 1.85; 
 		this.canvasWidth = window.innerWidth;
-		this.canvasHeight = window.innerHeight;
+		this.canvasHeight = this.canvasWidth / aspectRatio;
+		this.canvasOffset = Math.max(0, 0.5 * (window.innerHeight - this.canvasHeight));
 
-		this.devicePixelRatio = window.devicePixelRatio || 1,
+		// this.devicePixelRatio = window.devicePixelRatio || 1,
 
         this.renderer = null;
         this.scene = null;
@@ -54,9 +57,7 @@ App.DoFScene = (function () {
 		privateMethods.initControls.call(this);
 
 		privateMethods.setUpScene.call(this);
-
 		privateMethods.setUpShaders.call(this);
-
 		privateMethods.setUpGui.call(this);
 
 		privateMethods.animate.call(this);
@@ -67,11 +68,14 @@ App.DoFScene = (function () {
 		this.renderer = new THREE.WebGLRenderer();
 		this.renderer.setSize(this.canvasWidth, this.canvasHeight);
 
+		document.body.style.background = "#000000";
 		var DoFCanvasParent = document.createElement("div");
 		DoFCanvasParent.appendChild(this.renderer.domElement);
 		document.body.appendChild(DoFCanvasParent);
+
 		DoFCanvasParent.style.position = "absolute";
 		DoFCanvasParent.style.width = this.canvasWidth + "px";
+		DoFCanvasParent.style.top = this.canvasOffset + "px";
 	};
 	privateMethods.initScene = function() {
 
@@ -111,8 +115,12 @@ App.DoFScene = (function () {
 
 		// create camera
 
-		// TODO:
-		this.camera = new THREE.PerspectiveCamera(0, this.canvasWidth / this.canvasHeight, 0.01, 100);
+		// fov is calculated and set in setLens based on fame size and focal length
+		var emptyFov = 0.;
+		var near = 0.01;
+		var far = 100;
+		this.camera = new THREE.PerspectiveCamera(emptyFov, this.canvasWidth / this.canvasHeight, near, far);
+
 		this.camera.focalLength = 45;
 		this.camera.frameSize = 32;
 		this.camera.setLens(this.camera.focalLength, this.camera.frameSize);
@@ -120,9 +128,6 @@ App.DoFScene = (function () {
 		var y = 0;
 		var z = 20;
 		this.camera.position.set(0, y, z);
-
-		// Warning! Don't set rotation!
-		// this.camera.rotation.x = - Math.atan(y / z);
 
 		this.scene.add(this.camera);
 	};
