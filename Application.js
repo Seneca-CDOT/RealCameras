@@ -29,14 +29,13 @@ var Application = (function () {
             // "SourceCode/shaders/BokehShader2.js",
 
             // "SourceCode/FirstScene.js",
-            "SourceCode/RealCameras.js",
-            "SourceCode/DoFScene.js"            
+            // "SourceCode/DoFScene.js",
+            "SourceCode/RealCameras.js"
         ],
 
         main: function() {
 
             privateStore.RealCameras = new Application.RealCameras();
-            // privateStore.DoFScene = new Application.DoFScene();
         }
     };
 

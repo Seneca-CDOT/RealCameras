@@ -154,8 +154,7 @@ Application.RealCameras = (function () {
 		this.postprocessing.composer = composer;
 		this.postprocessing.bokeh = bokehPass;
 
-		// mark - 
-
+		// TODO:
 		this.settings = {
 
 			focus: 		1.0,
@@ -351,7 +350,6 @@ Application.RealCameras = (function () {
 	// 	this.camera.updateProjectionMatrix();
 	// 	this.DoFMaterial.uniforms['focalLength'].value = this.camera.focalLength;
 	// };
-
 
 	privateMethods.animate = function () {
 
