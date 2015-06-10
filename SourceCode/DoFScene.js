@@ -1,13 +1,13 @@
 
-var App = App || {};
+var Application = Application || {};
 
-App.Screen = {};
-App.Screen.camera = new THREE.OrthographicCamera(-1, 1, 1, -1, 0, 1);
-App.Screen.scene = new THREE.Scene();
-App.Screen.quad = new THREE.Mesh(new THREE.PlaneBufferGeometry(2, 2), null);
-App.Screen.scene.add(App.Screen.quad);
+Application.Screen = {};
+Application.Screen.camera = new THREE.OrthographicCamera(-1, 1, 1, -1, 0, 1);
+Application.Screen.scene = new THREE.Scene();
+Application.Screen.quad = new THREE.Mesh(new THREE.PlaneBufferGeometry(2, 2), null);
+Application.Screen.scene.add(Application.Screen.quad);
 
-App.DoFScene = (function () {
+Application.DoFScene = (function () {
 
 	function DoFScene () {
 
@@ -84,7 +84,7 @@ App.DoFScene = (function () {
 		var that = this;
 
 		var loader = new THREE.ObjectLoader();
-		loader.load("resources/testscene.scene/testscene.json", function (scene) {
+		loader.load("Resources/testscene.scene/testscene.json", function (scene) {
 
 			var meshes = [];
 			for (var i = 0; i < scene.children.length; ++i) {
@@ -129,7 +129,7 @@ App.DoFScene = (function () {
 		var z = 20;
 		this.camera.position.set(0, y, z);
 
-		this.scene.add(this.camera);
+		// this.scene.add(this.camera);
 	};
 	privateMethods.initLight = function () {
 
@@ -155,7 +155,7 @@ App.DoFScene = (function () {
 		// create wall and ground
 		var geometry = new THREE.PlaneBufferGeometry(400, 40);
 
-		var texture = new THREE.ImageUtils.loadTexture("resources/checker.png");
+		var texture = new THREE.ImageUtils.loadTexture("Resources/checker.png");
 		texture.wrapS = THREE.RepeatWrapping;
 		texture.wrapT = THREE.RepeatWrapping;
 		texture.repeat.set(400, 40);
@@ -343,12 +343,10 @@ App.DoFScene = (function () {
 		this.renderer.render(this.scene, this.camera, this.diffuseRendererTarget);
 
 		// DoF map renderring
-		App.Screen.quad.material = this.DoFMaterial;
-		this.renderer.render(App.Screen.scene, App.Screen.camera);
-		App.Screen.quad.material = null;	
+		Application.Screen.quad.material = this.DoFMaterial;
+		this.renderer.render(Application.Screen.scene, Application.Screen.camera);
+		Application.Screen.quad.material = null;	
 	};
 
 	return DoFScene;
 })(); 
-
-var DoFScene = new App.DoFScene()
