@@ -21,6 +21,10 @@ Application.RealCameras = (function () {
 
         this.postprocessing = {};
         this.settings = null;
+
+        this.materialDepth = null;
+		this.renderTargetDepth = null;
+
         this.requestedAnimationFrameId = null;
 
         privateMethods.init.call(this);
@@ -28,7 +32,7 @@ Application.RealCameras = (function () {
 	// inherit interface if needed here ...
 	RealCameras.prototype.destroy = function () {
 
-		// TODO:
+// TODO:
 		if (this.requestedAnimationFrameId) {
 
             window.cancelAnimationFrame(this.requestedAnimationFrameId);
@@ -41,8 +45,10 @@ Application.RealCameras = (function () {
 
 		privateMethods.initRenderer.call(this);
 		privateMethods.initCamera.call(this);
-
 		privateMethods.initScene.call(this);
+
+		privateMethods.initPostprocessing.call(this);
+		privateMethods.setUpGui.call(this);
 
 		privateMethods.animate.call(this);
 	};
@@ -84,7 +90,7 @@ Application.RealCameras = (function () {
 
 		var that = this;
 		var loader = new THREE.ObjectLoader();
-		loader.load("Resources/testscene.scene/testscene.json", function (scene) {
+		loader.load("Resource/testscene.scene/testscene.json", function (scene) {
 
 			var meshes = [];
 			for (var i = 0; i < scene.children.length; ++i) {
@@ -111,17 +117,13 @@ Application.RealCameras = (function () {
 			}
 		});
 
-		// mark -
-
 		privateMethods.initLight.call(this);
 		privateMethods.initControls.call(this);
-		privateMethods.initPostprocessing.call(this);
-
 		privateMethods.setUpScene.call(this);
 	};
 	privateMethods.initLight = function () {
 
-		// TODO:
+// TODO:
 		this.light = new THREE.HemisphereLight(0xffDDDD, 0x000000, 0.6);
 	    this.light.position.set(0, 50, 0);
 
@@ -134,52 +136,12 @@ Application.RealCameras = (function () {
 
 		this.scene.add(this.controls.getObject());
 	};
-	privateMethods.initPostprocessing = function() {
-
-		var renderPass = new THREE.RenderPass(this.scene, this.camera);
-		var bokehPass = new THREE.BokehPass(this.scene, this.camera, {
-			focus: 		1.0,
-			aperture:	0.025,
-			maxblur:	1.0,
-
-			width: this.canvasWidth, 
-			height: this.canvasHeight
-		});
-		bokehPass.renderToScreen = true;
-
-		var composer = new THREE.EffectComposer(this.renderer);
-		composer.addPass(renderPass);
-		composer.addPass(bokehPass);
-
-		this.postprocessing.composer = composer;
-		this.postprocessing.bokeh = bokehPass;
-
-		// TODO:
-		this.settings = {
-
-			focus: 		1.0,
-			aperture:	0.025,
-			maxblur:	1.0
-		};
-		var gui = new dat.GUI();
-		gui.add(this.settings, "focus", 0.0, 3.0, 0.025 ).onChange(privateMethods.settingsUpdater.bind(this));
-		gui.add(this.settings, "aperture", 0.001, 0.2, 0.001 ).onChange(privateMethods.settingsUpdater.bind(this));
-		gui.add(this.settings, "maxblur", 0.0, 3.0, 0.025 ).onChange(privateMethods.settingsUpdater.bind(this));
-		gui.open();
-	};
-	privateMethods.settingsUpdater = function( ) {
-
-		this.postprocessing.bokeh.uniforms[ "focus" ].value = this.settings.focus;
-		this.postprocessing.bokeh.uniforms[ "aperture" ].value = this.settings.aperture;
-		this.postprocessing.bokeh.uniforms[ "maxblur" ].value = this.settings.maxblur;
-	};
-
 	privateMethods.setUpScene = function () {
 
 		// create wall and ground
 		var geometry = new THREE.PlaneBufferGeometry(400, 40);
 
-		var texture = new THREE.ImageUtils.loadTexture("Resources/checker.png");
+		var texture = new THREE.ImageUtils.loadTexture("Resource/checker.png");
 		texture.wrapS = THREE.RepeatWrapping;
 		texture.wrapT = THREE.RepeatWrapping;
 		texture.repeat.set(400, 40);
@@ -199,157 +161,218 @@ Application.RealCameras = (function () {
 		this.scene.add(plane);
 		this.scene.add(back);
 	};
+	privateMethods.initPostprocessing = function() {
 
+		this.postprocessing.composer = new THREE.EffectComposer(this.renderer);
 
-	// privateMethods.setUpShaders = function () {
+		// render pass
+		var renderPass = new THREE.RenderPass(this.scene, this.camera);
+		this.postprocessing.composer.addPass(renderPass);
 
-	// 	privateMethods.setUpDepthShader.call(this);
-	// 	privateMethods.setUpDoFShader.call(this);
-	// };
-	// privateMethods.setUpDepthShader = function () {
-
-	// 	// Note! The uniforms for this shader are constant. 
-	// 	// Hence, there is no need to recreate the material.
-	// 	var shader = THREE.ShaderLib["depthRGBA"];
-	// 	var uniforms = THREE.UniformsUtils.clone(shader.uniforms);
-	// 	this.depthMaterial = new THREE.ShaderMaterial({ 
-
-	// 		fragmentShader: shader.fragmentShader, 
-	// 		vertexShader: shader.vertexShader, 
-	// 		uniforms: uniforms 
-	// 	});
-	// 	this.depthMaterial.blending = THREE.NoBlending;
-
-	// 	// intermediate renderer targets
-	// 	this.depthRendererTarget = new THREE.WebGLRenderTarget(this.canvasWidth, this.canvasHeight, { 
-
-	// 		minFilter: THREE.NearestFilter, 
-	// 		magFilter: THREE.NearestFilter, 
-	// 		format: THREE.RGBAFormat 
-	// 	});
-
-	// 	this.diffuseRendererTarget = new THREE.WebGLRenderTarget(this.canvasWidth, this.canvasHeight, { 
-			
-	// 		minFilter: THREE.LinearFilter, 
-	// 		magFilter: THREE.LinearFilter, 
-	// 		format: THREE.RGBFormat, 
-	// 		stencilBuffer: false 
-	// 	});
-	// };
-	// privateMethods.setUpDoFShader = function () {
+// mark - 
 		
-	// 	// TODO:
-	// 	var shader = THREE.DoFShader;
-	// 	var uniforms = THREE.UniformsUtils.clone(shader.uniforms);
+		// this.settings = {
 
-	// 	uniforms[ 'tDiffuse' ].value = this.diffuseRendererTarget;
-	// 	uniforms[ 'tDepth' ].value = this.depthRendererTarget;
+		// 	focus: {
+		// 		value: 0.7,
+		// 		range: { begin: 0.0, end: 3.0, step: 0.025 } 	
+		// 	},
+		// 	aperture: {
+		// 		value: 0.033,
+		// 		range: { begin: 0.001, end: 0.2, step: 0.001 } 	
+		// 	},
+		// 	maxblur: {
+		// 		value: 1.0,
+		// 		range: { begin: 0.0, end: 3.0, step: 0.025 }
+		// 	},
+		// 	aspect: {
+		// 		value: this.camera.aspect,
+		// 	}, 
+		// };
+		// var bokehShader = THREE.BokehShader;
+		// var texutreId = "tColor";
 
-	// 	uniforms[ 'size' ].value.set(this.canvasWidth, this.canvasHeight);
-	// 	uniforms[ 'textel' ].value.set(1.0 / this.canvasWidth, 1.0 / this.canvasHeight);
+// mark - 
 
-	// 	//make sure that these two values are the same for your camera, otherwise distances will be wrong.
-	// 	uniforms[ 'znear' ].value = this.camera.near; // camera clipping start
-	// 	uniforms[ 'zfar' ].value = this.camera.far; // camera clipping end
+		this.settings = {
 
-	// 	uniforms[ 'focalDepth' ].value = 43; // focal distance value in meters, but you may use autofocus option below
-	// 	uniforms[ 'focalLength' ].value	= this.camera.focalLength; //focal length in mm
-	// 	uniforms[ 'fstop' ].value = 0.02; // f-stop value
-	// 	uniforms[ 'showFocus' ].value = false; //show debug focus point and focal range (orange = focal point, blue = focal range)
+			size: {
+				value: new THREE.Vector2(this.canvasWidth, this.canvasHeight)
+			},
+			textel: {
+				value: new THREE.Vector2(1.0 / this.canvasWidth, 1.0 / this.canvasHeight)
+			},
+			znear: {
+				value: this.camera.near
+			},
+			zfar: {
+				value: this.camera.far
+			},
+			focalDepth: {
+				value: 43,
+				range: { begin: 0.0, end: 100, step: 0.1 } 
+			},
+			focalLength: {
+				value: 45,
+				range: { begin: 28, end: 200, step: 1 }
+			},
+			fstop: {
+				value: 0.02,
+				range: { begin: 0.0, end: 2.0, step: 0.0001 }
+			},
+			showFocus: {
+				value: false,
+				show: true
+			},
+			manualdof: {
+				value: false
+			},
+			ndofstart: {
+				value: 1.0
+			},
+			ndofdist: {
+				value: 2.0
+			},
+			fdofstart: {
+				value: 2.0
+			},
+			fdofdist: {
+				value: 3.0
+			},
+			CoC: {
+				value: 0.03,
+				range: { begin: 0.0, end: 0.1, step: 0.001 }
+			},
+			vignetting: {
+				value: true
+			},
+			vignout: {
+				value: 1.3
+			},
+			vignin: {
+				value: 0.1
+			},
+			vignfade: {
+				value: 22.0
+			},
+			autofocus: {
+				value: false,
+				show: true
+			},
+			focus: {
+				value: new THREE.Vector2(0.5, 0.5)
+			},
+			maxblur: {
+				value: 2.0,
+				range: { begin: 0.0, end: 3.0, step: 0.025 }
+			},
+			threshold: {
+				value: 0.5
+			},
+			gain: {
+				value: 2.0
+			},
+			bias: {
+				value: 0.5
+			},
+			fringe: {
+				value: 3.7
+			},
+			noise: {
+				value: true
+			},
+			namount: {
+				value: 0.0001
+			},
+			depthblur: {
+				value: false
+			},
+			dbsize: {
+				value: 1.25
+			}				
+		};
+		var bokehShader = THREE.DoFShader;
+		var texutreId = "tDiffuse";
 
-	// 	uniforms[ 'manualdof' ].value = false; // manual dof calculation
-	// 	uniforms[ 'ndofstart' ].value = 1.0; // near dof blur start
-	// 	uniforms[ 'ndofdist' ].value = 2.0; // near dof blur falloff distance	
-	// 	uniforms[ 'fdofstart' ].value = 2.0; // far dof blur start
-	// 	uniforms[ 'fdofdist' ].value = 3.0; // far dof blur falloff distance	
+// mark -
+		
+// TODO:
+		var shader = THREE.ShaderLib["depthRGBA"];
+		var uniforms = THREE.UniformsUtils.clone(shader.uniforms);
+		this.materialDepth = new THREE.ShaderMaterial({ 
 
-	// 	uniforms[ 'CoC' ].value = 0.03; // circle of confusion size in mm (35mm film = 0.03mm)	
+			fragmentShader: shader.fragmentShader,
+			vertexShader: shader.vertexShader,
+			uniforms: uniforms
+		});
+		this.materialDepth.blending = THREE.NoBlending;
+		// this.materialDepth = new THREE.MeshDepthMaterial(); 
 
-	// 	uniforms[ 'vignetting' ].value = true; // use optical lens vignetting?
-	// 	uniforms[ 'vignout' ].value = 1.3; // vignetting outer border
-	// 	uniforms[ 'vignin' ].value = 0.1; // vignetting inner border
-	// 	uniforms[ 'vignfade' ].value = 22.0; // f-stops till vignete fades	
+		// intermediate renderer targets
+		this.renderTargetDepth = new THREE.WebGLRenderTarget(this.canvasWidth, this.canvasHeight, {
 
-	// 	uniforms[ 'autofocus' ].value = false; // use autofocus in shader? disable if you use external focalDepth value
-	// 	uniforms[ 'focus' ].value.set(0.5, 0.5); // autofocus point on screen (0.0, 0.0 - left lower corner, 1.0,1.0 - upper right) 
-	// 	uniforms[ 'maxblur' ].value = 2.0; // clamp value of max blur (0.0 = no blur,1.0 default)	
+			minFilter: THREE.NearestFilter,
+			magFilter: THREE.NearestFilter,
+			format: THREE.RGBAFormat
+		});
 
-	// 	uniforms[ 'threshold' ].value = 0.5; // highlight threshold;
-	// 	uniforms[ 'gain' ].value = 2.0; // highlight gain;
 
-	// 	uniforms[ 'bias' ].value = 0.5; // bokeh edge bias		
-	// 	uniforms[ 'fringe' ].value = 3.7; // bokeh chromatic aberration/fringing
+		// bokeh pass
+		var bokehPass = new THREE.ShaderPass(bokehShader, texutreId);
+		this.postprocessing.composer.addPass(bokehPass);
 
-	// 	uniforms[ 'noise' ].value = true; // use noise instead of pattern for sample dithering
-	// 	uniforms[ 'namount' ].value	= 0.0001; // dither amount
+		this.postprocessing.bokehPass = bokehPass;
+		this.postprocessing.bokehPass.renderToScreen = true;
 
-	// 	uniforms[ 'depthblur' ].value = false; // blur the depth buffer?
-	// 	uniforms[ 'dbsize' ].value  = 1.25; // depthblursize
+		var uniforms = this.postprocessing.bokehPass.uniforms;
+		uniforms[ "tDepth" ].value = this.renderTargetDepth;
 
-	// 	this.DoFMaterial = new THREE.ShaderMaterial({
+		// set initial values
+		privateMethods.settingsUpdater.call(this);
+	};
 
-	// 		vertexShader: shader.vertexShader,
-	// 		fragmentShader: shader.fragmentShader,
-	// 		uniforms: uniforms
-	// 	});
-	// };
+	privateMethods.setUpGui = function () {
 
-	// privateMethods.setUpGui = function () {
+		var gui = new dat.GUI();
+		for (var param in this.settings) {
+			if (this.settings.hasOwnProperty(param)) {
 
-	// 	var uniforms = this.DoFMaterial.uniforms;
+				if (this.settings[param].range !== undefined) {
 
-	// 	var gui = new dat.GUI();
-	// 	var cameraFolder = gui.addFolder('Camera');
-	// 	var cameraFocalLengthFolder = cameraFolder.add(this.camera, 'focalLength', 28, 200).name('Focal Length');
-	// 	cameraFocalLengthFolder.onChange(privateMethods.updateCamera.bind(this));
+					var begin = this.settings[param].range.begin;
+					var end = this.settings[param].range.end;
+					var step = this.settings[param].range.step;
 
-	// 	cameraFolder.open();
+					gui.add(this.settings[param], "value", begin, end, step).name(param)
+					.onChange(privateMethods.settingsUpdater.bind(this));
+				} else if (this.settings[param].show !== undefined && this.settings[param].show === true) {
 
-	// 	var DoFFolder = gui.addFolder('DoF');
+					gui.add(this.settings[param], "value").name(param)
+					.onChange(privateMethods.settingsUpdater.bind(this));
+				}
+			}
+		}
+		gui.open();
 
-	// 	DoFFolder.add(uniforms.focalDepth, 'value', 0, 100).name('Focal Depth');
-	// 	DoFFolder.add(uniforms.fstop, 'value', 0, 2.0).step(0.0001).name('F - Stop');
-	// 	DoFFolder.add(uniforms.maxblur, 'value', 0, 3).name('Max Blur');
+	};
+	privateMethods.settingsUpdater = function () {
 
-	// 	DoFFolder.add(uniforms.showFocus, 'value').name('Show Focal Range');
+// TODO:
+		if (this.settings["focalLength"] !== undefined) {
 
-	// 	// DoFFolder.add(uniforms.manualdof, 'value').name('Manual DoF');
-	// 	// DoFFolder.add(uniforms.ndofstart, 'value', 0, 200).name('near start');
-	// 	// DoFFolder.add(uniforms.ndofdist, 'value', 0, 200).name('near falloff');
-	// 	// DoFFolder.add(uniforms.fdofstart, 'value', 0, 200).name('far start');
-	// 	// DoFFolder.add(uniforms.fdofdist, 'value', 0, 200).name('far falloff');
+			this.camera.focalLength = this.settings["focalLength"].value;
+			this.camera.setLens(this.camera.focalLength, this.camera.frameSize);
+			this.camera.updateProjectionMatrix();
+		}
+	
+		for (var param in this.settings) {
+			if (this.settings.hasOwnProperty(param)) {
 
-	// 	DoFFolder.add(uniforms.CoC, 'value', 0, 0.1).step(0.001).name('CoC');
+				this.postprocessing.bokehPass.uniforms[param].value = this.settings[param].value;
+			}
+		}
+	};
 
-	// 	// DoFFolder.add(uniforms.vignetting, 'value').name('Vignetting');
-	// 	// DoFFolder.add(uniforms.vignout, 'value', 0, 2).name('outer border');
-	// 	// DoFFolder.add(uniforms.vignin, 'value', 0, 1).step(0.01).name('inner border');
-	// 	// DoFFolder.add(uniforms.vignfade, 'value', 0, 22).name('fade at');
-
-	// 	DoFFolder.add(uniforms.autofocus, 'value').name('Autofocus');
-	// 	DoFFolder.add(uniforms.focus.value, 'x', 0, 1).name('Focus - x');
-	// 	DoFFolder.add(uniforms.focus.value, 'y', 0, 1).name('Focus - y');
-
-	// 	// DoFFolder.add(uniforms.threshold, 'value', 0, 1).step(0.01).name('threshold');
-	// 	// DoFFolder.add(uniforms.gain, 'value', 0, 100).name('gain');
-
-	// 	// DoFFolder.add(uniforms.bias, 'value', 0, 4).step(0.01).name('bias');
-	// 	// DoFFolder.add(uniforms.fringe, 'value', 0, 5).step(0.01).name('fringe');
-
-	// 	// DoFFolder.add(uniforms.noise, 'value').name('Use Noise');
-	// 	// DoFFolder.add(uniforms.namount, 'value', 0, 0.001).step(0.0001).name('dither');
-
-	// 	// DoFFolder.add(uniforms.depthblur, 'value').name('Blur Depth');
-	// 	// DoFFolder.add(uniforms.dbsize, 'value', 0, 5).name('blur size');
-
-	// 	DoFFolder.open();
-	// };
-	// privateMethods.updateCamera = function () {
-
-	// 	this.camera.setLens(this.camera.focalLength, this.camera.frameSize);
-	// 	this.camera.updateProjectionMatrix();
-	// 	this.DoFMaterial.uniforms['focalLength'].value = this.camera.focalLength;
-	// };
 
 	privateMethods.animate = function () {
 
@@ -358,8 +381,42 @@ Application.RealCameras = (function () {
 	};
 	privateMethods.render = function () {
 
-		this.postprocessing.composer.render( 0.1 );
+		// depth into texture rendering
+		this.scene.overrideMaterial = this.materialDepth;
+		this.renderer.render(this.scene, this.camera, this.renderTargetDepth);
+		this.scene.overrideMaterial = null;
+
+		// final rendering
+		this.postprocessing.composer.render(0.1);
 	};
 
 	return RealCameras;
 })(); 
+
+// DoFFolder.add(uniforms.manualdof, 'value').name('Manual DoF');
+// DoFFolder.add(uniforms.ndofstart, 'value', 0, 200).name('near start');
+// DoFFolder.add(uniforms.ndofdist, 'value', 0, 200).name('near falloff');
+// DoFFolder.add(uniforms.fdofstart, 'value', 0, 200).name('far start');
+// DoFFolder.add(uniforms.fdofdist, 'value', 0, 200).name('far falloff');
+
+// DoFFolder.add(uniforms.vignetting, 'value').name('Vignetting');
+// DoFFolder.add(uniforms.vignout, 'value', 0, 2).name('outer border');
+// DoFFolder.add(uniforms.vignin, 'value', 0, 1).step(0.01).name('inner border');
+// DoFFolder.add(uniforms.vignfade, 'value', 0, 22).name('fade at');
+
+
+// DoFFolder.add(uniforms.focus.value, 'x', 0.0, 1.0, 0.01).name('Focus - x');
+// DoFFolder.add(uniforms.focus.value, 'y', 0.0, 1.0, 0.01).name('Focus - y');
+
+// DoFFolder.add(uniforms.threshold, 'value', 0, 1).step(0.01).name('threshold');
+// DoFFolder.add(uniforms.gain, 'value', 0, 100).name('gain');
+
+// DoFFolder.add(uniforms.bias, 'value', 0, 4).step(0.01).name('bias');
+// DoFFolder.add(uniforms.fringe, 'value', 0, 5).step(0.01).name('fringe');
+
+// DoFFolder.add(uniforms.noise, 'value').name('Use Noise');
+// DoFFolder.add(uniforms.namount, 'value', 0, 0.001).step(0.0001).name('dither');
+
+// DoFFolder.add(uniforms.depthblur, 'value').name('Blur Depth');
+// DoFFolder.add(uniforms.dbsize, 'value', 0, 5).name('blur size');
+

@@ -84,7 +84,7 @@ Application.DoFScene = (function () {
 		var that = this;
 
 		var loader = new THREE.ObjectLoader();
-		loader.load("Resources/testscene.scene/testscene.json", function (scene) {
+		loader.load("Resource/testscene.scene/testscene.json", function (scene) {
 
 			var meshes = [];
 			for (var i = 0; i < scene.children.length; ++i) {
@@ -155,7 +155,7 @@ Application.DoFScene = (function () {
 		// create wall and ground
 		var geometry = new THREE.PlaneBufferGeometry(400, 40);
 
-		var texture = new THREE.ImageUtils.loadTexture("Resources/checker.png");
+		var texture = new THREE.ImageUtils.loadTexture("Resource/checker.png");
 		texture.wrapS = THREE.RepeatWrapping;
 		texture.wrapT = THREE.RepeatWrapping;
 		texture.repeat.set(400, 40);

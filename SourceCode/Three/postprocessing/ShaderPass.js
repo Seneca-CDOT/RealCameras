@@ -5,9 +5,7 @@
 THREE.ShaderPass = function ( shader, textureID ) {
 
 	this.textureID = ( textureID !== undefined ) ? textureID : "tDiffuse";
-
 	this.uniforms = THREE.UniformsUtils.clone( shader.uniforms );
-
 	this.material = new THREE.ShaderMaterial( {
 
         	defines: shader.defines || {},
@@ -39,7 +37,6 @@ THREE.ShaderPass.prototype = {
 		if ( this.uniforms[ this.textureID ] ) {
 
 			this.uniforms[ this.textureID ].value = readBuffer;
-
 		}
 
 		this.quad.material = this.material;
@@ -51,7 +48,6 @@ THREE.ShaderPass.prototype = {
 		} else {
 
 			renderer.render( this.scene, this.camera, writeBuffer, this.clear );
-
 		}
 
 	}

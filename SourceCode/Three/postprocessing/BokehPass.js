@@ -73,28 +73,19 @@ THREE.BokehPass.prototype = {
 		this.quad2.material = this.materialBokeh;
 
 		// Render depth into texture
-
 		this.scene.overrideMaterial = this.materialDepth;
-
 		renderer.render( this.scene, this.camera, this.renderTargetDepth, true );
+		this.scene.overrideMaterial = null;
 
 		// Render bokeh composite
-
 		this.uniforms[ "tColor" ].value = readBuffer;
-
 		if ( this.renderToScreen ) {
 
 			renderer.render( this.scene2, this.camera2 );
-
 		} else {
 
 			renderer.render( this.scene2, this.camera2, writeBuffer, this.clear );
-
 		}
-
-		this.scene.overrideMaterial = null;
-
 	}
-
 };
 
