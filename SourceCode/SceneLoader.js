@@ -3,12 +3,8 @@ var Application = Application || {};
 
 Application.SceneLoader = (function () {
 
-	function SceneLoader () {
-	};
-	// inherit interface if needed here ...
-	SceneLoader.prototype.destroy = function () {
-	};
-	SceneLoader.prototype.loadScene = function (path) {
+	var privateMethods = {};
+	privateMethods.loadScene = function (path) {
 
 		var that = this;
 		return new Promise(function (resolve, reject) {
@@ -37,49 +33,96 @@ Application.SceneLoader = (function () {
 					}
 				}
 
+				var a = -15;
+				var b = 15;
 				for (var i = 0; i < meshes.length; ++i) {
 
 					var mesh = meshes[i];
 					scene.remove(mesh);
-
-					// TODO:				
-					mesh.position.x = i * 10;
-					mesh.position.z = 0;
-					mesh.rotation.y = - 0.25 * Math.PI;
+	
+					mesh.position.x = a + (b - a) * Math.random();
+					mesh.position.z = -30 - (i * 10);
+					mesh.rotation.y = (Math.random() - 0.5) * Math.PI;
 				}
 
-				privateMethods.setUpScene.call(that, meshes);
-				resolve(meshes);
+				privateMethods.setUpScene.call(that, meshes).then(function (meshes) {
+					resolve(meshes);
+				});
 			});
 		});	
 	};
-
-	var privateMethods = Object.create(SceneLoader.prototype);
 	privateMethods.setUpScene = function (meshes) {
 
-		// create wall and ground
-		var geometry = new THREE.PlaneBufferGeometry(400, 40);
+		return new Promise(function (resolve, reject) {
+			// create wall and ground
+			var texture = new THREE.ImageUtils.loadTexture("Resource/checker.png", undefined, function() {
 
-		var texture = new THREE.ImageUtils.loadTexture("Resource/checker.png");
-		texture.wrapS = THREE.RepeatWrapping;
-		texture.wrapT = THREE.RepeatWrapping;
-		texture.repeat.set(400, 40);
-		var material = new THREE.MeshLambertMaterial({
-			map: texture
+				var textureBack = texture.clone();
+
+// mark -
+
+				var geometry = new THREE.PlaneBufferGeometry(40, 1000);
+
+				texture.wrapS = THREE.RepeatWrapping;
+				texture.wrapT = THREE.RepeatWrapping;
+				texture.repeat.set(40, 1000);
+				var material = new THREE.MeshLambertMaterial({
+					map: texture
+				});
+
+				// ground
+				var ground = new THREE.Mesh(geometry, material);
+				ground.rotation.x = -0.5 * Math.PI;
+				ground.position.set(0, 0, -480);
+
+				//wall
+				var left = new THREE.Mesh(geometry, material);
+				left.rotation.x = -0.5 * Math.PI;
+				left.rotation.y = 0.5 * Math.PI;
+				left.position.set(-20, 20, -480);
+
+				//wall
+				var right = new THREE.Mesh(geometry, material);
+				right.rotation.x = -0.5 * Math.PI;
+				right.rotation.y = -0.5 * Math.PI;
+				right.position.set(20, 20, -480);
+
+				// var ceiling = new THREE.Mesh(geometry, material);
+				// ceiling.rotation.x = 0.5 * Math.PI;
+				// ceiling.position.set(0, 40, -480);
+
+// mark -
+
+				var geometryBack = new THREE.PlaneBufferGeometry(40, 40);
+
+				textureBack.needsUpdate = true;
+				textureBack.wrapS = THREE.RepeatWrapping;
+				textureBack.wrapT = THREE.RepeatWrapping;
+				textureBack.repeat.set(40, 40);
+				var materialBack = new THREE.MeshLambertMaterial({
+					map: textureBack
+				});
+
+				//wall
+				var back = new THREE.Mesh(geometryBack, materialBack);
+				back.rotation.x = -Math.PI;
+				back.position.set(0, 20, 20);
+
+// mark -
+				
+				//add to scene
+				meshes.push(ground);
+				meshes.push(left);
+				meshes.push(right);
+				// meshes.push(ceiling);
+				meshes.push(back);
+
+				resolve(meshes);
+			});
 		});
-
-		//ground
-		var plane = new THREE.Mesh(geometry, material);
-		plane.rotation.x = - 0.5 * Math.PI;
-
-		//wall
-		var back = new THREE.Mesh(geometry,material);
-		back.position.set(0, 20, -20);
-		
-		//add to scene
-		meshes.push(plane);
-		meshes.push(back);
 	};
 	
-	return SceneLoader;
+	return {
+		loadScene: privateMethods.loadScene
+	};
 })(); 

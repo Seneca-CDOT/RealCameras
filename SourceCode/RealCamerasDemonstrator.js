@@ -1,14 +1,14 @@
 
 var Application = Application || {};
 
-Application.RealCameras = (function () {
+Application.RealCamerasDemonstrator = (function () {
 
-	function RealCameras () {
+	function RealCamerasDemonstrator () {
 
 		// ACM p.13
-		var aspectRatio = 2.35; // 1.85; 
+		var aspect = 2.35; // 1.85; 
 		this.canvasWidth = window.innerWidth;
-		this.canvasHeight = this.canvasWidth / aspectRatio;
+		this.canvasHeight = this.canvasWidth / aspect;
 		this.canvasOffset = Math.max(0, 0.5 * (window.innerHeight - this.canvasHeight));
 
 		// this.devicePixelRatio = window.devicePixelRatio || 1,
@@ -30,7 +30,7 @@ Application.RealCameras = (function () {
         privateMethods.init.call(this);
 	};
 	// inherit interface if needed here ...
-	RealCameras.prototype.destroy = function () {
+	RealCamerasDemonstrator.prototype.destroy = function () {
 
 // TODO:
 		if (this.requestedAnimationFrameId) {
@@ -40,21 +40,23 @@ Application.RealCameras = (function () {
         }
 	};
 
-	RealCameras.prototype.setUpScene = function (meshes) {
+	RealCamerasDemonstrator.prototype.setUpScene = function (meshes) {
 
 		for (var i = 0; i < meshes.length; ++i) {
 
 			var mesh = meshes[i];
+			// [.WebGLRenderingContext-0x7ffddb4584f0]GL ERROR :GL_INVALID_VALUE : LineWidth: width out of range
+			// Application.Debuger.addAxes(mesh);
 			this.scene.add(mesh);
 		}
 	};
 
-	var privateMethods = Object.create(RealCameras.prototype);
+	var privateMethods = Object.create(RealCamerasDemonstrator.prototype);
 	privateMethods.init = function(){
 
 		privateMethods.initRenderer.call(this);
-		privateMethods.initCamera.call(this);
 		privateMethods.initScene.call(this);
+		privateMethods.initCamera.call(this);
 
 		privateMethods.initPostprocessing.call(this);
 		privateMethods.setUpGui.call(this);
@@ -67,7 +69,6 @@ Application.RealCameras = (function () {
 		this.renderer = new THREE.WebGLRenderer();
 		this.renderer.setSize(this.canvasWidth, this.canvasHeight);
 
-		document.body.style.background = "#000000";
 		var DoFCanvasParent = document.createElement("div");
 		DoFCanvasParent.appendChild(this.renderer.domElement);
 		document.body.appendChild(DoFCanvasParent);
@@ -81,30 +82,52 @@ Application.RealCameras = (function () {
 		// fov is calculated and set in setLens based on fame size and focal length
 		var emptyFov = 0.;
 		var near = 0.01;
-		var far = 100;
+		var far = 1000;
 		this.camera = new THREE.PerspectiveCamera(emptyFov, this.canvasWidth / this.canvasHeight, near, far);
 
 		this.camera.focalLength = 45;
 		this.camera.frameSize = 32;
 		this.camera.setLens(this.camera.focalLength, this.camera.frameSize);
 
-		var y = 0;
-		var z = 20;
-		this.camera.position.set(0, y, z);
+		this.camera.position.set(0, 0, 0);
+		this.camera.rotation.set(0, 0, 0);
+		privateMethods.initControls.call(this);	
 	};
 
 	privateMethods.initScene = function() {
 
 		this.scene = new THREE.Scene();
-
 		privateMethods.initLight.call(this);
-		privateMethods.initControls.call(this);
 	};
 	privateMethods.initLight = function () {
 
 // TODO:
+		// var dirLight = new THREE.DirectionalLight(0xffffff, 0.5);
+		// dirLight.color.setHSL(0.1, 1, 0.95);
+		// dirLight.position.set(0, 1.75, 1);
+		// dirLight.position.multiplyScalar(50);
+
+		// // dirLight.castShadow = true;
+
+		// // dirLight.shadowMapWidth = 2048;
+		// // dirLight.shadowMapHeight = 2048;
+
+		// // var d = 10;
+
+		// // dirLight.shadowCameraLeft = -d;
+		// // dirLight.shadowCameraRight = d;
+		// // dirLight.shadowCameraTop = d;
+		// // dirLight.shadowCameraBottom = -d;
+
+		// // dirLight.shadowCameraFar = 3500;
+		// // dirLight.shadowBias = -0.0001;
+		// // dirLight.shadowDarkness = 0.35;
+		// // dirLight.shadowCameraVisible = true;
+		
+		// this.light = dirLight
+
 		this.light = new THREE.HemisphereLight(0xffDDDD, 0x000000, 0.6);
-	    this.light.position.set(0, 50, 0);
+		this.light.position.set(0, 40, 0);
 
 	    this.scene.add(this.light);
 	};
@@ -125,142 +148,15 @@ Application.RealCameras = (function () {
 
 // mark - 
 		
-		// this.settings = {
+		var shaderId = "id";
+		var configuration = Application.ShaderConfigurator.configuration(shaderId);			
 
-		// 	focus: {
-		// 		value: 0.7,
-		// 		range: { begin: 0.0, end: 3.0, step: 0.025 } 	
-		// 	},
-		// 	aperture: {
-		// 		value: 0.033,
-		// 		range: { begin: 0.001, end: 0.2, step: 0.001 } 	
-		// 	},
-		// 	maxblur: {
-		// 		value: 1.0,
-		// 		range: { begin: 0.0, end: 3.0, step: 0.025 }
-		// 	},
-		// 	aspect: {
-		// 		value: this.camera.aspect,
-		// 	}, 
-		// };
-		// var bokehShader = THREE.BokehShader;
-		// var texutreId = "tColor";
-
-// mark - 
-
-		this.settings = {
-
-			size: {
-				value: new THREE.Vector2(this.canvasWidth, this.canvasHeight)
-			},
-			textel: {
-				value: new THREE.Vector2(1.0 / this.canvasWidth, 1.0 / this.canvasHeight)
-			},
-			znear: {
-				value: this.camera.near
-			},
-			zfar: {
-				value: this.camera.far
-			},
-			focalDepth: {
-				value: 43,
-				range: { begin: 0.0, end: 100, step: 0.1 } 
-			},
-			focalLength: {
-				value: 45,
-				range: { begin: 28, end: 200, step: 1 }
-			},
-			fstop: {
-				value: 0.02,
-				range: { begin: 0.0, end: 2.0, step: 0.0001 }
-			},
-			showFocus: {
-				value: false,
-				show: true
-			},
-			manualdof: {
-				value: false
-			},
-			ndofstart: {
-				value: 1.0
-			},
-			ndofdist: {
-				value: 2.0
-			},
-			fdofstart: {
-				value: 2.0
-			},
-			fdofdist: {
-				value: 3.0
-			},
-			CoC: {
-				value: 0.03,
-				range: { begin: 0.0, end: 0.1, step: 0.001 }
-			},
-			vignetting: {
-				value: true
-			},
-			vignout: {
-				value: 1.3
-			},
-			vignin: {
-				value: 0.1
-			},
-			vignfade: {
-				value: 22.0
-			},
-			autofocus: {
-				value: false,
-				show: true
-			},
-			focus: {
-				value: new THREE.Vector2(0.5, 0.5)
-			},
-			maxblur: {
-				value: 2.0,
-				range: { begin: 0.0, end: 3.0, step: 0.025 }
-			},
-			threshold: {
-				value: 0.5
-			},
-			gain: {
-				value: 2.0
-			},
-			bias: {
-				value: 0.5
-			},
-			fringe: {
-				value: 3.7
-			},
-			noise: {
-				value: true
-			},
-			namount: {
-				value: 0.0001
-			},
-			depthblur: {
-				value: false
-			},
-			dbsize: {
-				value: 1.25
-			}				
-		};
-		var bokehShader = THREE.DoFShader;
-		var texutreId = "tDiffuse";
+		var shader = configuration.shader;
+		var textureId = configuration.textureId;
+		this.settings = configuration.settings;
+		this.materialDepth = configuration.material;
 
 // mark -
-		
-// TODO:
-		var shader = THREE.ShaderLib["depthRGBA"];
-		var uniforms = THREE.UniformsUtils.clone(shader.uniforms);
-		this.materialDepth = new THREE.ShaderMaterial({ 
-
-			fragmentShader: shader.fragmentShader,
-			vertexShader: shader.vertexShader,
-			uniforms: uniforms
-		});
-		this.materialDepth.blending = THREE.NoBlending;
-		// this.materialDepth = new THREE.MeshDepthMaterial(); 
 
 		// intermediate renderer targets
 		this.renderTargetDepth = new THREE.WebGLRenderTarget(this.canvasWidth, this.canvasHeight, {
@@ -271,7 +167,7 @@ Application.RealCameras = (function () {
 		});
 
 		// bokeh pass
-		var bokehPass = new THREE.ShaderPass(bokehShader, texutreId);
+		var bokehPass = new THREE.ShaderPass(shader, textureId);
 		this.postprocessing.composer.addPass(bokehPass);
 
 		this.postprocessing.bokehPass = bokehPass;
@@ -341,7 +237,7 @@ Application.RealCameras = (function () {
 		this.postprocessing.composer.render(0.1);
 	};
 
-	return RealCameras;
+	return RealCamerasDemonstrator;
 })(); 
 
 // DoFFolder.add(uniforms.manualdof, 'value').name('Manual DoF');
