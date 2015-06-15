@@ -306,7 +306,6 @@ Application.RealCameras = (function () {
 			}
 		}
 		gui.open();
-
 	};
 	privateMethods.settingsUpdater = function () {
 

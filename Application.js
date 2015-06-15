@@ -19,14 +19,14 @@ var Application = (function () {
             // "SourceCode/Three/postprocessing/GlitchPass.js",
             // "SourceCode/Three/postprocessing/TexturePass.js",
 
-            "SourceCode/Three/shaders/CopyShader.js",
-            // "SourceCode/Three/shaders/DOFMipMapShader.js",
+            "SourceCode/Three/Shaders/CopyShader.js",
+            // "SourceCode/Three/Shaders/DOFMipMapShader.js",
 
             "SourceCode/Controls/PointerLockControls.js",
 
-            "SourceCode/shaders/DoFShader.js",
-            "SourceCode/shaders/BokehShader.js",
-            // "SourceCode/shaders/BokehShader2.js",
+            "SourceCode/Shader/DoFShader.js",
+            "SourceCode/Shader/BokehShader.js",
+            // "SourceCode/Shader/BokehShader2.js",
 
             "SourceCode/RealCameras.js",
             "SourceCode/SceneLoader.js"
@@ -34,13 +34,13 @@ var Application = (function () {
 
         main: function() {
 
-            privateStore.RealCameras = new Application.RealCameras();
+            privateStore.realCameras = new Application.RealCameras();
 
             var path = "Resource/testscene.scene/testscene.json";
             var sceneLoader = new Application.SceneLoader();
             sceneLoader.loadScene(path).then(function (meshes) {
 
-                privateStore.RealCameras.setUpScene(meshes);
+                privateStore.realCameras.setUpScene(meshes);
                 sceneLoader.destroy();
             });
         }
