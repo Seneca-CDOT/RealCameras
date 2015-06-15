@@ -21,7 +21,7 @@ var Application = (function () {
             // "SourceCode/Three/postprocessing/GlitchPass.js",
             // "SourceCode/Three/postprocessing/TexturePass.js",
 
-            "SourceCode/Three/Shaders/CopyShader.js",
+            "SourceCode/Three/shaders/CopyShader.js",
             // "SourceCode/Three/Shaders/DOFMipMapShader.js",
 
 // mark -
