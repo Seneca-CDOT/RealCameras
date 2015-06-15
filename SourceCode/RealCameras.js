@@ -40,6 +40,15 @@ Application.RealCameras = (function () {
         }
 	};
 
+	RealCameras.prototype.setUpScene = function (meshes) {
+
+		for (var i = 0; i < meshes.length; ++i) {
+
+			var mesh = meshes[i];
+			this.scene.add(mesh);
+		}
+	};
+
 	var privateMethods = Object.create(RealCameras.prototype);
 	privateMethods.init = function(){
 
@@ -88,38 +97,8 @@ Application.RealCameras = (function () {
 
 		this.scene = new THREE.Scene();
 
-		var that = this;
-		var loader = new THREE.ObjectLoader();
-		loader.load("Resource/testscene.scene/testscene.json", function (scene) {
-
-			var meshes = [];
-			for (var i = 0; i < scene.children.length; ++i) {
-
-				var mesh = scene.children[i];
-				if (mesh instanceof THREE.Mesh) {
-
-					meshes.push(mesh);
-				} else if (mesh instanceof THREE.PerspectiveCamera) {
-
-					// do nothing
-				}
-			}
-
-			for (var i = 0; i < meshes.length; ++i) {
-
-				var mesh = meshes[i];
-				scene.remove(mesh);
-				that.scene.add(mesh);
-
-				mesh.position.x = i * 10;
-				mesh.position.z = 0;
-				mesh.rotation.y = - 0.25 * Math.PI;
-			}
-		});
-
 		privateMethods.initLight.call(this);
 		privateMethods.initControls.call(this);
-		privateMethods.setUpScene.call(this);
 	};
 	privateMethods.initLight = function () {
 
@@ -135,31 +114,6 @@ Application.RealCameras = (function () {
 		this.controls.enabled = true;
 
 		this.scene.add(this.controls.getObject());
-	};
-	privateMethods.setUpScene = function () {
-
-		// create wall and ground
-		var geometry = new THREE.PlaneBufferGeometry(400, 40);
-
-		var texture = new THREE.ImageUtils.loadTexture("Resource/checker.png");
-		texture.wrapS = THREE.RepeatWrapping;
-		texture.wrapT = THREE.RepeatWrapping;
-		texture.repeat.set(400, 40);
-		var material = new THREE.MeshLambertMaterial({
-			map: texture
-		});
-
-		//ground
-		var plane = new THREE.Mesh(geometry, material);
-		plane.rotation.x = - 0.5 * Math.PI;
-
-		//wall
-		var back = new THREE.Mesh(geometry,material);
-		back.position.set(0, 20, -20);
-		
-		//add to scene
-		this.scene.add(plane);
-		this.scene.add(back);
 	};
 	privateMethods.initPostprocessing = function() {
 
@@ -316,7 +270,6 @@ Application.RealCameras = (function () {
 			format: THREE.RGBAFormat
 		});
 
-
 		// bokeh pass
 		var bokehPass = new THREE.ShaderPass(bokehShader, texutreId);
 		this.postprocessing.composer.addPass(bokehPass);
@@ -372,7 +325,6 @@ Application.RealCameras = (function () {
 			}
 		}
 	};
-
 
 	privateMethods.animate = function () {
 

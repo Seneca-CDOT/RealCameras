@@ -28,18 +28,23 @@ var Application = (function () {
             "SourceCode/shaders/BokehShader.js",
             // "SourceCode/shaders/BokehShader2.js",
 
-            // "SourceCode/FirstScene.js",
-            "SourceCode/DoFScene.js",
-            "SourceCode/RealCameras.js"
+            "SourceCode/RealCameras.js",
+            "SourceCode/SceneLoader.js"
         ],
 
         main: function() {
 
             privateStore.RealCameras = new Application.RealCameras();
-            // privateStore.RealCameras = new Application.DoFScene();
+
+            var path = "Resource/testscene.scene/testscene.json";
+            var sceneLoader = new Application.SceneLoader();
+            sceneLoader.loadScene(path).then(function (meshes) {
+
+                privateStore.RealCameras.setUpScene(meshes);
+                sceneLoader.destroy();
+            });
         }
     };
-
 })();
 
 require(Application.files, function() {
