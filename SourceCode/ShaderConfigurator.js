@@ -3,15 +3,18 @@ var Application = Application || {};
 
 Application.ShaderConfigurator = (function () {
 
+// TODO:
+	// ACM p.13
+	var aspect = 2.35; // 1.85; 
+
 	var privateMethods = {};
 	privateMethods.configuration = function (shaderId) {
 
-		// return privateMethods.bokehShaderConfiguration.call(this);
-		return privateMethods.dofShaderConfiguration.call(this);
+		return privateMethods.bokehShaderConfiguration.call(this);
+		// return privateMethods.dofShaderConfiguration.call(this);
 	};
 	privateMethods.dofShaderConfiguration = function () {
-
-		var aspect = 2.35; // 1.85; 
+ 
 		var canvasWidth = window.innerWidth;
 		var canvasHeight = canvasWidth / aspect;
 
@@ -22,19 +25,15 @@ Application.ShaderConfigurator = (function () {
 
 			size: {
 				value: new THREE.Vector2(canvasWidth, canvasHeight) 
-				// new THREE.Vector2(this.canvasWidth, this.canvasHeight)
 			},
 			textel: {
 				value: new THREE.Vector2(1.0 / canvasWidth, 1.0 / canvasHeight) 
-				// new THREE.Vector2(1.0 / this.canvasWidth, 1.0 / this.canvasHeight)
 			},
 			znear: {
 				value: near 
-				// this.camera.near
 			},
 			zfar: {
-				value: far 
-				// this.camera.far
+				value: far
 			},
 			focalDepth: {
 				value: 43,
@@ -134,12 +133,29 @@ Application.ShaderConfigurator = (function () {
 			shader: THREE.DoFShader,
 			textureId: "tDiffuse",
 			settings: settings,
-			material: material 
+			material: material,
+			update: function (camera) {
+
+// TODO:
+				// size: {
+				// 	value: new THREE.Vector2(canvasWidth, canvasHeight) 
+				// 	// new THREE.Vector2(this.canvasWidth, this.canvasHeight)
+				// },
+				// textel: {
+				// 	value: new THREE.Vector2(1.0 / canvasWidth, 1.0 / canvasHeight) 
+				// 	// new THREE.Vector2(1.0 / this.canvasWidth, 1.0 / this.canvasHeight)
+				// },
+
+				camera.near = this.settings.znear.value;
+				camera.far = this.settings.zfar.value;
+
+				camera.focalLength = this.settings.focalLength.value;
+				camera.setLens(camera.focalLength, camera.frameSize);
+				camera.updateProjectionMatrix();
+			}
 		};	
 	};
 	privateMethods.bokehShaderConfiguration = function () {
-
-		var aspect = 2.35;
 
 		var settings = {
 
@@ -156,9 +172,8 @@ Application.ShaderConfigurator = (function () {
 				range: {begin: 0.0, end: 3.0, step: 0.025}
 			},
 			aspect: {
-				value: aspect 
-				// this.camera.aspect
-			},
+				value: aspect
+			}
 		};
 		var material = new THREE.MeshDepthMaterial();
 
@@ -166,7 +181,12 @@ Application.ShaderConfigurator = (function () {
 			shader: THREE.BokehShader,
 			textureId: "tColor",
 			settings: settings,
-			material: material
+			material: material,
+			update: function (camera) {
+
+				camera.aspect = this.settings.aspect.value;
+				camera.updateProjectionMatrix();
+			}
 		};
 	};
 		

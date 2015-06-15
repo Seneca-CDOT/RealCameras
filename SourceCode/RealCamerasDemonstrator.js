@@ -5,8 +5,10 @@ Application.RealCamerasDemonstrator = (function () {
 
 	function RealCamerasDemonstrator () {
 
+// TODO:
 		// ACM p.13
 		var aspect = 2.35; // 1.85; 
+
 		this.canvasWidth = window.innerWidth;
 		this.canvasHeight = this.canvasWidth / aspect;
 		this.canvasOffset = Math.max(0, 0.5 * (window.innerHeight - this.canvasHeight));
@@ -20,9 +22,8 @@ Application.RealCamerasDemonstrator = (function () {
         this.controls = null;
 
         this.postprocessing = {};
-        this.settings = null;
+        this.configuration = null;
 
-        this.materialDepth = null;
 		this.renderTargetDepth = null;
 
         this.requestedAnimationFrameId = null;
@@ -46,7 +47,7 @@ Application.RealCamerasDemonstrator = (function () {
 
 			var mesh = meshes[i];
 			// [.WebGLRenderingContext-0x7ffddb4584f0]GL ERROR :GL_INVALID_VALUE : LineWidth: width out of range
-			// Application.Debuger.addAxes(mesh);
+			Application.Debuger.addAxes(mesh);
 			this.scene.add(mesh);
 		}
 	};
@@ -149,12 +150,10 @@ Application.RealCamerasDemonstrator = (function () {
 // mark - 
 		
 		var shaderId = "id";
-		var configuration = Application.ShaderConfigurator.configuration(shaderId);			
+		this.configuration = Application.ShaderConfigurator.configuration(shaderId);
 
-		var shader = configuration.shader;
-		var textureId = configuration.textureId;
-		this.settings = configuration.settings;
-		this.materialDepth = configuration.material;
+		var shader = this.configuration.shader;
+		var textureId = this.configuration.textureId;
 
 // mark -
 
@@ -182,21 +181,23 @@ Application.RealCamerasDemonstrator = (function () {
 
 	privateMethods.setUpGui = function () {
 
+		var settings = this.configuration.settings;
+
 		var gui = new dat.GUI();
-		for (var param in this.settings) {
-			if (this.settings.hasOwnProperty(param)) {
+		for (var param in settings) {
+			if (settings.hasOwnProperty(param)) {
 
-				if (this.settings[param].range !== undefined) {
+				if (settings[param].range !== undefined) {
 
-					var begin = this.settings[param].range.begin;
-					var end = this.settings[param].range.end;
-					var step = this.settings[param].range.step;
+					var begin = settings[param].range.begin;
+					var end = settings[param].range.end;
+					var step = settings[param].range.step;
 
-					gui.add(this.settings[param], "value", begin, end, step).name(param)
+					gui.add(settings[param], "value", begin, end, step).name(param)
 					.onChange(privateMethods.settingsUpdater.bind(this));
-				} else if (this.settings[param].show !== undefined && this.settings[param].show === true) {
+				} else if (settings[param].show !== undefined && settings[param].show === true) {
 
-					gui.add(this.settings[param], "value").name(param)
+					gui.add(settings[param], "value").name(param)
 					.onChange(privateMethods.settingsUpdater.bind(this));
 				}
 			}
@@ -205,18 +206,12 @@ Application.RealCamerasDemonstrator = (function () {
 	};
 	privateMethods.settingsUpdater = function () {
 
-// TODO:
-		if (this.settings["focalLength"] !== undefined) {
+		this.configuration.update(this.camera);
+		var settings = this.configuration.settings;	
+		for (var param in settings) {
+			if (settings.hasOwnProperty(param)) {
 
-			this.camera.focalLength = this.settings["focalLength"].value;
-			this.camera.setLens(this.camera.focalLength, this.camera.frameSize);
-			this.camera.updateProjectionMatrix();
-		}
-	
-		for (var param in this.settings) {
-			if (this.settings.hasOwnProperty(param)) {
-
-				this.postprocessing.bokehPass.uniforms[param].value = this.settings[param].value;
+				this.postprocessing.bokehPass.uniforms[param].value = settings[param].value;
 			}
 		}
 	};
@@ -229,7 +224,7 @@ Application.RealCamerasDemonstrator = (function () {
 	privateMethods.render = function () {
 
 		// depth into texture rendering
-		this.scene.overrideMaterial = this.materialDepth;
+		this.scene.overrideMaterial = this.configuration.material;
 		this.renderer.render(this.scene, this.camera, this.renderTargetDepth);
 		this.scene.overrideMaterial = null;
 
