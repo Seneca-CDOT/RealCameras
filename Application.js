@@ -22,7 +22,7 @@ var Application = (function () {
             // "SourceCode/Three/postprocessing/TexturePass.js",
 
             "SourceCode/Three/shaders/CopyShader.js",
-            // "SourceCode/Three/Shaders/DOFMipMapShader.js",
+            // "SourceCode/Three/shaders/DOFMipMapShader.js",
 
 // mark -
 
