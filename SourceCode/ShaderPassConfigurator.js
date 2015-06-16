@@ -1,19 +1,29 @@
 
 var Application = Application || {};
 
-Application.ShaderConfigurator = (function () {
+Application.ShaderPassConfigurator = (function () {
 
 // TODO:
 	// ACM p.13
 	var aspect = 2.35; // 1.85; 
 
 	var privateMethods = {};
-	privateMethods.configuration = function (shaderId) {
+	privateMethods.configuration = function (passId) {
 
-		return privateMethods.bokehShaderConfiguration.call(this);
-		// return privateMethods.dofShaderConfiguration.call(this);
+		var configuration = null;
+		switch (passId) {
+			case "bokeh_0": {
+				configuration = privateMethods.bokehPassConfiguration_0.call(this);
+				break;
+			} 
+			case "bokeh_1": {
+				configuration = privateMethods.bokehPassConfiguration_1.call(this);
+				break;
+			} 	
+		}
+		return configuration
 	};
-	privateMethods.dofShaderConfiguration = function () {
+	privateMethods.bokehPassConfiguration_0 = function () {
  
 		var canvasWidth = window.innerWidth;
 		var canvasHeight = canvasWidth / aspect;
@@ -155,7 +165,7 @@ Application.ShaderConfigurator = (function () {
 			}
 		};	
 	};
-	privateMethods.bokehShaderConfiguration = function () {
+	privateMethods.bokehPassConfiguration_1 = function () {
 
 		var settings = {
 

@@ -22,9 +22,9 @@ Application.RealCamerasDemonstrator = (function () {
         this.controls = null;
 
         this.postprocessing = {};
-        this.configuration = null;
-
-		this.renderTargetDepth = null;
+        this.bokehPassConfiguration = null;
+		this.bokehPassDepthMapSource = null;
+		this.gui = null;
 
         this.requestedAnimationFrameId = null;
 
@@ -40,16 +40,47 @@ Application.RealCamerasDemonstrator = (function () {
             this.requestedAnimationFrameId = null;
         }
 	};
-
 	RealCamerasDemonstrator.prototype.setUpScene = function (meshes) {
 
 		for (var i = 0; i < meshes.length; ++i) {
 
 			var mesh = meshes[i];
 			// [.WebGLRenderingContext-0x7ffddb4584f0]GL ERROR :GL_INVALID_VALUE : LineWidth: width out of range
-			Application.Debuger.addAxes(mesh);
+			// Application.Debuger.addAxes(mesh);
 			this.scene.add(mesh);
 		}
+	};
+	RealCamerasDemonstrator.prototype.setUpBokehPass = function (passId) {
+
+		var configuration = Application.ShaderPassConfigurator.configuration(passId);
+		if (!configuration)
+			return;
+
+		this.bokehPassConfiguration = configuration;
+
+		var shader = this.bokehPassConfiguration.shader;
+		var textureId = this.bokehPassConfiguration.textureId;
+
+		// bokeh pass
+		var bokehPass = new THREE.ShaderPass(shader, textureId);
+		bokehPass.uniforms["tDepth"].value = this.bokehPassDepthMapSource;
+		bokehPass.renderToScreen = true;
+
+		if (this.postprocessing.composer.passes.length > 1) {
+
+			this.postprocessing.composer.popPass();
+			this.postprocessing.composer.reset();	
+		}
+		this.postprocessing.composer.addPass(bokehPass);
+		this.bokehPassConfiguration.bokehPass = bokehPass;
+
+// mark -
+
+		// set initial values
+		privateMethods.settingsUpdater.call(this);
+
+		// set up gui
+		privateMethods.setUpGui.call(this);
 	};
 
 	var privateMethods = Object.create(RealCamerasDemonstrator.prototype);
@@ -60,7 +91,6 @@ Application.RealCamerasDemonstrator = (function () {
 		privateMethods.initCamera.call(this);
 
 		privateMethods.initPostprocessing.call(this);
-		privateMethods.setUpGui.call(this);
 
 		privateMethods.animate.call(this);
 	};
@@ -70,13 +100,13 @@ Application.RealCamerasDemonstrator = (function () {
 		this.renderer = new THREE.WebGLRenderer();
 		this.renderer.setSize(this.canvasWidth, this.canvasHeight);
 
-		var DoFCanvasParent = document.createElement("div");
-		DoFCanvasParent.appendChild(this.renderer.domElement);
-		document.body.appendChild(DoFCanvasParent);
+		var container = document.createElement("div");
+		container.appendChild(this.renderer.domElement);
+		document.body.appendChild(container);
 
-		DoFCanvasParent.style.position = "absolute";
-		DoFCanvasParent.style.width = this.canvasWidth + "px";
-		DoFCanvasParent.style.top = this.canvasOffset + "px";
+		container.style.position = "absolute";
+		container.style.width = this.canvasWidth + "px";
+		container.style.top = this.canvasOffset + "px";
 	};
 	privateMethods.initCamera = function () {
 
@@ -141,49 +171,31 @@ Application.RealCamerasDemonstrator = (function () {
 	};
 	privateMethods.initPostprocessing = function() {
 
-		this.postprocessing.composer = new THREE.EffectComposer(this.renderer);
-
-		// render pass
-		var renderPass = new THREE.RenderPass(this.scene, this.camera);
-		this.postprocessing.composer.addPass(renderPass);
-
-// mark - 
-		
-		var shaderId = "id";
-		this.configuration = Application.ShaderConfigurator.configuration(shaderId);
-
-		var shader = this.configuration.shader;
-		var textureId = this.configuration.textureId;
-
-// mark -
-
 		// intermediate renderer targets
-		this.renderTargetDepth = new THREE.WebGLRenderTarget(this.canvasWidth, this.canvasHeight, {
+		this.bokehPassDepthMapSource = new THREE.WebGLRenderTarget(this.canvasWidth, this.canvasHeight, {
 
 			minFilter: THREE.NearestFilter,
 			magFilter: THREE.NearestFilter,
 			format: THREE.RGBAFormat
 		});
 
-		// bokeh pass
-		var bokehPass = new THREE.ShaderPass(shader, textureId);
-		this.postprocessing.composer.addPass(bokehPass);
+		this.postprocessing.composer = new THREE.EffectComposer(this.renderer);
 
-		this.postprocessing.bokehPass = bokehPass;
-		this.postprocessing.bokehPass.renderToScreen = true;
-
-		var uniforms = this.postprocessing.bokehPass.uniforms;
-		uniforms[ "tDepth" ].value = this.renderTargetDepth;
-
-		// set initial values
-		privateMethods.settingsUpdater.call(this);
+		// render pass
+		var renderPass = new THREE.RenderPass(this.scene, this.camera);
+		this.postprocessing.composer.addPass(renderPass);		
 	};
 
 	privateMethods.setUpGui = function () {
 
-		var settings = this.configuration.settings;
+		if (this.gui) {
 
-		var gui = new dat.GUI();
+			this.gui.domElement.parentNode.removeChild(this.gui.domElement);
+		} 
+		this.gui = new dat.GUI();
+	
+		
+		var settings = this.bokehPassConfiguration.settings;
 		for (var param in settings) {
 			if (settings.hasOwnProperty(param)) {
 
@@ -193,25 +205,26 @@ Application.RealCamerasDemonstrator = (function () {
 					var end = settings[param].range.end;
 					var step = settings[param].range.step;
 
-					gui.add(settings[param], "value", begin, end, step).name(param)
+					this.gui.add(settings[param], "value", begin, end, step).name(param)
 					.onChange(privateMethods.settingsUpdater.bind(this));
 				} else if (settings[param].show !== undefined && settings[param].show === true) {
 
-					gui.add(settings[param], "value").name(param)
+					this.gui.add(settings[param], "value").name(param)
 					.onChange(privateMethods.settingsUpdater.bind(this));
 				}
 			}
 		}
-		gui.open();
+		this.gui.open();
 	};
 	privateMethods.settingsUpdater = function () {
 
-		this.configuration.update(this.camera);
-		var settings = this.configuration.settings;	
+		this.bokehPassConfiguration.update(this.camera);
+
+		var settings = this.bokehPassConfiguration.settings;	
 		for (var param in settings) {
 			if (settings.hasOwnProperty(param)) {
 
-				this.postprocessing.bokehPass.uniforms[param].value = settings[param].value;
+				this.bokehPassConfiguration.bokehPass.uniforms[param].value = settings[param].value;
 			}
 		}
 	};
@@ -223,13 +236,21 @@ Application.RealCamerasDemonstrator = (function () {
 	};
 	privateMethods.render = function () {
 
-		// depth into texture rendering
-		this.scene.overrideMaterial = this.configuration.material;
-		this.renderer.render(this.scene, this.camera, this.renderTargetDepth);
-		this.scene.overrideMaterial = null;
+		if (this.bokehPassConfiguration) {
 
-		// final rendering
-		this.postprocessing.composer.render(0.1);
+			// depth into texture rendering
+			this.scene.overrideMaterial = this.bokehPassConfiguration.material;
+			this.renderer.render(this.scene, this.camera, this.bokehPassDepthMapSource);
+			this.scene.overrideMaterial = null;
+
+			// on screen rendering
+			this.postprocessing.composer.render(0.1);
+		} else {
+
+			// on screen rendering
+			this.scene.overrideMaterial = null;
+			this.renderer.render(this.scene, this.camera);
+		}
 	};
 
 	return RealCamerasDemonstrator;

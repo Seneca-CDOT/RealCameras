@@ -49,6 +49,14 @@ THREE.EffectComposer.prototype = {
 
 	},
 
+	popPass: function () {
+
+		if (this.passes.length) {
+
+			this.passes.pop();
+		}
+	},
+
 	insertPass: function ( pass, index ) {
 
 		this.passes.splice( index, 0, pass );

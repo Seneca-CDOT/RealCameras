@@ -2,6 +2,48 @@
 var Application = (function () {
 
     var privateStore = {};
+    privateStore.bokehPassValues = ["Please, select bokeh style.","Bokeh Style 0", "Bokeh Style 1"];
+    privateStore.bokehPassIds = ["-","bokeh_0", "bokeh_1"];
+
+    var privateMethods = {};
+    privateMethods.setUpGui = function () {
+            
+        var select = document.createElement("select");
+        select.style.width = "170px";
+        select.style.position = "absolute";
+        select.style.zIndex = "9999";
+
+        var bokehPassValues = privateStore.bokehPassValues;
+        for (var i = 0; i < bokehPassValues.length; ++i) {
+
+            var option = document.createElement('option');
+            option.value = i;            
+            option.innerHTML = bokehPassValues[i];
+
+            select.appendChild(option);
+        }
+
+        select.addEventListener('change', privateMethods.didSelectBokehPass.bind(this));
+        privateStore.select = select;
+
+        document.body.appendChild(privateStore.select);
+    };  
+    privateMethods.didSelectBokehPass = function (e) {
+
+        var bokehPassIds = privateStore.bokehPassIds;
+
+        var options = e.target.children;
+        for (var i = 0; i < options.length; ++i) {
+
+            var option = options[i];
+            if (option.selected == true && option.value != 0) {
+
+                var passId = bokehPassIds[option.value];
+                privateStore.demonstrator.setUpBokehPass(passId);
+                break;
+            }                          
+        }
+    };
     return {
 
         files: [
@@ -33,7 +75,7 @@ var Application = (function () {
             "SourceCode/Helpers/Debuger.js",
 
             "SourceCode/RealCamerasDemonstrator.js",
-            "SourceCode/ShaderConfigurator.js",
+            "SourceCode/ShaderPassConfigurator.js",
             "SourceCode/SceneLoader.js"
         ],
 
@@ -47,6 +89,8 @@ var Application = (function () {
 
                 privateStore.demonstrator.setUpScene(meshes);
             });
+
+            privateMethods.setUpGui.call(this);
         }
     };
 })();
