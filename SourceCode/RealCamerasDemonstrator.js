@@ -1,6 +1,5 @@
 
 var Application = Application || {};
-var dvc = Application.DistanceValuesConvertor.getInstance();
 
 Application.RealCamerasDemonstrator = (function () {
 
@@ -53,7 +52,8 @@ Application.RealCamerasDemonstrator = (function () {
 	};
 	RealCamerasDemonstrator.prototype.setUpBokehPass = function (passId) {
 
-		var configuration = Application.ShaderPassConfigurator.configuration(passId);
+		var spc = Application.ShaderPassConfigurator.getInstance();
+		var configuration = spc.configuration(passId);
 		if (!configuration)
 			return;
 
@@ -111,6 +111,8 @@ Application.RealCamerasDemonstrator = (function () {
 	};
 	privateMethods.initCamera = function () {
 
+		var dvc = Application.DistanceValuesConvertor.getInstance();
+
 		// fov is calculated and set in setLens based on fame size and focal length
 		var emptyFov = 0.;
 		var near = dvc(0.01, "m");
@@ -158,6 +160,8 @@ Application.RealCamerasDemonstrator = (function () {
 		// // dirLight.shadowCameraVisible = true;
 		
 		// this.light = dirLight
+
+		var dvc = Application.DistanceValuesConvertor.getInstance();
 
 		this.light = new THREE.HemisphereLight(0xffDDDD, 0x000000, 0.6);
 		var lightAboveTheGround = dvc(5, "m");
@@ -221,7 +225,7 @@ Application.RealCamerasDemonstrator = (function () {
 	};
 	privateMethods.settingsUpdater = function () {
 
-		this.bokehPassConfiguration.update(this.camera);
+		this.bokehPassConfiguration.updateCamera(this.camera);
 
 		var settings = this.bokehPassConfiguration.settings;	
 		for (var param in settings) {

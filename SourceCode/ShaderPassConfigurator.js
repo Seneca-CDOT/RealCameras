@@ -1,15 +1,16 @@
 
 var Application = Application || {};
-var dvc = Application.DistanceValuesConvertor.getInstance();
 
 Application.ShaderPassConfigurator = (function () {
 
+	var privateStore = {};
 // TODO:
 	// ACM p.13
-	var aspect = 2.35; // 1.85; 
-
-	var privateMethods = {};
-	privateMethods.configuration = function (passId) {
+	privateStore.aspect = 2.35; // 1.85; 
+	function ShaderPassConfigurator () {
+	};
+	
+	ShaderPassConfigurator.prototype.configuration = function (passId) {
 
 		var configuration = null;
 		switch (passId) {
@@ -24,11 +25,14 @@ Application.ShaderPassConfigurator = (function () {
 		}
 		return configuration
 	};
+
+	var privateMethods = Object.create(ShaderPassConfigurator.prototype);
 	privateMethods.bokehPassConfiguration_0 = function () {
- 
+ 		
+ 		var dvc = Application.DistanceValuesConvertor.getInstance();
 // TODO:
 		var canvasWidth = window.innerWidth;
-		var canvasHeight = canvasWidth / aspect;
+		var canvasHeight = canvasWidth / privateStore.aspect;
 
 		var near = 0.01;
 		var far = 1000;
@@ -146,7 +150,7 @@ Application.ShaderPassConfigurator = (function () {
 			textureId: "tDiffuse",
 			settings: settings,
 			material: material,
-			update: function (camera) {
+			updateCamera: function (camera) {
 
 // TODO:
 				// size: {
@@ -169,6 +173,8 @@ Application.ShaderPassConfigurator = (function () {
 	};
 	privateMethods.bokehPassConfiguration_1 = function () {
 
+		var dvc = Application.DistanceValuesConvertor.getInstance();
+
 		var settings = {
 
 // TODO:
@@ -188,7 +194,7 @@ Application.ShaderPassConfigurator = (function () {
 				range: {begin: 0.0, end: 0.5, step: 0.001}
 			},
 			aspect: {
-				value: aspect
+				value: privateStore.aspect
 			}
 		};
 		var material = new THREE.MeshDepthMaterial();
@@ -198,7 +204,7 @@ Application.ShaderPassConfigurator = (function () {
 			textureId: "tColor",
 			settings: settings,
 			material: material,
-			update: function (camera) {
+			updateCamera: function (camera) {
 
 				camera.aspect = this.settings.aspect.value;
 				camera.updateProjectionMatrix();
@@ -206,7 +212,21 @@ Application.ShaderPassConfigurator = (function () {
 		};
 	};
 		
-	return {
-		configuration: privateMethods.configuration
+	var instance = null;
+	function createInstance() {
+
+		var newInstance = new ShaderPassConfigurator();
+		return newInstance;
 	};
+
+	return {
+		getInstance: function () {
+
+			if (!instance) {
+
+				instance = createInstance();
+			}
+			return instance;
+		}
+	}
 })(); 

@@ -1,26 +1,17 @@
 
 var Application = Application || {};
-var dvc = Application.DistanceValuesConvertor.getInstance();
 
 Application.SceneLoader = (function () {
 
-	var privateMethods = {};
-	privateMethods.loadScene = function (path) {
+	function SceneLoader () {
+	};
+	
+	SceneLoader.prototype.loadScene = function (path) {
 
 		var that = this;
 		return new Promise(function (resolve, reject) {
 
 			var loader = new THREE.ObjectLoader();
-			
-			// var worker = new Worker("SourceCode/SceneLoaderWorker.js");
-			// worker.onmessage = function(e) {
-				
-			// 	var meshes = e.data;
-			// 	privateMethods.setUpScene.call(that, meshes);
-			// 	resolve(meshes);
-			// };
-			// worker.postMessage([loader, path]);
-
 			loader.load(path, function (scene) {
 
 				var meshes = [];
@@ -33,6 +24,8 @@ Application.SceneLoader = (function () {
 						// do nothing
 					}
 				}
+
+				var dvc = Application.DistanceValuesConvertor.getInstance();
 
 				var depthStart = dvc(2, "m");
 				var depthInterval = dvc(3.5, "m");
@@ -62,6 +55,8 @@ Application.SceneLoader = (function () {
 			});
 		});	
 	};
+
+	var privateMethods = Object.create(SceneLoader.prototype);
 	privateMethods.setUpScene = function (meshes) {
 
 		return new Promise(function (resolve, reject) {
@@ -72,7 +67,8 @@ Application.SceneLoader = (function () {
 				var textureBack = texture.clone();
 
 // mark -
-				
+				var dvc = Application.DistanceValuesConvertor.getInstance();
+
 				var depth = dvc(60, "m");
 				var depthShiftBackward = dvc(20, "m");
 				var depthShiftForward = dvc(10, "m");
@@ -148,7 +144,21 @@ Application.SceneLoader = (function () {
 		});
 	};
 	
+	var instance = null;
+	function createInstance () {
+
+		var newInstance = new SceneLoader();
+		return newInstance;
+	};
+
 	return {
-		loadScene: privateMethods.loadScene
+		getInstance: function () {
+
+			if (!instance) {
+
+				instance = createInstance();
+			}
+			return instance;
+		}
 	};
 })(); 

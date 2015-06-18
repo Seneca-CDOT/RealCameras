@@ -2,8 +2,41 @@
 var Application = (function () {
 
     var privateStore = {};
+    privateStore.started = false;
     privateStore.bokehPassValues = ["Please, select bokeh style.","Bokeh Style 0", "Bokeh Style 1"];
     privateStore.bokehPassIds = ["-","bokeh_0", "bokeh_1"];
+    privateStore.files = [
+        "SourceCode/Controls/PointerLockControls.js",
+
+        "SourceCode/Three/postprocessing/EffectComposer.js",
+        "SourceCode/Three/postprocessing/RenderPass.js",
+        "SourceCode/Three/postprocessing/ShaderPass.js",
+        "SourceCode/Three/postprocessing/MaskPass.js",
+        // "SourceCode/Three/postprocessing/SavePass.js",
+
+        "SourceCode/Three/postprocessing/BokehPass.js",
+        // "SourceCode/Three/postprocessing/AdaptiveToneMappingPass.js",
+        // "SourceCode/Three/postprocessing/BloomPass.js",
+        // "SourceCode/Three/postprocessing/DotScreenPass.js",
+        // "SourceCode/Three/postprocessing/FilmPass.js",
+        // "SourceCode/Three/postprocessing/GlitchPass.js",
+        // "SourceCode/Three/postprocessing/TexturePass.js",
+
+        "SourceCode/Three/shaders/CopyShader.js",
+        // "SourceCode/Three/shaders/DOFMipMapShader.js",
+
+// mark -
+        "SourceCode/Shaders/DoFShader.js",
+        "SourceCode/Shaders/BokehShader.js",
+        // "SourceCode/Shaders/BokehShader2.js",
+
+        "SourceCode/Helpers/Debuger.js",
+
+        "SourceCode/DistanceValuesConvertor.js",
+        "SourceCode/RealCamerasDemonstrator.js",
+        "SourceCode/ShaderPassConfigurator.js",
+        "SourceCode/SceneLoader.js"
+    ];
 
     var privateMethods = {};
     privateMethods.setUpGui = function () {
@@ -44,58 +77,34 @@ var Application = (function () {
             }                          
         }
     };
-    return {
+    privateMethods.main = function() {
 
-        files: [
-            "SourceCode/Controls/PointerLockControls.js",
+        if (privateStore.started) {
 
-            "SourceCode/Three/postprocessing/EffectComposer.js",
-            "SourceCode/Three/postprocessing/RenderPass.js",
-            "SourceCode/Three/postprocessing/ShaderPass.js",
-            "SourceCode/Three/postprocessing/MaskPass.js",
-            // "SourceCode/Three/postprocessing/SavePass.js",
+            return;
+        }
+        privateStore.isStarted = true;
 
-            "SourceCode/Three/postprocessing/BokehPass.js",
-            // "SourceCode/Three/postprocessing/AdaptiveToneMappingPass.js",
-            // "SourceCode/Three/postprocessing/BloomPass.js",
-            // "SourceCode/Three/postprocessing/DotScreenPass.js",
-            // "SourceCode/Three/postprocessing/FilmPass.js",
-            // "SourceCode/Three/postprocessing/GlitchPass.js",
-            // "SourceCode/Three/postprocessing/TexturePass.js",
 
-            "SourceCode/Three/shaders/CopyShader.js",
-            // "SourceCode/Three/shaders/DOFMipMapShader.js",
-
-// mark -
-            "SourceCode/Shaders/DoFShader.js",
-            "SourceCode/Shaders/BokehShader.js",
-            // "SourceCode/Shaders/BokehShader2.js",
-
-            "SourceCode/Helpers/Debuger.js",
-
-            "SourceCode/DistanceValuesConvertor.js",
-            "SourceCode/RealCamerasDemonstrator.js",
-            "SourceCode/ShaderPassConfigurator.js",
-            "SourceCode/SceneLoader.js"
-        ],
-
-        main: function() {
+        var that = this;
+        require(privateStore.files, function() {
 
             privateStore.demonstrator = new Application.RealCamerasDemonstrator();
 
             var path = "Resource/testscene.scene/testscene.json";
-            var sceneLoader = Application.SceneLoader;
-            sceneLoader.loadScene(path).then(function (meshes) {
+            var sl = Application.SceneLoader.getInstance();
+            sl.loadScene(path).then(function (meshes) {
 
-                privateStore.demonstrator.setUpScene(meshes);
+            privateStore.demonstrator.setUpScene(meshes);
             });
 
-            privateMethods.setUpGui.call(this);
-        }
+            privateMethods.setUpGui.call(that);
+        });        
+    };
+
+    return {
+        main: privateMethods.main
     };
 })();
 
-require(Application.files, function() {
-
-    Application.main();
-});
+Application.main();

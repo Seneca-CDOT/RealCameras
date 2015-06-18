@@ -8,6 +8,7 @@ Application.MeterDistanceValue = (function () {
 		this.units = units;
 		this.value = value;
 	};
+	
 	MeterDistanceValue.prototype.getValue = function () {
 
 		var meters = privateMethods[this.units].call(this);
