@@ -3,17 +3,19 @@ var Application = Application || {};
 
 Application.ShaderPassConfigurator = (function () {
 
+	var privateStore = {};
 // TODO:
 	// ACM p.13
-	var aspect = 2.35; // 1.85; 
-
-	var privateMethods = {};
-	privateMethods.configuration = function (passId) {
+	privateStore.aspect = 2.35; // 1.85; 
+	function ShaderPassConfigurator () {
+	};
+	
+	ShaderPassConfigurator.prototype.configuration = function (passId) {
 
 		var configuration = null;
 		switch (passId) {
 			case "bokeh_0": {
-				configuration = privateMethods.bokehPassConfiguration_0.call(this);
+				// configuration = privateMethods.bokehPassConfiguration_0.call(this);
 				break;
 			} 
 			case "bokeh_1": {
@@ -23,10 +25,14 @@ Application.ShaderPassConfigurator = (function () {
 		}
 		return configuration
 	};
+
+	var privateMethods = Object.create(ShaderPassConfigurator.prototype);
 	privateMethods.bokehPassConfiguration_0 = function () {
- 
+ 		
+ 		var dvc = Application.DistanceValuesConvertor.getInstance();
+// TODO:
 		var canvasWidth = window.innerWidth;
-		var canvasHeight = canvasWidth / aspect;
+		var canvasHeight = canvasWidth / privateStore.aspect;
 
 		var near = 0.01;
 		var far = 1000;
@@ -144,7 +150,7 @@ Application.ShaderPassConfigurator = (function () {
 			textureId: "tDiffuse",
 			settings: settings,
 			material: material,
-			update: function (camera) {
+			updateCamera: function (camera) {
 
 // TODO:
 				// size: {
@@ -167,22 +173,28 @@ Application.ShaderPassConfigurator = (function () {
 	};
 	privateMethods.bokehPassConfiguration_1 = function () {
 
+		var dvc = Application.DistanceValuesConvertor.getInstance();
+
 		var settings = {
 
+// TODO:
+			// Note! 'focus' is non-dimensional parameter (shader specific implementation)!
 			focus: {
+				// value: dvc(1.5, "m"),
+				// range: {begin: dvc(0.5, "m"), end: dvc(50, "m"), step: dvc(0.1, "m")}
 				value: 1.0,
-				range: {begin: 0.0, end: 1.1, step: 0.001} 	
+				range: {begin: 0.5 /* far */, end: 1.0 /* near */, step: 0.0001} 	
 			},
 			aperture: {
-				value: 0.033,
-				range: {begin: 0.001, end: 0.2, step: 0.001} 	
+				value: dvc(25, "mm"),
+				range: {begin: dvc(5, "mm"), end: dvc(65, "mm"), step: dvc(1, "mm")} 	
 			},
 			maxblur: {
-				value: 1.0,
-				range: {begin: 0.0, end: 3.0, step: 0.025}
+				value: 0.01,
+				range: {begin: 0.0, end: 0.5, step: 0.001}
 			},
 			aspect: {
-				value: aspect
+				value: privateStore.aspect
 			}
 		};
 		var material = new THREE.MeshDepthMaterial();
@@ -192,7 +204,7 @@ Application.ShaderPassConfigurator = (function () {
 			textureId: "tColor",
 			settings: settings,
 			material: material,
-			update: function (camera) {
+			updateCamera: function (camera) {
 
 				camera.aspect = this.settings.aspect.value;
 				camera.updateProjectionMatrix();
@@ -200,7 +212,21 @@ Application.ShaderPassConfigurator = (function () {
 		};
 	};
 		
-	return {
-		configuration: privateMethods.configuration
+	var instance = null;
+	function createInstance() {
+
+		var newInstance = new ShaderPassConfigurator();
+		return newInstance;
 	};
+
+	return {
+		getInstance: function () {
+
+			if (!instance) {
+
+				instance = createInstance();
+			}
+			return instance;
+		}
+	}
 })(); 
