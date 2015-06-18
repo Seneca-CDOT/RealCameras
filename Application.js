@@ -67,13 +67,13 @@ var Application = (function () {
             // "SourceCode/Three/shaders/DOFMipMapShader.js",
 
 // mark -
-
             "SourceCode/Shaders/DoFShader.js",
             "SourceCode/Shaders/BokehShader.js",
             // "SourceCode/Shaders/BokehShader2.js",
 
             "SourceCode/Helpers/Debuger.js",
 
+            "SourceCode/DistanceValuesConvertor.js",
             "SourceCode/RealCamerasDemonstrator.js",
             "SourceCode/ShaderPassConfigurator.js",
             "SourceCode/SceneLoader.js"

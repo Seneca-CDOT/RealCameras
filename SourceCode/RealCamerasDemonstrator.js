@@ -1,5 +1,6 @@
 
 var Application = Application || {};
+var dvc = Application.DistanceValuesConvertor.getInstance();
 
 Application.RealCamerasDemonstrator = (function () {
 
@@ -112,16 +113,17 @@ Application.RealCamerasDemonstrator = (function () {
 
 		// fov is calculated and set in setLens based on fame size and focal length
 		var emptyFov = 0.;
-		var near = 0.01;
-		var far = 1000;
+		var near = dvc(0.01, "m");
+		var far = dvc(100, "m");
 		this.camera = new THREE.PerspectiveCamera(emptyFov, this.canvasWidth / this.canvasHeight, near, far);
 
-		this.camera.focalLength = 45;
-		this.camera.frameSize = 32;
+		this.camera.focalLength = dvc(45, "mm");
+		this.camera.frameSize = dvc(32, "mm");
 		this.camera.setLens(this.camera.focalLength, this.camera.frameSize);
 
-		this.camera.position.set(0, 0, 0);
-		this.camera.rotation.set(0, 0, 0);
+		var aboveTheGround = dvc(1.5, "m");
+		var toTheRight = dvc(1, "m");
+		this.camera.position.set(toTheRight, aboveTheGround, 0);
 		privateMethods.initControls.call(this);	
 	};
 
@@ -158,7 +160,8 @@ Application.RealCamerasDemonstrator = (function () {
 		// this.light = dirLight
 
 		this.light = new THREE.HemisphereLight(0xffDDDD, 0x000000, 0.6);
-		this.light.position.set(0, 40, 0);
+		var lightAboveTheGround = dvc(5, "m");
+		this.light.position.set(0, lightAboveTheGround, 0);
 
 	    this.scene.add(this.light);
 	};

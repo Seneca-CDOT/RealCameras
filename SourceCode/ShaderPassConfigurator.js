@@ -1,5 +1,6 @@
 
 var Application = Application || {};
+var dvc = Application.DistanceValuesConvertor.getInstance();
 
 Application.ShaderPassConfigurator = (function () {
 
@@ -13,7 +14,7 @@ Application.ShaderPassConfigurator = (function () {
 		var configuration = null;
 		switch (passId) {
 			case "bokeh_0": {
-				configuration = privateMethods.bokehPassConfiguration_0.call(this);
+				// configuration = privateMethods.bokehPassConfiguration_0.call(this);
 				break;
 			} 
 			case "bokeh_1": {
@@ -25,6 +26,7 @@ Application.ShaderPassConfigurator = (function () {
 	};
 	privateMethods.bokehPassConfiguration_0 = function () {
  
+// TODO:
 		var canvasWidth = window.innerWidth;
 		var canvasHeight = canvasWidth / aspect;
 
@@ -169,17 +171,21 @@ Application.ShaderPassConfigurator = (function () {
 
 		var settings = {
 
+// TODO:
+			// Note! 'focus' is non-dimensional parameter (shader specific implementation)!
 			focus: {
+				// value: dvc(1.5, "m"),
+				// range: {begin: dvc(0.5, "m"), end: dvc(50, "m"), step: dvc(0.1, "m")}
 				value: 1.0,
-				range: {begin: 0.0, end: 1.1, step: 0.001} 	
+				range: {begin: 0.5 /* far */, end: 1.0 /* near */, step: 0.0001} 	
 			},
 			aperture: {
-				value: 0.033,
-				range: {begin: 0.001, end: 0.2, step: 0.001} 	
+				value: dvc(25, "mm"),
+				range: {begin: dvc(5, "mm"), end: dvc(65, "mm"), step: dvc(1, "mm")} 	
 			},
 			maxblur: {
-				value: 1.0,
-				range: {begin: 0.0, end: 3.0, step: 0.025}
+				value: 0.01,
+				range: {begin: 0.0, end: 0.5, step: 0.001}
 			},
 			aspect: {
 				value: aspect
