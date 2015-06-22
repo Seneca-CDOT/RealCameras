@@ -33,6 +33,8 @@ Application.ShaderPassConfigurator = (function () {
 	var privateMethods = Object.create(ShaderPassConfigurator.prototype);
 	privateMethods.bokehPassConfiguration_0 = function () {
  		
+		var dvc = Application.DistanceValuesConvertor.getInstance();
+
 // TODO:
 		var canvasWidth = window.innerWidth;
 		var canvasHeight = canvasWidth / privateStore.aspect;
