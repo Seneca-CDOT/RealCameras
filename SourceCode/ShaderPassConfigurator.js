@@ -15,7 +15,7 @@ Application.ShaderPassConfigurator = (function () {
 		var configuration = null;
 		switch (passId) {
 			case "bokeh_0": {
-				// configuration = privateMethods.bokehPassConfiguration_0.call(this);
+				configuration = privateMethods.bokehPassConfiguration_0.call(this);
 				break;
 			} 
 			case "bokeh_1": {
@@ -34,9 +34,9 @@ Application.ShaderPassConfigurator = (function () {
 		var canvasWidth = window.innerWidth;
 		var canvasHeight = canvasWidth / privateStore.aspect;
 
-		var near = 0.01;
-		var far = 1000;
-		
+		var near = dvc(0.01, "m");
+		var beforeNear = near + dvc(1.0, "m");
+		var far = dvc(100, "m");
 		var settings = {
 
 			size: {
@@ -51,22 +51,46 @@ Application.ShaderPassConfigurator = (function () {
 			zfar: {
 				value: far
 			},
-			focalDepth: {
-				value: 43,
-				range: {begin: 0.0, end: 100, step: 0.1} 
-			},
-			focalLength: {
-				value: 45,
-				range: {begin: 28, end: 200, step: 1}
-			},
-			fstop: {
-				value: 0.01,
-				range: {begin: 0.0, end: 0.1, step: 0.0001}
-			},
+
+// mark -
+
 			showFocus: {
 				value: true,
 				show: true
 			},
+			focalDepth: {
+				value: dvc(5.0, "m"),
+				range: {begin: beforeNear, end: far, step: dvc(0.01, "m")} 
+			},
+			focalLength: {
+				value: dvc(45, "mm"),
+				range: {begin: dvc(25, "mm"), end: dvc(75, "mm"), step: dvc(0.1, "mm")}
+			},
+			// Non-dimensional value (F = focal-length/aperture)
+			fstop: {
+				value: 0.0001,
+				range: {begin: 0.00001, end: 0.001, step: 0.00001}
+			},
+			CoC: {
+				value: dvc(0.03, "mm"),
+				range: {begin: dvc(0.0, "mm"), end: dvc(1.0, "mm"), step: dvc(0.001, "mm")}
+			},
+			autofocus: {
+				value: false,
+				show: true
+			},
+			// Non-dimensional 2D-vector.
+			focus: {
+				value: new THREE.Vector2(0.5, 0.5)
+			},
+
+			maxblur: {
+				value: 2.0,
+				range: {begin: 0.0, end: 3.0, step: 0.025}
+			},
+
+// mark -
+
 			manualdof: {
 				value: false
 			},
@@ -82,10 +106,9 @@ Application.ShaderPassConfigurator = (function () {
 			fdofdist: {
 				value: 3.0
 			},
-			CoC: {
-				value: 0.03,
-				range: {begin: 0.0, end: 0.1, step: 0.001}
-			},
+
+// mark -
+
 			vignetting: {
 				value: true
 			},
@@ -98,17 +121,9 @@ Application.ShaderPassConfigurator = (function () {
 			vignfade: {
 				value: 22.0
 			},
-			autofocus: {
-				value: false,
-				show: true
-			},
-			focus: {
-				value: new THREE.Vector2(0.5, 0.5)
-			},
-			maxblur: {
-				value: 2.0,
-				range: {begin: 0.0, end: 3.0, step: 0.025}
-			},
+
+// mark - 
+
 			threshold: {
 				value: 0.5
 			},
@@ -121,12 +136,18 @@ Application.ShaderPassConfigurator = (function () {
 			fringe: {
 				value: 3.7
 			},
+
+// mark -
+
 			noise: {
 				value: true
 			},
 			namount: {
 				value: 0.0001
 			},
+
+// mark -
+
 			depthblur: {
 				value: false
 			},

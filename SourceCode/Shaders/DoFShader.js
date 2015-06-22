@@ -180,38 +180,38 @@ THREE.DoFShader = {
 		"}",
 
 		// blurring depth
-		"float bdepth(vec2 coords) {",
+		// "float bdepth(vec2 coords) {",
 
-			"float d = 0.0;",
-			"float kernel[9];",
-			"vec2 offset[9];",
+		// 	"float d = 0.0;",
+		// 	"float kernel[9];",
+		// 	"vec2 offset[9];",
 
-			"vec2 wh = vec2(texel.x, texel.y) * dbsize;",
+		// 	"vec2 wh = vec2(texel.x, texel.y) * dbsize;",
 
-			"offset[0] = vec2(-wh.x,-wh.y);",
-			"offset[1] = vec2( 0.0, -wh.y);",
-			"offset[2] = vec2( wh.x -wh.y);",
+		// 	"offset[0] = vec2(-wh.x,-wh.y);",
+		// 	"offset[1] = vec2( 0.0, -wh.y);",
+		// 	"offset[2] = vec2( wh.x -wh.y);",
 
-			"offset[3] = vec2(-wh.x,  0.0);",
-			"offset[4] = vec2( 0.0,   0.0);",
-			"offset[5] = vec2( wh.x,  0.0);",
+		// 	"offset[3] = vec2(-wh.x,  0.0);",
+		// 	"offset[4] = vec2( 0.0,   0.0);",
+		// 	"offset[5] = vec2( wh.x,  0.0);",
 
-			"offset[6] = vec2(-wh.x, wh.y);",
-			"offset[7] = vec2( 0.0,  wh.y);",
-			"offset[8] = vec2( wh.x, wh.y);",
+		// 	"offset[6] = vec2(-wh.x, wh.y);",
+		// 	"offset[7] = vec2( 0.0,  wh.y);",
+		// 	"offset[8] = vec2( wh.x, wh.y);",
 
-			"kernel[0] = 1.0/16.0;   kernel[1] = 2.0/16.0;   kernel[2] = 1.0/16.0;",
-			"kernel[3] = 2.0/16.0;   kernel[4] = 4.0/16.0;   kernel[5] = 2.0/16.0;",
-			"kernel[6] = 1.0/16.0;   kernel[7] = 2.0/16.0;   kernel[8] = 1.0/16.0;",
+		// 	"kernel[0] = 1.0/16.0;   kernel[1] = 2.0/16.0;   kernel[2] = 1.0/16.0;",
+		// 	"kernel[3] = 2.0/16.0;   kernel[4] = 4.0/16.0;   kernel[5] = 2.0/16.0;",
+		// 	"kernel[6] = 1.0/16.0;   kernel[7] = 2.0/16.0;   kernel[8] = 1.0/16.0;",
 
-			"for(int i = 0; i < 9; ++i) {",
+		// 	"for(int i = 0; i < 9; ++i) {",
 
-				"float tmp = unpackDepth(texture2D(tDepth, coords + offset[i]));",
-				"d += tmp * kernel[i];",
-			"}",
+		// 		"float tmp = unpackDepth(texture2D(tDepth, coords + offset[i]));",
+		// 		"d += tmp * kernel[i];",
+		// 	"}",
 
-			"return d;",
-		"}",
+		// 	"return d;",
+		// "}",
 
 		// processing the sample
 		"vec3 color(vec2 coords, float blur) {", 
@@ -245,16 +245,6 @@ THREE.DoFShader = {
 
 
 
-
-
-
-
-
-
-
-
-
-
 		// generating noise/pattern texture for dithering
 		"vec2 rand(vec2 coord) {",
 
@@ -272,12 +262,6 @@ THREE.DoFShader = {
 
 
 
-
-
-
-
-
-
 // **********
 		"float linearize(float depth) {",
 
@@ -289,10 +273,10 @@ THREE.DoFShader = {
 			// scene depth calculation
 			// {
 			"float depth = linearize(unpackDepth(texture2D(tDepth, vUv)));",
-			"if (depthblur) {",
+			// "if (depthblur) {",
 
-				"depth = linearize(bdepth(vUv));",
-			"}",
+			// 		"depth = linearize(bdepth(vUv));",
+			// "}",
 			// }
 
 
@@ -309,18 +293,18 @@ THREE.DoFShader = {
 			// DoF blur factor calculation
 			// {
 			"float blur = 0.0;",
-			"if (manualdof) {",
+			// "if (manualdof) {",
 			
-				"float a = depth - fDepth;", // focal plane
-				"float b = (a - fdofstart) / fdofdist;", // far DoF
-				"float c = (-a - ndofstart) / ndofdist;", // near DoF
+			// 	"float a = depth - fDepth;", // focal plane
+			// 	"float b = (a - fdofstart) / fdofdist;", // far DoF
+			// 	"float c = (-a - ndofstart) / ndofdist;", // near DoF
 
-				"blur = (a > 0.0) ? b : c;",
-			"} else {",
+			// 	"blur = (a > 0.0) ? b : c;",
+			// "} else {",
 
-				"float f = focalLength;", // focal length in mm
-				"float d = fDepth * 1000.0;", // focal plane in mm
-				"float o = depth * 1000.0;", // depth in mm
+				"float f = focalLength;", 
+				"float d = fDepth;",
+				"float o = depth;",
 
 				// "float a = (o * f) / (o - f);",
 				// "float b = (d * f) / (d - f);",
@@ -330,7 +314,7 @@ THREE.DoFShader = {
 				"float a = abs(o - d);",
 				"float c =  f * f / (fstop * (d - f));",
 				"blur = c * a / o;",
-			"}",
+			// "}",
 			"blur = clamp(blur, 0.0, 1.0);",
 			// }
 // **********
@@ -394,11 +378,11 @@ THREE.DoFShader = {
 			// }
 // **********
 
+
 			"if (showFocus) {",
 			
 				"col = debugFocus(col, blur, depth);",
 			"}",
-
 
 
 
