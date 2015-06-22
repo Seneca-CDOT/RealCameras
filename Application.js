@@ -3,8 +3,8 @@ var Application = (function () {
 
     var privateStore = {};
     privateStore.started = false;
-    privateStore.bokehPassValues = ["Please, select bokeh style.","Bokeh Style 0", "Bokeh Style 1"];
-    privateStore.bokehPassIds = ["-","bokeh_0", "bokeh_1"];
+    privateStore.bokehPassValues = ["Please, select bokeh style.","Bokeh Style 0", "Bokeh Style 1", "Test Depth"];
+    privateStore.bokehPassIds = ["-","bokeh_0", "bokeh_1", "depth_1"];
     privateStore.files = [
         "SourceCode/Controls/PointerLockControls.js",
 
@@ -29,6 +29,7 @@ var Application = (function () {
         "SourceCode/Shaders/DoFShader.js",
         "SourceCode/Shaders/BokehShader.js",
         // "SourceCode/Shaders/BokehShader2.js",
+         "SourceCode/Shaders/shadertest.js",
 
         "SourceCode/Helpers/Debuger.js",
 
@@ -37,7 +38,6 @@ var Application = (function () {
         "SourceCode/ShaderPassConfigurator.js",
         "SourceCode/SceneLoader.js"
     ];
-
     var privateMethods = {};
     privateMethods.setUpGui = function () {
             
@@ -80,11 +80,9 @@ var Application = (function () {
     privateMethods.main = function() {
 
         if (privateStore.started) {
-
             return;
         }
         privateStore.isStarted = true;
-
 
         var that = this;
         require(privateStore.files, function() {
