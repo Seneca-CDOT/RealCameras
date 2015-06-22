@@ -14,6 +14,9 @@ THREE.BokehShader = {
 
 		"aspect":   { type: "f", value: 1.0 },
 
+		"znear": 	{ type: "f", value: 1.0 },
+		"zfar":		{ type: "f", value: 1000.0},
+
 		"focalDepth": { type: "f", value: 0.5 },
 		"aperture": { type: "f", value: 0.025 },
 		
@@ -38,17 +41,24 @@ THREE.BokehShader = {
 		"uniform sampler2D tColor;",
 		"uniform sampler2D tDepth;",
 
-		"uniform float maxblur;",
-		"uniform float aperture;", // aperture - bigger values for shallower depth of field
+		"uniform float aspect;",
+
+		"uniform float znear;",
+		"uniform float zfar;",
 
 		"uniform float focalDepth;",
-		"uniform float aspect;",
+		"uniform float aperture;",
+
+		"uniform float maxblur;",
+
 
 		"void main() {",
 			"vec2 aspectcorrect = vec2(1.0, aspect);",
 
 			"vec4 depth1 = texture2D(tDepth, vUv);",
-			"float factor = depth1.x - (1.0 - focalDepth);",
+
+			// "float factor = depth1.x - (1.0 - focalDepth);",
+			"float factor = (mix(znear, zfar, 1.0 - depth1.x) - focalDepth) / (zfar - znear);",
 
 			"vec2 dofblur = vec2(clamp(factor * aperture, -maxblur, maxblur));",
 

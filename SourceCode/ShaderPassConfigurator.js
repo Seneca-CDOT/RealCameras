@@ -46,6 +46,9 @@ Application.ShaderPassConfigurator = (function () {
 			textel: {
 				value: new THREE.Vector2(1.0 / canvasWidth, 1.0 / canvasHeight) 
 			},
+
+// mark - 
+
 			znear: {
 				value: privateStore.near 
 			},
@@ -122,9 +125,7 @@ Application.ShaderPassConfigurator = (function () {
 			vignfade: {
 				value: 22.0
 			},
-
 // mark - 
-
 			threshold: {
 				value: 0.5
 			},
@@ -137,18 +138,14 @@ Application.ShaderPassConfigurator = (function () {
 			fringe: {
 				value: 3.7
 			},
-
 // mark -
-
 			noise: {
 				value: true
 			},
 			namount: {
 				value: 0.0001
 			},
-
 // mark -
-
 			depthblur: {
 				value: false
 			},
@@ -200,13 +197,21 @@ Application.ShaderPassConfigurator = (function () {
 		var beforeNear = privateStore.near + dvc(1.0, "m");
 		var settings = {
 
-// TODO:
+			znear: {
+				value: privateStore.near 
+			},
+			zfar: {
+				value: privateStore.far
+			},
+			aspect: {
+				value: privateStore.aspect
+			},
 			focalDepth: {
-				// value: dvc(5.0, "m"),
-				// range: {begin: beforeNear end: privateStore.far, step: dvc(0.01, "m")}
+				value: dvc(5.0, "m"),
+				range: {begin: beforeNear, end: privateStore.far, step: dvc(0.01, "m")}
 
-				value: 0.01,
-				range: {begin: 0.0, end: 1.0, step: 0.001} 	
+				// value: 0.01,
+				// range: {begin: 0.0, end: 1.0, step: 0.001} 	
 			},
 			aperture: {
 				value: dvc(25, "mm"),
@@ -215,9 +220,6 @@ Application.ShaderPassConfigurator = (function () {
 			maxblur: {
 				value: 0.01,
 				range: {begin: 0.0, end: 0.5, step: 0.001}
-			},
-			aspect: {
-				value: privateStore.aspect
 			}
 		};
 		var material = new THREE.MeshDepthMaterial();

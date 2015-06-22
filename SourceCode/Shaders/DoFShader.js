@@ -11,15 +11,17 @@ THREE.DoFShader = {
 
 		"tDiffuse":     { type: "t", value: null },
 		"tDepth":       { type: "t", value: null },
-
-		"znear":		{ type: "f", value: 1.0 },
-		"zfar":			{ type: "f", value: 1000.0 },
 		"size":         { type: "v2", value: new THREE.Vector2(512, 512) },
 		"textel":		{ type: "v2", value: new THREE.Vector2(1/512, 1/512)},
+		"znear":		{ type: "f", value: 1.0 },
+		"zfar":			{ type: "f", value: 1000.0 },
+		"showFocus":	{ type: "i", value: 0 },
 		"focalDepth":	{ type: "f", value: 200.0 },
 		"focalLength":	{ type: "f", value: 28.0 },
-		"fstop":		{ type: "f", value: 2.8 },
-		"showFocus":	{ type: "i", value: 0 },
+		"fstop":		{ type: "f", value: 2.8 },	
+		"autofocus":	{ type: "i", value: 1 },
+		"focus":        { type: "v2", value: new THREE.Vector2(0.5, 0.5) },
+		"maxblur":		{ type: "f", value: 1.0 },
 		"manualdof":	{ type: "i", value: 0 },
 		"ndofstart":	{ type: "f", value: 1.0 },
 		"ndofdist":		{ type: "f", value: 2.0 },
@@ -30,9 +32,6 @@ THREE.DoFShader = {
 		"vignout":		{ type: "f", value: 1.3 },
 		"vignin":		{ type: "f", value: 0.0 },
 		"vignfade":		{ type: "f", value: 22.0 },
-		"autofocus":	{ type: "i", value: 1 },
-		"focus":        { type: "v2", value: new THREE.Vector2(0.5, 0.5) },
-		"maxblur":		{ type: "f", value: 1.0 },
 		"threshold":	{ type: "f", value: 0.8 },
 		"gain":			{ type: "f", value: 1.7 },
 		"bias":			{ type: "f", value: 0.5 },
@@ -46,16 +45,15 @@ THREE.DoFShader = {
 	vertexShader: [
 
 		"varying vec2 vUv;",
-
 		"void main() {",
 
 			"vUv = uv;",
 			"gl_Position = projectionMatrix * modelViewMatrix * vec4( position, 1.0 );",
 		"}"
-
 	].join("\n"),
 
 	fragmentShader: [
+
 		"precision mediump float;",
 		"#define PI  3.14159265",
 
@@ -117,7 +115,6 @@ THREE.DoFShader = {
 
 		// pentagonal shape
 		// "float penta(vec2 coords) {", 
-
 		// 	"float scale = float(rings) - 1.3;",
 		// 	"vec4  HS0 = vec4( 1.0,         0.0,         0.0,  1.0);",
 		// 	"vec4  HS1 = vec4( 0.309016994, 0.951056516, 0.0,  1.0);",
@@ -163,7 +160,6 @@ THREE.DoFShader = {
 // **********
 		// RGBA depth	
 		"float unpackDepth(const in vec4 rgba_depth) {",
-
 			"const vec4 bit_shift = vec4(1.0 / (256.0 * 256.0 * 256.0), 1.0 / (256.0 * 256.0), 1.0 / 256.0, 1.0);",
 			"float depth = dot(rgba_depth, bit_shift);",
 
@@ -206,7 +202,6 @@ THREE.DoFShader = {
 
 		// processing the sample
 		"vec3 color(vec2 coords, float blur) {", 
-	
 			"vec3 col = vec3(0.0);",
 
 			"col.r = texture2D(tDiffuse, coords + vec2(0.0, 1.0) * texel * fringe * blur).r;",
@@ -221,7 +216,6 @@ THREE.DoFShader = {
 		"}",
 
 		"vec3 debugFocus(vec3 col, float blur, float depth) {",
-
 			// distance based edge smoothing
 			"float edge = 0.002 * depth;",
 			"float m = clamp(smoothstep(0.0, edge, blur), 0.0, 1.0);",
@@ -237,12 +231,10 @@ THREE.DoFShader = {
 
 		// generating noise/pattern texture for dithering
 		"vec2 rand(vec2 coord) {",
-
 			"float noiseX = ((fract(1.0 - coord.s * (size.x / 2.0)) * 0.25) + (fract(coord.t * (size.y / 2.0)) * 0.75)) * 2.0 - 1.0;",
 			"float noiseY = ((fract(1.0 - coord.s * (size.x / 2.0)) * 0.75) + (fract(coord.t * (size.y / 2.0)) * 0.25)) * 2.0 - 1.0;",
 
 			"if (noise) {",
-
 				"noiseX = clamp(fract(sin(dot(coord, vec2(12.9898, 78.233))) * 43758.5453), 0.0, 1.0) * 2.0 - 1.0;",
 				"noiseY = clamp(fract(sin(dot(coord, vec2(12.9898, 78.233) * 2.0)) * 43758.5453), 0.0, 1.0) * 2.0 - 1.0;",
 			"}",
@@ -253,17 +245,14 @@ THREE.DoFShader = {
 
 // **********
 		"float linearize(float depth) {",
-
 			"return zfar * znear / (zfar - depth * (zfar - znear));",
 		"}",
 
 		"void main() {",
-		
 			// scene depth calculation
 			// {
 			"float depth = linearize(unpackDepth(texture2D(tDepth, vUv)));",
 			// "if (depthblur) {",
-
 			// 		"depth = linearize(bdepth(vUv));",
 			// "}",
 			// }
@@ -273,7 +262,6 @@ THREE.DoFShader = {
 			// {
 			"float fDepth = focalDepth;",
 			"if (autofocus) {",
-
 				"fDepth = linearize(unpackDepth(texture2D(tDepth, focus)));",
 			"}",
 			// }
@@ -283,14 +271,12 @@ THREE.DoFShader = {
 			// {
 			"float blur = 0.0;",
 			// "if (manualdof) {",
-			
 			// 	"float a = depth - fDepth;", // focal plane
 			// 	"float b = (a - fdofstart) / fdofdist;", // far DoF
 			// 	"float c = (-a - ndofstart) / ndofdist;", // near DoF
 
 			// 	"blur = (a > 0.0) ? b : c;",
 			// "} else {",
-
 				"float f = focalLength;", 
 				"float d = fDepth;",
 				"float o = depth;",
@@ -323,17 +309,14 @@ THREE.DoFShader = {
 			// {
 			"vec3 col = texture2D(tDiffuse, vUv).rgb;",
 			"if (blur > 0.05) {",
-			
 				"float s = 1.0;",
 				"const int max_i = 9;",
 
 				"for (int i = 0; i < rings; ++i) {",
-					
 					"float float_i = float(i + 1);",
 					"float ringsamples = float_i * float(samples);",
 					
 			 		"for (int j = 0; j < max_i; ++j) {",
-						
 			 			"float float_j = float(j);",
 
 						"float step = 2.0 * PI / ringsamples;",
@@ -351,7 +334,6 @@ THREE.DoFShader = {
 						"s += m;",
 
 						"if (j == 3 * (i + 1)) {",
-
 							"break;",
 						"}", 
 					"}",
@@ -365,13 +347,11 @@ THREE.DoFShader = {
 
 
 			"if (showFocus) {",
-			
 				"col = debugFocus(col, blur, depth);",
 			"}",
 
 
 			// "if (vignetting) {",
-			
 			// 	"col *= vignette();",
 			// "}",
 
