@@ -3,10 +3,14 @@ var Application = Application || {};
 
 Application.ShaderPassConfigurator = (function () {
 
+	var dvc = Application.DistanceValuesConvertor.getInstance();
+
 	var privateStore = {};
 // TODO:
 	// ACM p.13
-	privateStore.aspect = 2.35; // 1.85; 
+	privateStore.aspect = 2.35; // 1.85;
+	privateStore.near = dvc(0.01, "m");
+	privateStore.far = dvc(100, "m");
 	function ShaderPassConfigurator () {
 	};
 	
@@ -29,14 +33,11 @@ Application.ShaderPassConfigurator = (function () {
 	var privateMethods = Object.create(ShaderPassConfigurator.prototype);
 	privateMethods.bokehPassConfiguration_0 = function () {
  		
- 		var dvc = Application.DistanceValuesConvertor.getInstance();
 // TODO:
 		var canvasWidth = window.innerWidth;
 		var canvasHeight = canvasWidth / privateStore.aspect;
 
-		var near = dvc(0.01, "m");
-		var beforeNear = near + dvc(1.0, "m");
-		var far = dvc(100, "m");
+		var beforeNear = privateStore.near + dvc(1.0, "m");
 		var settings = {
 
 			size: {
@@ -46,10 +47,10 @@ Application.ShaderPassConfigurator = (function () {
 				value: new THREE.Vector2(1.0 / canvasWidth, 1.0 / canvasHeight) 
 			},
 			znear: {
-				value: near 
+				value: privateStore.near 
 			},
 			zfar: {
-				value: far
+				value: privateStore.far
 			},
 
 // mark -
@@ -60,24 +61,24 @@ Application.ShaderPassConfigurator = (function () {
 			},
 			focalDepth: {
 				value: dvc(5.0, "m"),
-				range: {begin: beforeNear, end: far, step: dvc(0.01, "m")} 
+				range: {begin: beforeNear, end: privateStore.far, step: dvc(0.01, "m")} 
 			},
 			focalLength: {
 				value: dvc(45, "mm"),
 				range: {begin: dvc(25, "mm"), end: dvc(75, "mm"), step: dvc(0.1, "mm")}
 			},
-			// Non-dimensional value (F = focal-length/aperture)
+			// Non-dimensional value (f-stop = focal-length/aperture)
 			fstop: {
 				value: 0.0001,
 				range: {begin: 0.00001, end: 0.001, step: 0.00001}
 			},
 			CoC: {
 				value: dvc(0.03, "mm"),
-				range: {begin: dvc(0.0, "mm"), end: dvc(1.0, "mm"), step: dvc(0.001, "mm")}
+				// range: {begin: dvc(0.0, "mm"), end: dvc(1.0, "mm"), step: dvc(0.001, "mm")}
 			},
 			autofocus: {
 				value: false,
-				show: true
+				// show: true
 			},
 			// Non-dimensional 2D-vector.
 			focus: {
@@ -196,15 +197,16 @@ Application.ShaderPassConfigurator = (function () {
 
 		var dvc = Application.DistanceValuesConvertor.getInstance();
 
+		var beforeNear = privateStore.near + dvc(1.0, "m");
 		var settings = {
 
 // TODO:
-			// Note! 'focus' is non-dimensional parameter (shader specific implementation)!
-			focus: {
-				// value: dvc(1.5, "m"),
-				// range: {begin: dvc(0.5, "m"), end: dvc(50, "m"), step: dvc(0.1, "m")}
-				value: 1.0,
-				range: {begin: 0.5 /* far */, end: 1.0 /* near */, step: 0.0001} 	
+			focalDepth: {
+				// value: dvc(5.0, "m"),
+				// range: {begin: beforeNear end: privateStore.far, step: dvc(0.01, "m")}
+
+				value: 0.01,
+				range: {begin: 0.0, end: 1.0, step: 0.001} 	
 			},
 			aperture: {
 				value: dvc(25, "mm"),

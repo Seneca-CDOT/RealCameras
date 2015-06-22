@@ -95,8 +95,8 @@ var Application = (function () {
                 var sl = Application.SceneLoader.getInstance();
                 sl.loadScene(path).then(function (meshes) {
 
-                privateStore.demonstrator.setUpScene(meshes);
-            });
+                    privateStore.demonstrator.setUpScene(meshes);
+                });
 
             privateMethods.setUpGui.call(that);
         });        

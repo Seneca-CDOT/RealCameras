@@ -69,46 +69,35 @@ THREE.DoFShader = {
 		"uniform sampler2D tDepth;",
 		"uniform vec2 size;", // texture width and height
 		"uniform vec2 texel;", // textel size
-
 		"uniform float focalDepth;",  //focal distance value in meters, but you may use autofocus option below
 		"uniform float focalLength;", //focal length in mm
 		"uniform float fstop;", //f-stop value
 		"uniform bool showFocus;", //show debug focus point and focal range (orange = focal point, blue = focal range)
-
 		//make sure that these two values are the same for your camera, otherwise distances will be wrong.
 		"uniform float znear;", //camera clipping start
 		"uniform float zfar;", //camera clipping end
-
-
 		// user variables now passed as uniforms
 		"uniform bool manualdof;", // manual dof calculation
 		"uniform float ndofstart;", // near dof blur start
 		"uniform float ndofdist;", // near dof blur falloff distance
 		"uniform float fdofstart;", // far dof blur start
 		"uniform float fdofdist;", // far dof blur falloff distance
-
 		"uniform float CoC;", // circle of confusion size in mm (35mm film = 0.03mm)
-
 		"uniform bool vignetting;", // use optical lens vignetting
 		"uniform float vignout;", // vignetting outer border
 		"uniform float vignin;", // vignetting inner border
 		"uniform float vignfade;", // f-stops till vignete fades
-
 		"uniform bool autofocus;", //use autofocus in shader? disable if you use external focalDepth value
 		"uniform vec2 focus;", // autofocus point on screen (0.0, 0.0 - left lower corner, 1.0, 1.0 - upper right)
 		"uniform float maxblur;", //clamp value of max blur (0.0 = no blur,1.0 default)
-
 		"uniform bool depthblur;", // blur the depth buffer
 		"uniform float dbsize;", // depthblursize
-
-
 		"uniform float threshold;", // highlight threshold;
 		"uniform float gain;", // highlight gain;
 		"uniform float bias;", // bokeh edge bias
 		"uniform float fringe;", // bokeh chromatic aberration/fringing
 		"uniform bool noise;", // use noise instead of pattern for sample dithering
 		"uniform float namount;", // dither amount
-
 		// samples and rings need to be constants. no dynamic loop counters in OpenGL ES
 		// Can shader be broken into 2 pass? ... 
 		"int samples = 3;", //samples on the first ring
@@ -124,6 +113,7 @@ THREE.DoFShader = {
 		"float feather = 0.4;", // pentagon shape feather
 		// }
 // **********	
+
 
 		// pentagonal shape
 		// "float penta(vec2 coords) {", 
@@ -168,6 +158,7 @@ THREE.DoFShader = {
 
 		// 	"return clamp(dist,0.0,1.0);",
 		// "}",
+
 
 // **********
 		// RGBA depth	
@@ -244,7 +235,6 @@ THREE.DoFShader = {
 // **********		
 
 
-
 		// generating noise/pattern texture for dithering
 		"vec2 rand(vec2 coord) {",
 
@@ -259,7 +249,6 @@ THREE.DoFShader = {
 
 			"return vec2(noiseX,noiseY);",
 		"}",
-
 
 
 // **********
@@ -320,17 +309,13 @@ THREE.DoFShader = {
 // **********
 
 
-
-
-			// TODO:
+// TODO:
 			// calculation of pattern for dithering
 			"vec2 noise = rand(vUv) * namount * blur;",
 
 			// getting blur x and y step factor
 			"float w = (1.0 / size.x) * blur * maxblur + noise.x;",
 			"float h = (1.0 / size.y) * blur * maxblur + noise.y;",
-
-
 
 
 // **********
@@ -385,12 +370,10 @@ THREE.DoFShader = {
 			"}",
 
 
-
 			// "if (vignetting) {",
 			
 			// 	"col *= vignette();",
 			// "}",
-
 
 
 			"gl_FragColor.rgb = col;",

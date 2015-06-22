@@ -9,25 +9,24 @@
 THREE.BokehShader = {
 
 	uniforms: {
-
 		"tColor":   { type: "t", value: null },
 		"tDepth":   { type: "t", value: null },
-		"focus":    { type: "f", value: 1.0 },
-		"aspect":   { type: "f", value: 1.0 },
-		"aperture": { type: "f", value: 0.025 },
-		"maxblur":  { type: "f", value: 1.0 }
 
+		"aspect":   { type: "f", value: 1.0 },
+
+		"focalDepth": { type: "f", value: 0.5 },
+		"aperture": { type: "f", value: 0.025 },
+		
+		"maxblur":  { type: "f", value: 1.0 }
 	},
 
 	vertexShader: [
 
 		"varying vec2 vUv;",
-
 		"void main() {",
 
 			"vUv = uv;",
 			"gl_Position = projectionMatrix * modelViewMatrix * vec4( position, 1.0 );",
-
 		"}"
 
 	].join("\n"),
@@ -39,27 +38,25 @@ THREE.BokehShader = {
 		"uniform sampler2D tColor;",
 		"uniform sampler2D tDepth;",
 
-		"uniform float maxblur;",  // max blur amount
+		"uniform float maxblur;",
 		"uniform float aperture;", // aperture - bigger values for shallower depth of field
 
-		"uniform float focus;",
+		"uniform float focalDepth;",
 		"uniform float aspect;",
 
 		"void main() {",
+			"vec2 aspectcorrect = vec2(1.0, aspect);",
 
-			"vec2 aspectcorrect = vec2( 1.0, aspect );",
+			"vec4 depth1 = texture2D(tDepth, vUv);",
+			"float factor = depth1.x - (1.0 - focalDepth);",
 
-			"vec4 depth1 = texture2D( tDepth, vUv );",
-
-			"float factor = depth1.x - focus;",
-
-			"vec2 dofblur = vec2 ( clamp( factor * aperture, -maxblur, maxblur ) );",
+			"vec2 dofblur = vec2(clamp(factor * aperture, -maxblur, maxblur));",
 
 			"vec2 dofblur9 = dofblur * 0.9;",
 			"vec2 dofblur7 = dofblur * 0.7;",
 			"vec2 dofblur4 = dofblur * 0.4;",
 
-			"vec4 col = vec4( 0.0 );",
+			"vec4 col = vec4(0.0);",
 
 			"col += texture2D( tColor, vUv.xy );",
 			"col += texture2D( tColor, vUv.xy + ( vec2(  0.0,   0.4  ) * aspectcorrect ) * dofblur );",
@@ -108,7 +105,6 @@ THREE.BokehShader = {
 
 			"gl_FragColor = col / 41.0;",
 			"gl_FragColor.a = 1.0;",
-
 		"}"
 
 	].join("\n")
