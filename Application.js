@@ -2,8 +2,8 @@
 var Application = (function () {
 
     var privateStore = {};
-    privateStore.bokehPassValues = ["Please, select bokeh style.","Bokeh Style 0", "Bokeh Style 1"];
-    privateStore.bokehPassIds = ["-","bokeh_0", "bokeh_1"];
+    privateStore.bokehPassValues = ["Please, select bokeh style.","Bokeh Style 0", "Bokeh Style 1", "Test Depth"];
+    privateStore.bokehPassIds = ["-","bokeh_0", "bokeh_1", "depth_1"];
 
     var privateMethods = {};
     privateMethods.setUpGui = function () {
@@ -70,6 +70,7 @@ var Application = (function () {
 
             "SourceCode/Shaders/DoFShader.js",
             "SourceCode/Shaders/BokehShader.js",
+            "SourceCode/Shaders/shadertest.js",
             // "SourceCode/Shaders/BokehShader2.js",
 
             "SourceCode/Helpers/Debuger.js",
