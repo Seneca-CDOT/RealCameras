@@ -3,15 +3,15 @@ var Application = Application || {};
 
 Application.ShaderPassConfigurator = (function () {
 
-	var dvc = Application.DistanceValuesConvertor.getInstance();
-
 	var privateStore = {};
-// TODO:
-	// ACM p.13
-	privateStore.aspect = 2.35; // 1.85;
-	privateStore.near = dvc(0.01, "m");
-	privateStore.far = dvc(100, "m");
 	function ShaderPassConfigurator () {
+
+		var dvc = Application.DistanceValuesConvertor.getInstance();
+		// TODO:
+		// ACM p.13
+		privateStore.aspect = 2.35; // 1.85;
+		privateStore.near = dvc(0.01, "m");
+		privateStore.far = dvc(100, "m");
 	};
 	
 	ShaderPassConfigurator.prototype.configuration = function (passId) {
