@@ -66,7 +66,7 @@ Application.ShaderPassConfigurator = (function () {
 			},
 			focalDepth: {
 				value: dvc(5.0, "m"),
-				range: {begin: beforeNear, end: privateStore.far, step: dvc(0.01, "m")} 
+				range: {begin: beforeNear, end: privateStore.far, step: dvc(0.001, "m")} 
 			},
 			focalLength: {
 				value: dvc(45, "mm"),
@@ -210,10 +210,7 @@ Application.ShaderPassConfigurator = (function () {
 			},
 			focalDepth: {
 				value: dvc(5.0, "m"),
-				range: {begin: beforeNear, end: privateStore.far, step: dvc(0.01, "m")}
-
-				// value: 0.01,
-				// range: {begin: 0.0, end: 1.0, step: 0.001} 	
+				range: {begin: beforeNear, end: privateStore.far, step: dvc(0.001, "m")}
 			},
 			aperture: {
 				value: dvc(25, "mm"),
