@@ -25,7 +25,11 @@ Application.ShaderPassConfigurator = (function () {
 			case "bokeh_1": {
 				configuration = privateMethods.bokehPassConfiguration_1.call(this);
 				break;
-			} 	
+			} 
+			case "depth_1": {
+				configuration = privateMethods.bokehPassConfiguration_2.call(this);
+				break;
+			}	
 		}
 		return configuration
 	};
@@ -232,6 +236,71 @@ Application.ShaderPassConfigurator = (function () {
 
 				camera.aspect = this.settings.aspect.value;
 				camera.updateProjectionMatrix();
+			}
+		};
+	};
+	privateMethods.bokehPassConfiguration_2 = function () {
+
+		var canvasWidth = window.innerWidth;
+		var canvasHeight = canvasWidth / privateStore.aspect;
+		var near = 0.01;
+		var far = 1000;
+		
+		var settings = {
+			size: {
+				value: new THREE.Vector2(canvasWidth, canvasHeight) 
+			},
+			textel: {
+				value: new THREE.Vector2(1.0 / canvasWidth, 1.0 / canvasHeight) 
+			},
+			znear: {
+				value: near 
+			},
+			zfar: {
+				value: far
+			},
+			bias: {
+				value: 0.5
+			},
+			noise: {
+				value: true
+			},
+			namount: {
+				value: 0.0001
+			},
+			focalDepth: {
+				value: 35,
+				range: {begin: 1.00, end: 200.0, step: 5.00}
+			},
+			focalLength: {
+				value:100,
+				range: {begin: 12, end: 200, step: 20}
+			},
+			aperture: {
+				value: 8,
+				range: {begin: 1, end: 12, step: 1}
+			}
+
+		};
+		//var material = new THREE.MeshDepthMaterial();
+		var shader = THREE.ShaderLib["depthRGBA"];
+		var uniforms = THREE.UniformsUtils.clone(shader.uniforms);
+		var material = new THREE.ShaderMaterial({ 
+
+			fragmentShader: shader.fragmentShader,
+			vertexShader: shader.vertexShader,
+			uniforms: uniforms
+		});
+		material.blending = THREE.NoBlending;
+		return {
+			shader: THREE.TestShader,
+			textureId: "tColor",
+			settings: settings,
+			material: material,
+			 updateCamera: function (camera) {
+
+			// 	camera.aspect = this.settings.aspect.value;
+			// 	camera.updateProjectionMatrix();
 			}
 		};
 	};
