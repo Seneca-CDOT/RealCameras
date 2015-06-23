@@ -3,7 +3,7 @@ var Application = (function () {
 
     var privateStore = {};
     privateStore.started = false;
-    privateStore.bokehPassValues = ["Please, select bokeh style.","Bokeh Style 0", "Bokeh Style 1", "Test Depth"];
+    privateStore.bokehPassValues = ["Please, select bokeh style.","Bokeh Style 0", "Bokeh Style 1", "Depth Shader 1"];
     privateStore.bokehPassIds = ["-","bokeh_0", "bokeh_1", "depth_1"];
     privateStore.files = [
         "SourceCode/Controls/PointerLockControls.js",

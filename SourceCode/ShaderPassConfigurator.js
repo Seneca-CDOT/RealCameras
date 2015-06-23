@@ -218,7 +218,7 @@ Application.ShaderPassConfigurator = (function () {
 	privateMethods.bokehPassConfiguration_2 = function () {
 
 		var canvasWidth = window.innerWidth;
-		var canvasHeight = canvasWidth / aspect;
+		var canvasHeight = canvasWidth / privateStore.aspect;
 		var near = 0.01;
 		var far = 1000;
 		
@@ -235,20 +235,8 @@ Application.ShaderPassConfigurator = (function () {
 			zfar: {
 				value: far
 			},
-			maxblur: {
-				value: 2.0,
-			},
-			threshold: {
-				value: 0.5
-			},
-			gain: {
-				value: 2.0
-			},
 			bias: {
 				value: 0.5
-			},
-			fringe: {
-				value: 3.7
 			},
 			noise: {
 				value: true
@@ -285,7 +273,7 @@ Application.ShaderPassConfigurator = (function () {
 			textureId: "tColor",
 			settings: settings,
 			material: material,
-			 update: function (camera) {
+			 updateCamera: function (camera) {
 
 			// 	camera.aspect = this.settings.aspect.value;
 			// 	camera.updateProjectionMatrix();
