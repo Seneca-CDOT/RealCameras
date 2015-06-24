@@ -259,9 +259,6 @@ Application.ShaderPassConfigurator = (function () {
 			zfar: {
 				value: far
 			},
-			bias: {
-				value: 0.5
-			},
 			noise: {
 				value: true
 			},
@@ -299,6 +296,12 @@ Application.ShaderPassConfigurator = (function () {
 			material: material,
 			 updateCamera: function (camera) {
 
+			 // 	camera.near = this.settings.znear.value;
+				// camera.far = this.settings.zfar.value;
+
+				camera.focalLength = this.settings.focalLength.value/ 1000;
+				camera.setLens(camera.focalLength, camera.frameSize);
+				camera.updateProjectionMatrix();
 			// 	camera.aspect = this.settings.aspect.value;
 			// 	camera.updateProjectionMatrix();
 			}

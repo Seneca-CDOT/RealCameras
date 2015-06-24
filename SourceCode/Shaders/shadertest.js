@@ -58,7 +58,7 @@ THREE.TestShader = {
 		"uniform bool noise;", // use noise instead of pattern for sample dithering
 		"uniform float namount;", // dither amount
 
-		"const int rings = 4;", //ring count
+		"const int blurcount = 4;", //ring count
 
 		//used in the cacluation of depth of field
 		"float coc = 0.03;",
@@ -175,7 +175,7 @@ THREE.TestShader = {
 //*******  This was taken from the other example on three.js and reworken need to add guassian blur to it
 
 				"vec3 temp = vec3(0.0);",
-				"for (int i = 0; i < rings; ++i) {", //add more rings to make blur smoother
+				"for (int i = 0; i < blurcount; ++i) {", //add more rings to make blur smoother
 					
 					"float float_i = float(i + 1);",
 					"float ringsamples = float_i * 3.0;",
