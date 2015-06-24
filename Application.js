@@ -89,12 +89,12 @@ var Application = (function () {
 
             privateStore.demonstrator = new Application.RealCamerasDemonstrator();
 
-            var path = "Resource/testscene.scene/testscene.json";
-            var sl = Application.SceneLoader.getInstance();
-            sl.loadScene(path).then(function (meshes) {
+                var path = "Resource/testscene.scene/testscene.json";
+                var sl = Application.SceneLoader.getInstance();
+                sl.loadScene(path).then(function (meshes) {
 
-            privateStore.demonstrator.setUpScene(meshes);
-            });
+                    privateStore.demonstrator.setUpScene(meshes);
+                });
 
             privateMethods.setUpGui.call(that);
         });        

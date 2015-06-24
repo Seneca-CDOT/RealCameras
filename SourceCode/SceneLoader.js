@@ -39,7 +39,7 @@ Application.SceneLoader = (function () {
 	
 					mesh.position.x = 0.5 * width * Math.sin(i);
 					mesh.position.z = -(depthStart + i * depthInterval);
-					mesh.rotation.y = Math.PI * Math.sin(i);
+					mesh.rotation.y = Math.PI * Math.sin(3 * i);
 
 					var box = new THREE.Box3().setFromObject(mesh);
 					var factor = humanHeight / box.size().y;
@@ -50,7 +50,9 @@ Application.SceneLoader = (function () {
 				}
 
 				privateMethods.setUpScene.call(that, meshes).then(function (meshes) {
-					resolve(meshes);
+					privateMethods.setUpModel.call(that, meshes).then(function (meshes) {
+						resolve(meshes);
+					});
 				});
 			});
 		});	
@@ -143,7 +145,37 @@ Application.SceneLoader = (function () {
 			});
 		});
 	};
-	
+	privateMethods.setUpModel = function (meshes) {
+
+		return new Promise(function (resolve, reject) {
+			var path = "Resource/carscene.json";
+			var loader = new THREE.ObjectLoader();
+			loader.load(path, function (model) {
+
+				var mesh = new THREE.Object3D();
+				mesh.add(model);
+				meshes.push(mesh);
+
+				var dvc = Application.DistanceValuesConvertor.getInstance();
+				var carHeight = dvc(1.5, "m");
+
+				mesh.position.x = dvc(0.5, "m");
+				mesh.position.y = dvc(0.5, "m");
+				mesh.rotation.y = 0.7 * Math.PI;
+				mesh.position.z = -dvc(5, "m");
+
+				var box = new THREE.Box3().setFromObject(mesh);
+				var factor = carHeight / box.size().y;
+				var scaleX = mesh.scale.x * factor;
+				var scaleY = mesh.scale.y * factor;
+				var scaleZ = mesh.scale.z * factor;
+				mesh.scale.set(scaleX, scaleY, scaleZ);
+
+			    resolve(meshes);
+			});
+		});
+	};
+
 	var instance = null;
 	function createInstance () {
 
@@ -162,3 +194,56 @@ Application.SceneLoader = (function () {
 		}
 	};
 })(); 
+
+
+// loader.load(path,  function (geometry, materials) {
+
+//     /* Create the object from the geometry and materials that were loaded.  There
+//        can be multiple materials, which can be applied to the object using MeshFaceMaterials.
+//        Note tha the material can include references to texture images might finish
+//        loading later. */
+//     var object = new THREE.Mesh(geometry, new THREE.MeshFaceMaterial(materials));
+
+//     /* Determine the ranges of x, y, and z in the vertices of the geometry. */
+//     var xmin = Infinity;
+//     var xmax = -Infinity;
+//     var ymin = Infinity;
+//     var ymax = -Infinity;
+//     var zmin = Infinity;
+//     var zmax = -Infinity;
+//     for (var i = 0; i < geometry.vertices.length; i++) {
+//         var v = geometry.vertices[i];
+//         if (v.x < xmin)
+//             xmin = v.x;
+//         else if (v.x > xmax)
+//             xmax = v.x;
+//         if (v.y < ymin)
+//             ymin = v.y;
+//         else if (v.y > ymax)
+//             ymax = v.y;
+//         if (v.z < zmin)
+//             zmin = v.z;
+//         else if (v.z > zmax)
+//             zmax = v.z;
+//     }
+    
+//     /* translate the center of the object to the origin */
+//     var centerX = (xmin + xmax) / 2;
+//     var centerY = (ymin + ymax) / 2; 
+//     var centerZ = (zmin + zmax) / 2;
+
+//     var max = Math.max(centerX - xmin, xmax - centerX);
+//     max = Math.max(max, Math.max(centerY - ymin, ymax - centerY) );
+//     max = Math.max(max, Math.max(centerZ - zmin, zmax - centerZ) );
+//     var scale = 10 / max;
+//     object.position.set( -centerX, -centerY, -centerZ );
+
+//     console.log("Loading finished, scaling object by " + scale);
+//     console.log("Center at ( " + centerX + ", " + centerY + ", " + centerZ + " )");
+    
+//     /* Create the wrapper, model, to scale and rotate the object. */
+//     var model = new THREE.Object3D();
+//     model.add(object);
+//     model.scale.set(scale,scale,scale);
+//     rotateX = rotateY = 0;
+// }
