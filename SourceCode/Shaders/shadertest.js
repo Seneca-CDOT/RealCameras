@@ -9,7 +9,6 @@ THREE.TestShader = {
 		"aspect":   { type: "f", value: 1.0 },
 		"size":         { type: "v2", value: new THREE.Vector2(512, 512) },
 		"textel":		{ type: "v2", value: new THREE.Vector2(1/512, 1/512)},
-		"bias":			{ type: "f", value: 0.5 },
 		"noise":		{ type: "i", value: 1 },
 		"namount":		{ type: "f", value: 0.0001 },
 		"focalDepth": { type: "f", value: 20.00},
@@ -56,15 +55,10 @@ THREE.TestShader = {
 		"uniform float aperture;",
 
 		//used for colour
-		"uniform float bias;", // bokeh edge bias
 		"uniform bool noise;", // use noise instead of pattern for sample dithering
 		"uniform float namount;", // dither amount
 
-		//lets get rid of these
-		// samples and rings need to be constants. no dynamic loop counters in OpenGL ES
-		// Can shader be broken into 2 pass? ... 
-		"int samples = 3;", //samples on the first ring
-		"const int rings = 3;", //ring count
+		"const int blurcount = 4;", //ring count
 
 		//used in the cacluation of depth of field
 		"float coc = 0.03;",
@@ -87,9 +81,9 @@ THREE.TestShader = {
 	
 			"vec3 col = vec3(0.0);",
 
-			"col.r = texture2D(tColor, coords + vec2(1.0, 1.0)* texel * blur).r;",
-			"col.g = texture2D(tColor, coords + vec2(1.0, 1.0)* texel * blur).g;",
-			"col.b = texture2D(tColor, coords + vec2(1.0, 1.0)* texel * blur).b;",
+			"col.r = (texture2D(tColor, coords + vec2(1.0, 1.0)* texel * blur ).r) ;",
+			"col.g = (texture2D(tColor, coords + vec2(1.0, 1.0)* texel * blur ).g);",
+			"col.b = (texture2D(tColor, coords + vec2(1.0, 1.0)* texel * blur).b);",
 
 			"return col;", 
 		"}",
@@ -149,8 +143,8 @@ THREE.TestShader = {
 			//the distance between the depth and the dof edges is below
 			// can maybe just do depth-dfar instead
 
-			"float b = (a - (dfar-focalDepth)) / 5.0;", //blur for far 
-			"float c = (-a - (focalDepth-dnear) )/ 5.0;", //blur for near
+			"float b = (a - (dfar-focalDepth)) / 6.0;", //blur for far 
+			"float c = (-a - (focalDepth-dnear) )/ 3.0;", //blur for near
 
 			//if find out what blur factor it is based on if it is infront or behind
 			"blur = (a > 0.0) ? b : c;",
@@ -159,75 +153,47 @@ THREE.TestShader = {
 			"blur = clamp(blur, 0.0, 1.0);",
 
 			// calculation of pattern for dithering
-			"vec2 noise = rand(vUv) * namount * blur;",
+			"vec2 noise = rand(vUv) * namount * blur ;",
 
 			// getting blur x and y step factor
-			"float w = (1.0 / size.x) * blur + noise.x;",
+			//take texture size, blur ammount and noise to find
+			"float w = (1.0 / size.x) * blur + noise.x;", 
 			"float h = (1.0 / size.y) * blur + noise.y;",
 
 
-			// final color calculation (taken from other example to get working, moving to mine soon )
-			// {
-			"vec3 col = texture2D(tColor, vUv).rgb;",
-
+			// final color calc
+			"vec3 col = vec3(0.0);",
+			"int cont = 0;",
 
 	//TODO: GET THIS WORKING GUASSIAN BLUR
+			"float kernel[9];",
+		 	"kernel[0]=4.5/36.0; kernel[1]=2.25/36.0; kernel[2]=2.25/36.0;",
+		 	"kernel[3]=9.0/36.0; kernel[4]=4.5/36.0; kernel[5]=4.5/36.0;",
+		 	"kernel[6]=4.5/36.0; kernel[7]=2.25/36.0; kernel[8]=2.25/36.0;",
 
-		// 	"vec2 texelsize = vec2(texel.x, texel.y) * size ;",
 
-		// 	"float kernel[3];",
-		// 	"kernel[0]=4.0/16.0; kernel[1]=2.0/16.0; kernel[2]=1.0/16.0;",
-			
-		// 	"for (int x=-1; x<2; x++) {",
-		// 		"for (int y=-1; y<2; y++) {",
-		// 			"vec2 offset = vUv + vec2(texelsize.x * float(x), texelsize.y * float(y));",
-		// 			"float ker = float(kernel[(x*x + y*y)]);",
-		// 			"col += color(offset, blur);",
-		// 			//"col.r += tempr*kernel[(x*x + y*y)];",
-		// 			//"col.g += tempg*kernel[(x*x + y*y)];",
-		// 			//"col.b += tempb*kernel[(x*x + y*y)];",
-		// 		"}",
-		// 	//"}",
-		// //	"return col;",
-		// 	"}",
-		// 	" col /= 9.0;",
+//*******  This was taken from the other example on three.js and reworken need to add guassian blur to it
 
-//******* THIS is taken from other example, I am using to get mine working 
-//I will put mine guassian blur in later
-			"if (blur > 0.05) {",
-			
-				"float s = 1.0;",
-				"const int max_i = 9;",
-
-				"for (int i = 0; i < rings; ++i) {",
+				"vec3 temp = vec3(0.0);",
+				"for (int i = 0; i < blurcount; ++i) {", //add more rings to make blur smoother
 					
 					"float float_i = float(i + 1);",
-					"float ringsamples = float_i * float(samples);",
+					"float ringsamples = float_i * 3.0;",
 					
-			 		"for (int j = 0; j < max_i; ++j) {",
+			 		"for (int j = 0; j < 9; j++) {", //keep at 9 (3*3 matrix)
 						
 			 			"float float_j = float(j);",
-
+		
+			 			//find offset to use in colour function
 						"float step = 2.0 * PI / ringsamples;",
 						"float pw = float_i * cos(float_j * step);",
 						"float ph = float_i * sin(float_j * step);",
-						
-						"float p = 1.0;",
-					
-						"float m = p * mix(1.0, float_i / float(rings), bias);",
-						"col += m * color(vUv + vec2(pw * w, ph * h), blur);",
-						"s += m;",
-
-						"if (j == 3 * (i + 1)) {",
-
-							"break;",
-						"}", 
+				
+						"temp =  color(vUv + vec2(pw * w, ph * h), blur) /36.0;",
+						"col += temp;",
+			
 					"}",
 				"}",
-
-				//divide by sample count
-				"col /= s;", 
-			"}",
 			
 			//	"col = debugFocus(col, blur, depth);",
 //*************
