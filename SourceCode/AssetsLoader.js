@@ -90,22 +90,13 @@ Application.AssetsLoader = (function () {
 		if (evt.lengthComputable) {
 			loaded = evt.loaded;
 			total = evt.total;
-		} else {
-			var item = privateMethods.getItem.call(this, id);
-			if (item.explicitLength !== undefined) {
-				loaded = evt.loaded;
-				total = item.explicitLength;
-			} else {
-				// console.log("Length is not computable. Loaded: " + evt.loaded);
-				return;
-			}
-		}
+		} 
 		
-		// var item = privateMethods.getItem.call(this, id);
-		if (/*item && */total > 0) {
-			var newItemProgress = (loaded / total) / store.itemsCounter;
-			privateMethods.updateProgressState.call(this, id, newItemProgress);
+		var newItemProgress = 0.0;
+		if (total > 0) {
+			newItemProgress = (loaded / total) / store.itemsCounter;
 		}
+		privateMethods.updateProgressState.call(this, id, newItemProgress);
 	};
 	privateMethods.completionHandler = function (evt) {
 		++store.loadCounter;

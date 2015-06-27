@@ -22,37 +22,35 @@ Application.SceneLoader = (function () {
 			}, { 
 				src: "Resource/testscene.scene/" + "testscene.json",
 				id: "tScene"
-				// explicitLength: 73280218
 			}];
 			for (var i = 0; i < items.length; ++i) {
 				preloader.enqueueItem.call(this, items[i]);
 			}
 
-			function pH(progress) {
-				// console.log("Progress: " + (progress * 100.0) + "%");
-				store.progressControl.setProgress(progress);
-			};
+			// function pH(progress) {
+			// 	console.log("Progress: " + (progress * 100.0) + "%");
+			// 	store.progressControl.setProgress(progress);
+			// };
 			function cH() {
 				console.log("Completion from SceneLoader");
 				var that = this;
 				var meshes = [];
 				
-				// when parsing raw scene JSON, image assests get loaded asynchronously
-				privateMethods.setUpSceneContents.call(that, meshes).then(function () {
-					privateMethods.setUpSceneModel.call(that, meshes);
-					privateMethods.setUpSceneBox.call(that, meshes);
-					store.progressControl.transitionOut(callback);
-					
-				});
-
+				store.progressControl.stopProgress(callback);
 				function callback () {
-					resolve(meshes);
+					// when parsing raw scene JSON, image assests get loaded asynchronously
+					privateMethods.setUpSceneContents.call(that, meshes).then(function () {
+						privateMethods.setUpSceneModel.call(that, meshes);
+						privateMethods.setUpSceneBox.call(that, meshes);
+						resolve(meshes);
+					});
 				};
 			};
-
-			preloader.addProgressHandler(pH);
+			// preloader.addProgressHandler(pH);
 			preloader.addCompletionHandler(cH);
 			preloader.loadItems.call(this);
+
+			store.progressControl.startProgress();
 		});
 	};	
 	
