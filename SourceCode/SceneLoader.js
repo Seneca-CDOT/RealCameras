@@ -21,19 +21,19 @@ Application.SceneLoader = (function () {
 				id: "tPattern"
 			}, { 
 				src: "Resource/testscene.scene/" + "testscene.json",
-				id: "tScene",
-				explicitLength: 73280218
+				id: "tScene"
+				// explicitLength: 73280218
 			}];
 			for (var i = 0; i < items.length; ++i) {
 				preloader.enqueueItem.call(this, items[i]);
 			}
 
 			function pH(progress) {
-				console.log("Progress: " + (progress * 100.0) + "%");
+				// console.log("Progress: " + (progress * 100.0) + "%");
 				store.progressControl.setProgress(progress);
 			};
 			function cH() {
-				console.log("Completion from SceneLoader!");
+				console.log("Completion from SceneLoader");
 				var that = this;
 				var meshes = [];
 				

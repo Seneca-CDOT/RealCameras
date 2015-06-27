@@ -96,7 +96,7 @@ Application.AssetsLoader = (function () {
 				loaded = evt.loaded;
 				total = item.explicitLength;
 			} else {
-				console.log("Length is not computable. Loaded: " + evt.loaded);
+				// console.log("Length is not computable. Loaded: " + evt.loaded);
 				return;
 			}
 		}
