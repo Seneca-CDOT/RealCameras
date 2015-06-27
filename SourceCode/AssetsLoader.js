@@ -89,7 +89,7 @@ Application.AssetsLoader = (function () {
 			loaded = evt.loaded;
 			total = evt.total;
 		} else {
-			console.log("Langth is not computable.")
+			console.log("Length is not computable. Loaded: " + evt.loaded);
 			return;
 		}
 
