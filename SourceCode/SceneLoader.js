@@ -13,17 +13,16 @@ Application.SceneLoader = (function () {
 		return new Promise(function (resolve, reject) {
 
 			var preloader = store.preloader;
-			var items = [
-			// {
-			// 	src: "Resource/carscene.json",
-			// 	id: "tModel"
-			// }, {
-			// 	src: "Resource/checker.png",
-			// 	id: "tPattern"
-			// }, 
-			{ 
+			var items = [{
+				src: "Resource/carscene.json",
+				id: "tModel"
+			}, {
+				src: "Resource/checker.png",
+				id: "tPattern"
+			}, { 
 				src: "Resource/testscene.scene/" + "testscene.json",
-				id: "tScene"
+				id: "tScene",
+				explicitLength: 73280218
 			}];
 			for (var i = 0; i < items.length; ++i) {
 				preloader.enqueueItem.call(this, items[i]);
@@ -62,10 +61,7 @@ Application.SceneLoader = (function () {
 		return new Promise(function (resolve, reject) {
 			var rawScene = store.preloader.getItemData("tScene");
 			if (!rawScene) {
-				if (reject != undefined) {
-					reject();
-				}
-				return;
+				resolve();
 			}
 
 			var loader = new THREE.ObjectLoader();
@@ -110,7 +106,7 @@ Application.SceneLoader = (function () {
 					var scaleZ = mesh.scale.z * factor;
 					mesh.scale.set(scaleX, scaleY, scaleZ);
 				}
-				resolve(meshes);
+				resolve();
 			};
 		});
 	};

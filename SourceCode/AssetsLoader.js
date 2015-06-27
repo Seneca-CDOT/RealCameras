@@ -6,6 +6,7 @@ Application.AssetsLoader = (function () {
 	var store = {};
 	// store.queue = [];
 	store.queue = {};
+	store.itemsCounter = 0;
 	store.loadCounter = 0;
 
 	store.progress = 0.0;
@@ -20,6 +21,7 @@ Application.AssetsLoader = (function () {
 		item.data = null;
 		// store.queue.push(item);
 		store.queue[item.id] = item;
+		++store.itemsCounter;
 	};
 	AssetsLoader.prototype.getItemData = function (itemId) {
 		var item = privateMethods.getItem.call(this, itemId);
@@ -56,8 +58,6 @@ Application.AssetsLoader = (function () {
 		return item;
 	};
 	privateMethods.loadItem = function (item) {
-		++store.loadCounter;
-
 		var xhr = new XMLHttpRequest();
 		xhr.item = item;
 
@@ -83,26 +83,32 @@ Application.AssetsLoader = (function () {
 		xhr.send();
 	};
 	privateMethods.progressHandler = function (evt) {
+		var xhr = evt.target;
+		var id = xhr.item.id;
 		var loaded = 0;
 		var total = 0;
 		if (evt.lengthComputable) {
 			loaded = evt.loaded;
 			total = evt.total;
 		} else {
-			console.log("Length is not computable. Loaded: " + evt.loaded);
-			return;
+			var item = privateMethods.getItem.call(this, id);
+			if (item.explicitLength !== undefined) {
+				loaded = evt.loaded;
+				total = item.explicitLength;
+			} else {
+				console.log("Length is not computable. Loaded: " + evt.loaded);
+				return;
+			}
 		}
-
-		var xhr = evt.target;
-		var id = xhr.item.id;
+		
 		// var item = privateMethods.getItem.call(this, id);
 		if (/*item && */total > 0) {
-			var newItemProgress = loaded / total;
+			var newItemProgress = (loaded / total) / store.itemsCounter;
 			privateMethods.updateProgressState.call(this, id, newItemProgress);
 		}
 	};
 	privateMethods.completionHandler = function (evt) {
-		--store.loadCounter;
+		++store.loadCounter;
 
 		var that = this;
 		var xhr = evt.target;
@@ -154,7 +160,7 @@ Application.AssetsLoader = (function () {
 		// 	loadedItemsCount += (q[i].data === null ? 0 : 1);
 		// }
 		// if (q.length === loadedItemsCount) {
-		if (store.loadCounter == 0) {
+		if (store.loadCounter == store.itemsCounter) {
 			var chs = store.completionHandlers;
 			for (var i = 0; i < chs.length; ++i) {
 				chs[i]();
