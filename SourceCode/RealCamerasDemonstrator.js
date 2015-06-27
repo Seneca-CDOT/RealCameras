@@ -14,6 +14,8 @@ Application.RealCamerasDemonstrator = (function () {
 
 		// this.devicePixelRatio = window.devicePixelRatio || 1,
 
+		this.isSetUp = false;
+		this.isVisible = false;
 		this.container = null;
         this.renderer = null;
         this.camera = null;
@@ -42,7 +44,8 @@ Application.RealCamerasDemonstrator = (function () {
 	};
 	RealCamerasDemonstrator.prototype.setUpScene = function (meshes) {
 
-		if (!this.requestedAnimationFrameId) {
+		if (!this.isSetUp) {
+			this.isSetUp = true;
 			for (var i = 0; i < meshes.length; ++i) {
 
 				var mesh = meshes[i];
@@ -50,9 +53,7 @@ Application.RealCamerasDemonstrator = (function () {
 				// Application.Debuger.addAxes(mesh);
 				this.scene.add(mesh);
 			}
-
 			privateMethods.animate.call(this);
-			privateMethods.transitionIn.call(this);
 		}
 	};
 	RealCamerasDemonstrator.prototype.setUpBokehPass = function (passId) {
@@ -252,7 +253,7 @@ Application.RealCamerasDemonstrator = (function () {
 	privateMethods.transitionIn = function (callback) {
 		TweenLite.to(this.container, 1.5, {
 			opacity: 1.0,
-			delay: 3.0,
+			// delay: 3.0,
 			onComplete: onComplete
 		});
 		function onComplete() {
@@ -264,8 +265,19 @@ Application.RealCamerasDemonstrator = (function () {
 
 	privateMethods.animate = function () {
 
+		var that = this;
+		function request () {
+			that.requestedAnimationFrameId = window.requestAnimationFrame(privateMethods.animate.bind(that));
+		};
+
 		privateMethods.render.call(this);
-		this.requestedAnimationFrameId = window.requestAnimationFrame(privateMethods.animate.bind(this));
+
+		if (!this.isVisible && that.requestedAnimationFrameId) {
+			this.isVisible = true;
+			privateMethods.transitionIn.call(this, request);
+		} else {
+			request();
+		}
 	};
 	privateMethods.render = function () {
 
