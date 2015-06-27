@@ -96,7 +96,7 @@ var Application = (function () {
 
             var sl = Application.SceneLoader.getInstance();
             sl.load().then(function (meshes) {
-                console.log("Completion from Application!");
+                console.log("Completion from Application");
                 privateStore.demonstrator.setUpScene(meshes);
             });
 
