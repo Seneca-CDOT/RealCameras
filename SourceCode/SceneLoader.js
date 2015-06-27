@@ -13,14 +13,16 @@ Application.SceneLoader = (function () {
 		return new Promise(function (resolve, reject) {
 
 			var preloader = store.preloader;
-			var items = [{
-				src: "Resource/carscene.json",
-				id: "tModel"
-			}, {
-				src: "Resource/checker.png",
-				id: "tPattern"
-			}, { 
-				src: "Resource/testscene.scene/"+"testscene.json",
+			var items = [
+			// {
+			// 	src: "Resource/carscene.json",
+			// 	id: "tModel"
+			// }, {
+			// 	src: "Resource/checker.png",
+			// 	id: "tPattern"
+			// }, 
+			{ 
+				src: "Resource/testscene.scene/" + "testscene.json",
 				id: "tScene"
 			}];
 			for (var i = 0; i < items.length; ++i) {
@@ -59,12 +61,18 @@ Application.SceneLoader = (function () {
 	privateMethods.setUpSceneContents = function (meshes) {	
 		return new Promise(function (resolve, reject) {
 			var rawScene = store.preloader.getItemData("tScene");
+			if (!rawScene) {
+				if (reject != undefined) {
+					reject();
+				}
+				return;
+			}
+
 			var loader = new THREE.ObjectLoader();
 
 			// // Danger! TODO:
 			// this.texturePath = "test/path/" is set in 'load' method of 'THREE.ObjectLoader'
 			// loader.load("test/path/file.json");
-			
 			loader.texturePath = "Resource/testscene.scene/";
 			// var images = rawScene.images;
 			// for (var i = 0; i < images.length; ++i) {
@@ -108,6 +116,10 @@ Application.SceneLoader = (function () {
 	};
 	privateMethods.setUpSceneModel = function (meshes) {
 		var rawModel = store.preloader.getItemData("tModel");
+		if (!rawModel) {
+			return;
+		}
+			
 		var loader = new THREE.ObjectLoader();
 
 		loader.parse(rawModel, setUpModel);
@@ -134,6 +146,10 @@ Application.SceneLoader = (function () {
 	};
 	privateMethods.setUpSceneBox = function (meshes) {
 		var rawPattern = store.preloader.getItemData("tPattern");
+		if (!rawPattern) {
+			return;
+		}
+
 		var texture = new THREE.Texture(rawPattern);
 		var textureLeftRight = texture.clone();
 		var textureBack = texture.clone();
