@@ -33,17 +33,21 @@ var Application = (function () {
 
         "SourceCode/Helpers/Debuger.js",
 
+        "SourceCode/CircularProgressControl.js",
+
         "SourceCode/DistanceValuesConvertor.js",
         "SourceCode/RealCamerasDemonstrator.js",
         "SourceCode/ShaderPassConfigurator.js",
+        "SourceCode/AssetsLoader.js",
         "SourceCode/SceneLoader.js"
     ];
+    
     var privateMethods = {};
     privateMethods.setUpGui = function () {
             
         var select = document.createElement("select");
-        select.style.width = "170px";
         select.style.position = "absolute";
+        select.style.width = "170px";
         select.style.zIndex = "9999";
 
         var bokehPassValues = privateStore.bokehPassValues;
@@ -56,12 +60,13 @@ var Application = (function () {
             select.appendChild(option);
         }
 
-        select.addEventListener('change', privateMethods.didSelectBokehPass.bind(this));
+        select.addEventListener('change', privateMethods.onBokehPassSelected.bind(this));
         privateStore.select = select;
 
-        document.body.appendChild(privateStore.select);
+        var root = document.getElementById("root");
+        root.appendChild(privateStore.select);
     };  
-    privateMethods.didSelectBokehPass = function (e) {
+    privateMethods.onBokehPassSelected = function (e) {
 
         var bokehPassIds = privateStore.bokehPassIds;
 
@@ -89,12 +94,11 @@ var Application = (function () {
 
             privateStore.demonstrator = new Application.RealCamerasDemonstrator();
 
-                var path = "Resource/testscene.scene/testscene.json";
-                var sl = Application.SceneLoader.getInstance();
-                sl.loadScene(path).then(function (meshes) {
-
-                    privateStore.demonstrator.setUpScene(meshes);
-                });
+            var sl = Application.SceneLoader.getInstance();
+            sl.load().then(function (meshes) {
+                console.log("Completion from Application!");
+                privateStore.demonstrator.setUpScene(meshes);
+            });
 
             privateMethods.setUpGui.call(that);
         });        

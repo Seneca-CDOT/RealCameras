@@ -4,7 +4,6 @@ var Application = Application || {};
 Application.RealCamerasDemonstrator = (function () {
 
 	function RealCamerasDemonstrator () {
-
 // TODO:
 		// ACM p.13
 		var aspect = 2.35; // 1.85; 
@@ -15,6 +14,7 @@ Application.RealCamerasDemonstrator = (function () {
 
 		// this.devicePixelRatio = window.devicePixelRatio || 1,
 
+		this.container = null;
         this.renderer = null;
         this.camera = null;
         this.scene = null;
@@ -30,7 +30,7 @@ Application.RealCamerasDemonstrator = (function () {
 
         privateMethods.init.call(this);
 	};
-	// inherit interface if needed here ...
+	
 	RealCamerasDemonstrator.prototype.destroy = function () {
 
 // TODO:
@@ -42,16 +42,22 @@ Application.RealCamerasDemonstrator = (function () {
 	};
 	RealCamerasDemonstrator.prototype.setUpScene = function (meshes) {
 
-		for (var i = 0; i < meshes.length; ++i) {
+		if (!this.requestedAnimationFrameId) {
+			for (var i = 0; i < meshes.length; ++i) {
 
-			var mesh = meshes[i];
-			// [.WebGLRenderingContext-0x7ffddb4584f0]GL ERROR :GL_INVALID_VALUE : LineWidth: width out of range
-			// Application.Debuger.addAxes(mesh);
-			this.scene.add(mesh);
+				var mesh = meshes[i];
+				// [.WebGLRenderingContext-0x7ffddb4584f0]GL ERROR :GL_INVALID_VALUE : LineWidth: width out of range
+				// Application.Debuger.addAxes(mesh);
+				this.scene.add(mesh);
+			}
+
+			privateMethods.animate.call(this);
+			privateMethods.transitionIn.call(this);
 		}
 	};
 	RealCamerasDemonstrator.prototype.setUpBokehPass = function (passId) {
 
+// TODO:
 		var spc = Application.ShaderPassConfigurator.getInstance();
 		var configuration = spc.configuration(passId);
 		if (!configuration)
@@ -77,10 +83,8 @@ Application.RealCamerasDemonstrator = (function () {
 
 // mark -
 
-		// set initial values
+		// set initial values and gui
 		privateMethods.settingsUpdater.call(this);
-
-		// set up gui
 		privateMethods.setUpGui.call(this);
 	};
 
@@ -92,8 +96,6 @@ Application.RealCamerasDemonstrator = (function () {
 		privateMethods.initCamera.call(this);
 
 		privateMethods.initPostprocessing.call(this);
-
-		privateMethods.animate.call(this);
 	};
 
 	privateMethods.initRenderer = function () {
@@ -103,11 +105,19 @@ Application.RealCamerasDemonstrator = (function () {
 
 		var container = document.createElement("div");
 		container.appendChild(this.renderer.domElement);
-		document.body.appendChild(container);
+		this.container = container;
 
+		var root = document.getElementById("root");
+		root.appendChild(container);
+
+		container.style.opacity = "0.0";
 		container.style.position = "absolute";
-		container.style.width = this.canvasWidth + "px";
+		container.style.left = 0.0 + "px";
 		container.style.top = this.canvasOffset + "px";
+		container.style.width = this.canvasWidth + "px";
+
+		this.renderer.domElement.style.position = "absolute";
+		this.renderer.domElement.style.left = 0.0 + "px";
 	};
 	privateMethods.initCamera = function () {
 
@@ -193,8 +203,10 @@ Application.RealCamerasDemonstrator = (function () {
 		this.postprocessing.composer.addPass(renderPass);		
 	};
 
+// TODO: move this logic out
 	privateMethods.setUpGui = function () {
 
+// TODO:
 		if (this.gui) {
 
 			this.gui.domElement.parentNode.removeChild(this.gui.domElement);
@@ -234,6 +246,20 @@ Application.RealCamerasDemonstrator = (function () {
 				this.bokehPassConfiguration.bokehPass.uniforms[param].value = settings[param].value;
 			}
 		}
+	};
+
+// TODO: move this logic out
+	privateMethods.transitionIn = function (callback) {
+		TweenLite.to(this.container, 1.5, {
+			opacity: 1.0,
+			delay: 3.0,
+			onComplete: onComplete
+		});
+		function onComplete() {
+			if (callback !== undefined) {
+				callback();
+			}
+		};
 	};
 
 	privateMethods.animate = function () {
