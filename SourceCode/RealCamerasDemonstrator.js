@@ -137,9 +137,7 @@ Application.RealCamerasDemonstrator = (function () {
 	    this.scene.add(this.light);
 	};
 	privateMethods.initControls = function () {
-		this.controls = new THREE.PointerLockControls(this.camera);
-		this.controls.enabled = true;
-
+		this.controls = new Application.CameraControls(this.camera);
 		this.scene.add(this.controls.getObject());
 	};
 
@@ -248,8 +246,9 @@ Application.RealCamerasDemonstrator = (function () {
 			that.requestedAnimationFrameId = window.requestAnimationFrame(privateMethods.animate.bind(that));
 		};
 
+		this.controls.updateControls();
 		privateMethods.render.call(this);
-
+		
 		if (!this.isSceneVisible && that.requestedAnimationFrameId) {
 			this.isSceneVisible = true;
 			privateMethods.transitionIn.call(this, request);
