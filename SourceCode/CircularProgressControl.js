@@ -16,6 +16,8 @@ Application.CircularProgressControl = (function(){
 		this.size = 2 * this.position;
 
 		this.timer = null;
+
+		this.isVisible = false;
 		this.isForward = true;
 		this.angleDelta = 0.01 * this.twoPI;
 		this.startAngle = this.halfPI;
@@ -30,28 +32,34 @@ Application.CircularProgressControl = (function(){
 		this.canvas.style.top = "50%";
 		this.canvas.style.left = "50%";
 		this.canvas.style.zIndex = "9999";
-		this.canvas.style.opacity = "0";
+		this.canvas.style.opacity = "0.0";
 	};
 
-	// CircularProgressControl.prototype.setProgress = function (progress) {
-	// 	var endAngle = this.startAngle + (this.twoPI * progress);
+	CircularProgressControl.prototype.setProgress = function (progress) {
+		if (!this.isVisible) {
+			document.body.appendChild(this.canvas);
+			this.canvas.style.opacity = "1.0";
+			this.isVisible = true;
+		}
+
+		var endAngle = this.startAngle + (this.twoPI * progress);
 		
-	// 	this.ctx.clearRect(0 , 0, this.size, this.size);
-	// 	this.ctx.beginPath();
-	// 	this.ctx.arc(
-	// 		this.position, 
-	// 		this.position, 
-	// 		this.radius, 
-	// 		this.startAngle, 
-	// 		endAngle);
-	// 	this.ctx.strokeStyle = '#666';
-	// 	this.ctx.lineWidth = this.lineWidth;
-	// 	this.ctx.stroke();
-	// };
+		this.ctx.clearRect(0 , 0, this.size, this.size);
+		this.ctx.beginPath();
+		this.ctx.arc(
+			this.position, 
+			this.position, 
+			this.radius, 
+			this.startAngle, 
+			endAngle);
+		this.ctx.strokeStyle = '#666';
+		this.ctx.lineWidth = this.lineWidth;
+		this.ctx.stroke();
+	};
 
 	CircularProgressControl.prototype.startProgress = function (callback) {
 		if (!this.timer) {
-			this.timer = setTimeout(this.fakeProgress.bind(this), 1.0);
+			this.timer = setTimeout(privateMethods.fakeProgress.bind(this), 1.0);
 			privateMethods.transitionIn.call(this, callback);
 		}
 	};
@@ -68,8 +76,8 @@ Application.CircularProgressControl = (function(){
 		};
 	};
 
-	CircularProgressControl.prototype.fakeProgress = function () {
-
+	var privateMethods = Object.create(CircularProgressControl.prototype);
+	privateMethods.fakeProgress = function () {
 		var startAngle = 0.0;
 		var endAngle = 0.0;
 		this.currentAngle += this.angleDelta;
@@ -109,31 +117,32 @@ Application.CircularProgressControl = (function(){
 		this.ctx.lineWidth = this.lineWidth;
 		this.ctx.stroke();
 
-		this.timer = setTimeout(this.fakeProgress.bind(this), 10.0);
+		this.timer = setTimeout(privateMethods.fakeProgress.bind(this), 10.0);
 	};	
-
-	var privateMethods = Object.create(CircularProgressControl.prototype);
 	privateMethods.transitionIn = function (callback) {
 		document.body.appendChild(this.canvas);
-		TweenLite.to(this.canvas, 1.5, {
+		TweenLite.to(this.canvas, 1.0, {
 			opacity: 1.0,
 			onComplete: onComplete
 		});
 
+		var that = this;
 		function onComplete() {
+			that.isVisible = true;
 			if (callback !== undefined) {
 				callback();
 			}
 		};
 	};
 	privateMethods.transitionOut = function (callback) {
-		TweenLite.to(this.canvas, 1.5, {
+		TweenLite.to(this.canvas, 1.0, {
 			opacity: 0.0,
 			onComplete: onComplete
 		});
 
 		var that = this;
 		function onComplete() {
+			that.isVisible = false;
 			that.canvas.remove();
 			if (callback !== undefined) {
 				callback();
