@@ -14,38 +14,42 @@ Application.RealCamerasDemonstrator = (function () {
 
 		// this.devicePixelRatio = window.devicePixelRatio || 1,
 
-		this.isSetUp = false;
-		this.isVisible = false;
+		this.requestedAnimationFrameId = null;
+
+		this.isSceneSetUp = false;
+		this.isSceneVisible = false;
+
 		this.container = null;
         this.renderer = null;
-        this.camera = null;
         this.scene = null;
         this.light = null;
+        this.camera = null;
         this.controls = null;
 
         this.postprocessing = {};
         this.bokehPassConfiguration = null;
 		this.bokehPassDepthMapSource = null;
+
 		this.gui = null;
 
-        this.requestedAnimationFrameId = null;
-
-        privateMethods.init.call(this);
+        privateMethods.initGraphics.call(this);
+        privateMethods.initPostprocessing.call(this);
 	};
 	
 	RealCamerasDemonstrator.prototype.destroy = function () {
-
-// TODO:
 		if (this.requestedAnimationFrameId) {
 
             window.cancelAnimationFrame(this.requestedAnimationFrameId);
             this.requestedAnimationFrameId = null;
         }
+
+        privateMethods.destroyGraphics.call(this);
+        privateMethods.destroyPostprocessing.call(this);
+        privateMethods.destroyGui.call(this);
 	};
 	RealCamerasDemonstrator.prototype.setUpScene = function (meshes) {
-
-		if (!this.isSetUp) {
-			this.isSetUp = true;
+		if (!this.isSceneSetUp) {
+			this.isSceneSetUp = true;
 			for (var i = 0; i < meshes.length; ++i) {
 
 				var mesh = meshes[i];
@@ -57,50 +61,29 @@ Application.RealCamerasDemonstrator = (function () {
 		}
 	};
 	RealCamerasDemonstrator.prototype.setUpBokehPass = function (passId) {
-
-// TODO:
 		var spc = Application.ShaderPassConfigurator.getInstance();
+
 		var configuration = spc.configuration(passId);
 		if (!configuration)
 			return;
 
-		this.bokehPassConfiguration = configuration;
-
-		var shader = this.bokehPassConfiguration.shader;
-		var textureId = this.bokehPassConfiguration.textureId;
-
-		// bokeh pass
-		var bokehPass = new THREE.ShaderPass(shader, textureId);
-		bokehPass.uniforms["tDepth"].value = this.bokehPassDepthMapSource;
-		bokehPass.renderToScreen = true;
-
-		if (this.postprocessing.composer.passes.length > 1) {
-
-			this.postprocessing.composer.popPass();
-			this.postprocessing.composer.reset();	
-		}
-		this.postprocessing.composer.addPass(bokehPass);
-		this.bokehPassConfiguration.bokehPass = bokehPass;
-
-// mark -
-
-		// set initial values and gui
+		privateMethods.destroyBokehPass.call(this);
+		privateMethods.setUpBokehPass.call(this, configuration);
+		
 		privateMethods.settingsUpdater.call(this);
+
+		privateMethods.destroyGui.call(this);
 		privateMethods.setUpGui.call(this);
 	};
 
 	var privateMethods = Object.create(RealCamerasDemonstrator.prototype);
-	privateMethods.init = function(){
-
+	privateMethods.initGraphics = function() {
 		privateMethods.initRenderer.call(this);
 		privateMethods.initScene.call(this);
 		privateMethods.initCamera.call(this);
-
-		privateMethods.initPostprocessing.call(this);
 	};
 
 	privateMethods.initRenderer = function () {
-
 		this.renderer = new THREE.WebGLRenderer();
 		this.renderer.setSize(this.canvasWidth, this.canvasHeight);
 
@@ -120,8 +103,12 @@ Application.RealCamerasDemonstrator = (function () {
 		this.renderer.domElement.style.position = "absolute";
 		this.renderer.domElement.style.left = 0.0 + "px";
 	};
-	privateMethods.initCamera = function () {
+	privateMethods.initScene = function() {
+		this.scene = new THREE.Scene();
 
+		privateMethods.initLight.call(this);
+	};
+	privateMethods.initCamera = function () {
 		var dvc = Application.DistanceValuesConvertor.getInstance();
 
 		// fov is calculated and set in setLens based on fame size and focal length
@@ -137,41 +124,10 @@ Application.RealCamerasDemonstrator = (function () {
 		var aboveTheGround = dvc(1.5, "m");
 		var toTheRight = dvc(1, "m");
 		this.camera.position.set(toTheRight, aboveTheGround, 0);
+
 		privateMethods.initControls.call(this);	
 	};
-
-	privateMethods.initScene = function() {
-
-		this.scene = new THREE.Scene();
-		privateMethods.initLight.call(this);
-	};
 	privateMethods.initLight = function () {
-
-// TODO:
-		// var dirLight = new THREE.DirectionalLight(0xffffff, 0.5);
-		// dirLight.color.setHSL(0.1, 1, 0.95);
-		// dirLight.position.set(0, 1.75, 1);
-		// dirLight.position.multiplyScalar(50);
-
-		// // dirLight.castShadow = true;
-
-		// // dirLight.shadowMapWidth = 2048;
-		// // dirLight.shadowMapHeight = 2048;
-
-		// // var d = 10;
-
-		// // dirLight.shadowCameraLeft = -d;
-		// // dirLight.shadowCameraRight = d;
-		// // dirLight.shadowCameraTop = d;
-		// // dirLight.shadowCameraBottom = -d;
-
-		// // dirLight.shadowCameraFar = 3500;
-		// // dirLight.shadowBias = -0.0001;
-		// // dirLight.shadowDarkness = 0.35;
-		// // dirLight.shadowCameraVisible = true;
-		
-		// this.light = dirLight
-
 		var dvc = Application.DistanceValuesConvertor.getInstance();
 
 		this.light = new THREE.HemisphereLight(0xffDDDD, 0x000000, 0.6);
@@ -181,14 +137,15 @@ Application.RealCamerasDemonstrator = (function () {
 	    this.scene.add(this.light);
 	};
 	privateMethods.initControls = function () {
-
 		this.controls = new THREE.PointerLockControls(this.camera);
 		this.controls.enabled = true;
 
 		this.scene.add(this.controls.getObject());
 	};
-	privateMethods.initPostprocessing = function() {
 
+// mark -
+
+	privateMethods.initPostprocessing = function() {
 		// intermediate renderer targets
 		this.bokehPassDepthMapSource = new THREE.WebGLRenderTarget(this.canvasWidth, this.canvasHeight, {
 
@@ -203,18 +160,26 @@ Application.RealCamerasDemonstrator = (function () {
 		var renderPass = new THREE.RenderPass(this.scene, this.camera);
 		this.postprocessing.composer.addPass(renderPass);		
 	};
+	privateMethods.setUpBokehPass = function (configuration) {
+		this.bokehPassConfiguration = configuration;
+
+		var shader = this.bokehPassConfiguration.shader;
+		var textureId = this.bokehPassConfiguration.textureId;
+
+		// bokeh pass
+		var bokehPass = new THREE.ShaderPass(shader, textureId);
+		bokehPass.uniforms["tDepth"].value = this.bokehPassDepthMapSource;
+		bokehPass.renderToScreen = true;
+		
+		this.postprocessing.composer.addPass(bokehPass);
+		this.bokehPassConfiguration.bokehPass = bokehPass;
+	};
+
+// mark -
 
 // TODO: move this logic out
 	privateMethods.setUpGui = function () {
-
-// TODO:
-		if (this.gui) {
-
-			this.gui.domElement.parentNode.removeChild(this.gui.domElement);
-		} 
-		this.gui = new dat.GUI();
-	
-		
+		this.gui = new dat.GUI();	
 		var settings = this.bokehPassConfiguration.settings;
 		for (var param in settings) {
 			if (settings.hasOwnProperty(param)) {
@@ -237,9 +202,7 @@ Application.RealCamerasDemonstrator = (function () {
 		this.gui.open();
 	};
 	privateMethods.settingsUpdater = function () {
-
 		this.bokehPassConfiguration.updateCamera(this.camera);
-
 		var settings = this.bokehPassConfiguration.settings;	
 		for (var param in settings) {
 			if (settings.hasOwnProperty(param)) {
@@ -249,22 +212,37 @@ Application.RealCamerasDemonstrator = (function () {
 		}
 	};
 
-// TODO: move this logic out
-	privateMethods.transitionIn = function (callback) {
-		TweenLite.to(this.container, 1.5, {
-			opacity: 1.0,
-			// delay: 3.0,
-			onComplete: onComplete
-		});
-		function onComplete() {
-			if (callback !== undefined) {
-				callback();
-			}
-		};
+// mark -
+	
+	privateMethods.destroyGraphics = function () {
+		// TODO: ...
+	};
+	privateMethods.destroyPostprocessing = function () {
+		privateMethods.destroyBokehPass.call(this);
+		while (this.postprocessing.composer.passes.length) {
+			this.postprocessing.composer.popPass();
+		}
+
+		this.bokehPassDepthMapSource = null;
+		this.postprocessing = null;
+    };
+   	privateMethods.destroyBokehPass = function () {
+		if (this.postprocessing.composer.passes.length > 1) {
+			this.postprocessing.composer.popPass();
+			this.postprocessing.composer.reset();	
+		}
+		this.bokehPassConfiguration = null;;
+   	};
+    privateMethods.destroyGui = function () {
+    	if (this.gui) {
+			this.gui.domElement.parentNode.removeChild(this.gui.domElement);
+			this.gui = null;
+		} 
 	};
 
-	privateMethods.animate = function () {
+// mark -
 
+	privateMethods.animate = function () {
 		var that = this;
 		function request () {
 			that.requestedAnimationFrameId = window.requestAnimationFrame(privateMethods.animate.bind(that));
@@ -272,15 +250,14 @@ Application.RealCamerasDemonstrator = (function () {
 
 		privateMethods.render.call(this);
 
-		if (!this.isVisible && that.requestedAnimationFrameId) {
-			this.isVisible = true;
+		if (!this.isSceneVisible && that.requestedAnimationFrameId) {
+			this.isSceneVisible = true;
 			privateMethods.transitionIn.call(this, request);
 		} else {
 			request();
 		}
 	};
 	privateMethods.render = function () {
-
 		if (this.bokehPassConfiguration) {
 
 			// depth into texture rendering
@@ -296,6 +273,22 @@ Application.RealCamerasDemonstrator = (function () {
 			this.scene.overrideMaterial = null;
 			this.renderer.render(this.scene, this.camera);
 		}
+	};
+
+// mark -
+
+// TODO: move this logic out
+	privateMethods.transitionIn = function (callback) {
+		TweenLite.to(this.container, 1.5, {
+			opacity: 1.0,
+			// delay: 3.0,
+			onComplete: onComplete
+		});
+		function onComplete() {
+			if (callback !== undefined) {
+				callback();
+			}
+		};
 	};
 
 	return RealCamerasDemonstrator;

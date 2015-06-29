@@ -14,14 +14,15 @@ Application.SceneLoader = (function () {
 
 			var preloader = store.preloader;
 			var items = [{
-				src: "Resource/carscene.json",
-				id: "tModel"
+				src: "Resource/car.json",
+				id: "tCar"
 			}, {
 				src: "Resource/checker.png",
 				id: "tPattern"
 			}, { 
-				src: "Resource/testscene.scene/" + "testscene.json",
-				id: "tScene"
+				src: "Resource/human.object/" + "human.json",
+				// src: "Resource/human.scene/" + "human-scene.json",
+				id: "tHuman"
 			}];
 			for (var i = 0; i < items.length; ++i) {
 				preloader.enqueueItem(items[i]);
@@ -56,8 +57,8 @@ Application.SceneLoader = (function () {
 	var privateMethods = Object.create(SceneLoader.prototype);
 	privateMethods.setUpSceneContents = function (meshes) {	
 		return new Promise(function (resolve, reject) {
-			var rawScene = store.preloader.getItemData("tScene");
-			if (!rawScene) {
+			var rawHuman = store.preloader.getItemData("tHuman");
+			if (!rawHuman) {
 				resolve();
 			}
 
@@ -66,20 +67,21 @@ Application.SceneLoader = (function () {
 			// // Danger! TODO:
 			// this.texturePath = "test/path/" is set in 'load' method of 'THREE.ObjectLoader'
 			// loader.load("test/path/file.json");
-			loader.texturePath = "Resource/testscene.scene/";
-			// var images = rawScene.images;
+
+			// loader.texturePath = "Resource/human.object/";
+			// loader.texturePath = "Resource/human.scene/";
+			
+			// var images = rawHuman.images;
 			// for (var i = 0; i < images.length; ++i) {
-			// 	images[i].url = "Resource/testscene.scene/" + images[i].url;
+			// 	images[i].url = "Resource/human.object/" + images[i].url;
 			// }
 
-			loader.parse(rawScene, setUpContents);
-			function setUpContents(scene) {
-				for (var i = 0; i < scene.children.length; ++i) {
-					var mesh = scene.children[i];
-					if (mesh instanceof THREE.Mesh) {
-						meshes.push(mesh);
-					} 
-				}
+			loader.parse(rawHuman, setUpContents);
+			function setUpContents(model) {
+				var mesh = new THREE.Object3D();
+				// mesh.add(model.children[0]);
+				mesh.add(model);
+				meshes.push(mesh);
 
 				var dvc = Application.DistanceValuesConvertor.getInstance();
 
@@ -90,7 +92,6 @@ Application.SceneLoader = (function () {
 
 				for (var i = 0; i < meshes.length; ++i) {
 					var mesh = meshes[i];
-					scene.remove(mesh);
 
 					mesh.position.x = 0.5 * width * Math.sin(i);
 					mesh.position.z = -(depthStart + i * depthInterval);
@@ -108,15 +109,15 @@ Application.SceneLoader = (function () {
 		});
 	};
 	privateMethods.setUpSceneModel = function (meshes) {
-		var rawModel = store.preloader.getItemData("tModel");
-		if (!rawModel) {
+		var rawCar = store.preloader.getItemData("tCar");
+		if (!rawCar) {
 			return;
 		}
 			
 		var loader = new THREE.ObjectLoader();
 
-		loader.parse(rawModel, setUpModel);
-		function setUpModel(model) {
+		loader.parse(rawCar, setUpContents);
+		function setUpContents(model) {
 			var mesh = new THREE.Object3D();
 			mesh.add(model);
 			meshes.push(mesh);
