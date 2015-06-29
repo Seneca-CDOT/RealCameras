@@ -24,13 +24,13 @@ Application.SceneLoader = (function () {
 				id: "tScene"
 			}];
 			for (var i = 0; i < items.length; ++i) {
-				preloader.enqueueItem.call(this, items[i]);
+				preloader.enqueueItem(items[i]);
 			}
 
-			// function pH(progress) {
-			// 	console.log("Progress: " + (progress * 100.0) + "%");
-			// 	store.progressControl.setProgress(progress);
-			// };
+			function pH(progress) {
+				console.log("Progress: " + (progress * 100.0) + "%");
+				store.progressControl.setProgress(progress);
+			};
 			function cH() {
 				console.log("Completion from SceneLoader");
 				var that = this;
@@ -49,7 +49,6 @@ Application.SceneLoader = (function () {
 			// preloader.addProgressHandler(pH);
 			preloader.addCompletionHandler(cH);
 			preloader.loadItems.call(this);
-
 			store.progressControl.startProgress();
 		});
 	};	
