@@ -78,27 +78,69 @@ Application.SceneLoader = (function () {
 
 			loader.parse(rawHuman, setUpContents);
 			function setUpContents(model) {
-				var mesh = new THREE.Object3D();
-				// mesh.add(model.children[0]);
-				mesh.add(model);
-				meshes.push(mesh);
-
 				var dvc = Application.DistanceValuesConvertor.getInstance();
 
-				var depthStart = dvc(2, "m");
-				var depthInterval = dvc(3.5, "m");
-				var width = dvc(10, "m") - dvc(2, "m");
-				var humanHeight = dvc(1.8, "m");
+				// var depthStart = dvc(2, "m");
+				// var depthInterval = dvc(3.5, "m");
+				// var width = dvc(10, "m") - dvc(2, "m");
 
-				for (var i = 0; i < meshes.length; ++i) {
-					var mesh = meshes[i];
+				var realHeight = dvc(1.8, "m");
 
-					mesh.position.x = 0.5 * width * Math.sin(i);
-					mesh.position.z = -(depthStart + i * depthInterval);
-					mesh.rotation.y = Math.PI * Math.sin(3 * i);
+				// mesh.position.x = 0.5 * width * Math.sin(i);
+				// mesh.position.z = -(depthStart + i * depthInterval);
+
+				var locations = [];
+				locations.push({
+					rotation: {
+						y: 0.0 * Math.PI
+					},
+					position: {
+						x: -dvc(2.0, "m"),
+						y: dvc(0.0, "m"),
+						z: -dvc(4, "m")
+					}
+				});
+				locations.push({
+					rotation: {
+						y: -0.2 * Math.PI
+					},
+					position: {
+						x: dvc(2.0, "m"),
+						y: dvc(0.0, "m"),
+						z: -dvc(20, "m")
+					}
+				});
+				locations.push({
+					rotation: {
+						y: 0.1 * Math.PI
+					},
+					position: {
+						x: -dvc(3.0, "m"),
+						y: dvc(0.0, "m"),
+						z: -dvc(25, "m")
+					}
+				});
+
+
+				var template = model; // model.children[0]
+				for (var i = 0; i < locations.length; ++i) {
+					var clone = template.clone();
+
+					var mesh = new THREE.Object3D();
+					mesh.add(clone);
+					meshes.push(mesh);
+
+					var location = locations[i];
+
+					mesh.position.x = location.position.x;
+					mesh.position.z = location.position.z;
+					mesh.position.y = location.position.y;
+
+					mesh.rotation.y = location.rotation.y;
+
 
 					var box = new THREE.Box3().setFromObject(mesh);
-					var factor = humanHeight / box.size().y;
+					var factor = realHeight / box.size().y;
 					var scaleX = mesh.scale.x * factor;
 					var scaleY = mesh.scale.y * factor;
 					var scaleZ = mesh.scale.z * factor;
@@ -118,24 +160,57 @@ Application.SceneLoader = (function () {
 
 		loader.parse(rawCar, setUpContents);
 		function setUpContents(model) {
-			var mesh = new THREE.Object3D();
-			mesh.add(model);
-			meshes.push(mesh);
-
 			var dvc = Application.DistanceValuesConvertor.getInstance();
-			var carHeight = dvc(1.5, "m");
 
-			mesh.position.x = dvc(0.5, "m");
-			mesh.position.y = dvc(0.5, "m");
-			mesh.rotation.y = 0.7 * Math.PI;
-			mesh.position.z = -dvc(5, "m");
+			var realHeight = dvc(1.5, "m");
 
-			var box = new THREE.Box3().setFromObject(mesh);
-			var factor = carHeight / box.size().y;
-			var scaleX = mesh.scale.x * factor;
-			var scaleY = mesh.scale.y * factor;
-			var scaleZ = mesh.scale.z * factor;
-			mesh.scale.set(scaleX, scaleY, scaleZ);
+			var locations = [];
+			locations.push({
+				rotation: {
+					y: 0.7 * Math.PI
+				},
+				position: {
+					x: dvc(0.5, "m"),
+					y: dvc(0.3, "m"),
+					z: -dvc(17, "m")
+				}
+			});
+			locations.push({
+				rotation: {
+					y: 0.5 * Math.PI
+				},
+				position: {
+					x: dvc(-2.0, "m"),
+					y: dvc(0.3, "m"),
+					z: -dvc(10.0, "m")
+				}
+			});
+
+// mark -
+			
+			var template = model;
+			for (var i = 0; i < locations.length; ++i) {
+				var clone = template.clone();
+
+				var mesh = new THREE.Object3D();
+				mesh.add(clone);
+				meshes.push(mesh);
+
+				var location = locations[i];
+
+				mesh.position.x = location.position.x;
+				mesh.position.z = location.position.z;
+				mesh.position.y = location.position.y;
+
+				mesh.rotation.y = location.rotation.y;
+
+				var box = new THREE.Box3().setFromObject(mesh);
+				var factor = realHeight / box.size().y;
+				var scaleX = mesh.scale.x * factor;
+				var scaleY = mesh.scale.y * factor;
+				var scaleZ = mesh.scale.z * factor;
+				mesh.scale.set(scaleX, scaleY, scaleZ);
+			}
 		};
 	};
 	privateMethods.setUpSceneBox = function (meshes) {
@@ -151,17 +226,20 @@ Application.SceneLoader = (function () {
 // mark -
 		var dvc = Application.DistanceValuesConvertor.getInstance();
 
-		var depth = dvc(60, "m");
 		var depthShiftBackward = dvc(20, "m");
 		var depthShiftForward = dvc(10, "m");
-
-		var height = dvc(4, "m");
+		var depth = dvc(60, "m");
+		var height = dvc(10, "feet");
 		var width = dvc(10, "m");
+
+		var depthT = 0.5 * depth;
+		var heightT = 0.5 * height;
+		var widthT = 0.5 * width;
 		
 		texture.needsUpdate = true;
 		texture.wrapS = THREE.RepeatWrapping;
 		texture.wrapT = THREE.RepeatWrapping;
-		texture.repeat.set(width, depth);
+		texture.repeat.set(widthT, depthT);
 		var groundMaterial = new THREE.MeshLambertMaterial({
 			map: texture
 		});
@@ -175,7 +253,7 @@ Application.SceneLoader = (function () {
 		textureLeftRight.needsUpdate = true;
 		textureLeftRight.wrapS = THREE.RepeatWrapping;
 		textureLeftRight.wrapT = THREE.RepeatWrapping;
-		textureLeftRight.repeat.set(height, depth);
+		textureLeftRight.repeat.set(heightT, depthT);
 		var leftRightMaterial = new THREE.MeshLambertMaterial({
 			map: textureLeftRight
 		});
@@ -202,7 +280,7 @@ Application.SceneLoader = (function () {
 		textureBack.needsUpdate = true;
 		textureBack.wrapS = THREE.RepeatWrapping;
 		textureBack.wrapT = THREE.RepeatWrapping;
-		textureBack.repeat.set(width, height);
+		textureBack.repeat.set(widthT, heightT);
 		var backMaterial = new THREE.MeshLambertMaterial({
 			map: textureBack
 		});
@@ -227,16 +305,13 @@ Application.SceneLoader = (function () {
 
 	var instance = null;
 	function createInstance () {
-
 		var newInstance = new SceneLoader();
 		return newInstance;
 	};
 
 	return {
 		getInstance: function () {
-
 			if (!instance) {
-
 				instance = createInstance();
 			}
 			return instance;
