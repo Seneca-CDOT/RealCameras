@@ -78,10 +78,14 @@ Application.SceneLoader = (function () {
 
 			loader.parse(rawHuman, setUpContents);
 			function setUpContents(model) {
-				var mesh = new THREE.Object3D();
-				// mesh.add(model.children[0]);
-				mesh.add(model);
-				meshes.push(mesh);
+				var template = model; // model.children[0]
+				var clonesNumber = 10;
+				for (var i = 0; i < clonesNumber; ++i) {
+					var clone = template.clone();
+					var mesh = new THREE.Object3D();
+					mesh.add(clone);
+					meshes.push(mesh);
+				}
 
 				var dvc = Application.DistanceValuesConvertor.getInstance();
 
@@ -126,9 +130,9 @@ Application.SceneLoader = (function () {
 			var carHeight = dvc(1.5, "m");
 
 			mesh.position.x = dvc(0.5, "m");
-			mesh.position.y = dvc(0.5, "m");
+			mesh.position.y = dvc(0.3, "m");
 			mesh.rotation.y = 0.7 * Math.PI;
-			mesh.position.z = -dvc(5, "m");
+			mesh.position.z = -dvc(17, "m");
 
 			var box = new THREE.Box3().setFromObject(mesh);
 			var factor = carHeight / box.size().y;
