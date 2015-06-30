@@ -80,23 +80,64 @@ Application.SceneLoader = (function () {
 			function setUpContents(model) {
 				var dvc = Application.DistanceValuesConvertor.getInstance();
 
-				var depthStart = dvc(2, "m");
-				var depthInterval = dvc(3.5, "m");
-				var width = dvc(10, "m") - dvc(2, "m");
+				// var depthStart = dvc(2, "m");
+				// var depthInterval = dvc(3.5, "m");
+				// var width = dvc(10, "m") - dvc(2, "m");
+
 				var realHeight = dvc(1.8, "m");
 
-				var clonesNumber = 10;	
+				// mesh.position.x = 0.5 * width * Math.sin(i);
+				// mesh.position.z = -(depthStart + i * depthInterval);
+
+				var locations = [];
+				locations.push({
+					rotation: {
+						y: 0.0 * Math.PI
+					},
+					position: {
+						x: -dvc(2.0, "m"),
+						y: dvc(0.0, "m"),
+						z: -dvc(4, "m")
+					}
+				});
+				locations.push({
+					rotation: {
+						y: -0.2 * Math.PI
+					},
+					position: {
+						x: dvc(2.0, "m"),
+						y: dvc(0.0, "m"),
+						z: -dvc(20, "m")
+					}
+				});
+				locations.push({
+					rotation: {
+						y: 0.1 * Math.PI
+					},
+					position: {
+						x: -dvc(3.0, "m"),
+						y: dvc(0.0, "m"),
+						z: -dvc(25, "m")
+					}
+				});
+
+
 				var template = model; // model.children[0]
-				for (var i = 0; i < clonesNumber; ++i) {
+				for (var i = 0; i < locations.length; ++i) {
 					var clone = template.clone();
 
 					var mesh = new THREE.Object3D();
 					mesh.add(clone);
 					meshes.push(mesh);
 
-					mesh.position.x = 0.5 * width * Math.sin(i);
-					mesh.position.z = -(depthStart + i * depthInterval);
-					mesh.rotation.y = Math.PI * Math.sin(3 * i);
+					var location = locations[i];
+
+					mesh.position.x = location.position.x;
+					mesh.position.z = location.position.z;
+					mesh.position.y = location.position.y;
+
+					mesh.rotation.y = location.rotation.y;
+
 
 					var box = new THREE.Box3().setFromObject(mesh);
 					var factor = realHeight / box.size().y;
@@ -130,6 +171,7 @@ Application.SceneLoader = (function () {
 				},
 				position: {
 					x: dvc(0.5, "m"),
+					y: dvc(0.3, "m"),
 					z: -dvc(17, "m")
 				}
 			});
@@ -139,6 +181,7 @@ Application.SceneLoader = (function () {
 				},
 				position: {
 					x: dvc(-2.0, "m"),
+					y: dvc(0.3, "m"),
 					z: -dvc(10.0, "m")
 				}
 			});
@@ -157,7 +200,7 @@ Application.SceneLoader = (function () {
 
 				mesh.position.x = location.position.x;
 				mesh.position.z = location.position.z;
-				mesh.position.y = dvc(0.3, "m");
+				mesh.position.y = location.position.y;
 
 				mesh.rotation.y = location.rotation.y;
 
