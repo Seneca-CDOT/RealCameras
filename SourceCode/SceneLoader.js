@@ -151,17 +151,20 @@ Application.SceneLoader = (function () {
 // mark -
 		var dvc = Application.DistanceValuesConvertor.getInstance();
 
-		var depth = dvc(60, "m");
 		var depthShiftBackward = dvc(20, "m");
 		var depthShiftForward = dvc(10, "m");
-
-		var height = dvc(4, "m");
+		var depth = dvc(60, "m");
+		var height = dvc(10, "feet");
 		var width = dvc(10, "m");
+
+		var depthT = 0.5 * depth;
+		var heightT = 0.5 * height;
+		var widthT = 0.5 * width;
 		
 		texture.needsUpdate = true;
 		texture.wrapS = THREE.RepeatWrapping;
 		texture.wrapT = THREE.RepeatWrapping;
-		texture.repeat.set(width, depth);
+		texture.repeat.set(widthT, depthT);
 		var groundMaterial = new THREE.MeshLambertMaterial({
 			map: texture
 		});
@@ -175,7 +178,7 @@ Application.SceneLoader = (function () {
 		textureLeftRight.needsUpdate = true;
 		textureLeftRight.wrapS = THREE.RepeatWrapping;
 		textureLeftRight.wrapT = THREE.RepeatWrapping;
-		textureLeftRight.repeat.set(height, depth);
+		textureLeftRight.repeat.set(heightT, depthT);
 		var leftRightMaterial = new THREE.MeshLambertMaterial({
 			map: textureLeftRight
 		});
@@ -202,7 +205,7 @@ Application.SceneLoader = (function () {
 		textureBack.needsUpdate = true;
 		textureBack.wrapS = THREE.RepeatWrapping;
 		textureBack.wrapT = THREE.RepeatWrapping;
-		textureBack.repeat.set(width, height);
+		textureBack.repeat.set(widthT, heightT);
 		var backMaterial = new THREE.MeshLambertMaterial({
 			map: textureBack
 		});
@@ -227,16 +230,13 @@ Application.SceneLoader = (function () {
 
 	var instance = null;
 	function createInstance () {
-
 		var newInstance = new SceneLoader();
 		return newInstance;
 	};
 
 	return {
 		getInstance: function () {
-
 			if (!instance) {
-
 				instance = createInstance();
 			}
 			return instance;
