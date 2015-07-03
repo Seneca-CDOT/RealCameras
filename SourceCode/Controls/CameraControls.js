@@ -14,11 +14,9 @@ Application.CameraControls = (function () {
 		positionObject.position.x = position.x;
 		positionObject.position.y = position.y;
 		this.setPlane(new THREE.Vector3(0.0, 0.0, -1.0), position.z);
-
-		this.enabled = false;
-		this.controls.enabled = this.enabled;
-
-		this.delta = 0.5;
+		this.setEnabled(false);
+		this.setDelta(0.5);
+		this.setBox(null);
 
 		this.moveForward = false;
 		this.moveBackward = false;
@@ -77,6 +75,9 @@ Application.CameraControls = (function () {
 		return this.controls.getDirection();
 	};
 
+	CameraControls.prototype.setBox = function (box) {
+		this.box = box;
+	};
 	CameraControls.prototype.setDelta = function (delta) {
 		this.delta = delta;
 	};
@@ -111,6 +112,7 @@ Application.CameraControls = (function () {
 			var delta = this.delta;
 
 			var displacement = new THREE.Vector3();
+
 			displacement.y += this.moveForward ? delta : 0.0;
 			displacement.y += this.moveBackward ? -delta : 0.0;
 			displacement.x += this.moveRight ? delta : 0.0;
@@ -120,6 +122,20 @@ Application.CameraControls = (function () {
 			object.translateX(displacement.x);
 			object.translateY(displacement.y);
 			object.translateZ(displacement.z);
+
+			if (this.box) {
+				var position = object.position;
+				var box = this.box;
+				if (!(box.min.x < position.x && position.x < box.max.x)) {
+					object.translateX(-displacement.x);
+				}
+				if (!(box.min.y < position.y && position.y < box.max.y)) {
+					object.translateY(-displacement.y);
+				}
+				if (!(box.min.z < position.z && position.z < box.max.z)) {
+					object.translateZ(-displacement.z);
+				}
+			}
 		}
 	};
 

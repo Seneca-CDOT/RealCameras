@@ -58,24 +58,6 @@ var Application = (function () {
         select.name("Bokeh Styles");
         select.onChange(privateMethods.onBokehPassSelected.bind(this));
         store.gui.open();
-    
-        // var select = document.createElement("select");
-        // select.style.position = "absolute";
-        // select.style.width = "170px";
-        // select.style.zIndex = "9999";
-
-        // var bokehPassValues = store.bokehPassValues;
-        // for (var i = 0; i < bokehPassValues.length; ++i) {
-        //     var option = document.createElement('option');
-        //     option.value = i;            
-        //     option.innerHTML = bokehPassValues[i];
-        //     select.appendChild(option);
-        // }
-
-        // select.addEventListener('change', privateMethods.onBokehPassSelected.bind(this));
-        // store.select = select;
-        // var root = document.getElementById("root");
-        // root.appendChild(store.select);
     };  
     privateMethods.onBokehPassSelected = function () {
         var value = store.settings.bokehPassValue;
@@ -86,19 +68,6 @@ var Application = (function () {
             var passId = store.settings.bokehPassId;
             store.demonstrator.setUpBokehPass(passId);
         }
-
-        // var bokehPassIds = store.bokehPassIds;
-        // var options = e.target.children;
-        // for (var i = 0; i < options.length; ++i) {
-
-        //     var option = options[i];
-        //     if (option.selected == true && option.value != 0) {
-
-        //         var passId = bokehPassIds[option.value];
-        //         store.demonstrator.setUpBokehPass(passId);
-        //         break;
-        //     }                          
-        // }
     };
     privateMethods.main = function() {
 
@@ -113,9 +82,9 @@ var Application = (function () {
             store.demonstrator = new Application.RealCamerasDemonstrator();
 
             var sl = Application.SceneLoader.getInstance();
-            sl.load().then(function (meshes) {
+            sl.load().then(function (meshesContainer) {
                 console.log("Completion from Application");
-                store.demonstrator.setUpScene(meshes);
+                store.demonstrator.setUpScene(meshesContainer);
             });
 
             privateMethods.setUpGui.call(that);

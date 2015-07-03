@@ -47,16 +47,15 @@ Application.RealCamerasDemonstrator = (function () {
         privateMethods.destroyPostprocessing.call(this);
         privateMethods.destroyGui.call(this);
 	};
-	RealCamerasDemonstrator.prototype.setUpScene = function (meshes) {
+	RealCamerasDemonstrator.prototype.setUpScene = function (meshesContainer) {
 		if (!this.isSceneSetUp) {
 			this.isSceneSetUp = true;
-			for (var i = 0; i < meshes.length; ++i) {
+			this.scene.add(meshesContainer);
 
-				var mesh = meshes[i];
-				// [.WebGLRenderingContext-0x7ffddb4584f0]GL ERROR :GL_INVALID_VALUE : LineWidth: width out of range
-				// Application.Debuger.addAxes(mesh);
-				this.scene.add(mesh);
-			}
+			var box = new THREE.Box3().setFromObject(meshesContainer);
+			this.controls.setBox(box);
+			this.controls.setEnabled(true);
+			
 			privateMethods.animate.call(this);
 		}
 	};
@@ -140,12 +139,12 @@ Application.RealCamerasDemonstrator = (function () {
 	privateMethods.initControls = function () {
 		var dvc = Application.DistanceValuesConvertor.getInstance();
 
-		var direction = new THREE.Vector3(0.0, 0.0, -1.0);
+		// var direction = new THREE.Vector3(0.0, 0.0, -1.0);
+		var direction = new THREE.Vector3(-1.0, 0.0, -1.0);
 		var displacement = dvc(0.0, "m");
-		var delta = dvc(0.1, "m");
+		var delta = dvc(0.05, "m");
 
 		this.controls = new Application.CameraControls(this.camera);
-		this.controls.setEnabled(true);
 		this.controls.setDelta(delta);
 		this.controls.setPlane(direction, displacement);
 

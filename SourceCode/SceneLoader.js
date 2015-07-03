@@ -35,15 +35,21 @@ Application.SceneLoader = (function () {
 			function cH() {
 				console.log("Completion from SceneLoader");
 				var that = this;
-				var meshes = [];
+				var meshesContainer = new THREE.Object3D();
 				
 				store.progressControl.stopProgress(callback);
 				function callback () {
 					// when parsing raw scene JSON, image assests get loaded asynchronously
-					privateMethods.setUpSceneContents.call(that, meshes).then(function () {
-						privateMethods.setUpSceneModel.call(that, meshes);
-						privateMethods.setUpSceneBox.call(that, meshes);
-						resolve(meshes);
+					privateMethods.setUpSceneContents.call(that, meshesContainer).then(function () {
+						privateMethods.setUpSceneModel.call(that, meshesContainer);
+						privateMethods.setUpSceneBox.call(that, meshesContainer);
+
+						// test
+						var helper = new THREE.BoundingBoxHelper(meshesContainer, 0xff0000);
+						helper.update();
+						meshesContainer.add(helper);
+
+						resolve(meshesContainer);
 					});
 				};
 			};
@@ -55,7 +61,7 @@ Application.SceneLoader = (function () {
 	};	
 	
 	var privateMethods = Object.create(SceneLoader.prototype);
-	privateMethods.setUpSceneContents = function (meshes) {	
+	privateMethods.setUpSceneContents = function (meshesContainer) {	
 		return new Promise(function (resolve, reject) {
 			var rawHuman = store.preloader.getItemData("tHuman");
 			if (!rawHuman) {
@@ -128,7 +134,7 @@ Application.SceneLoader = (function () {
 
 					var mesh = new THREE.Object3D();
 					mesh.add(clone);
-					meshes.push(mesh);
+					meshesContainer.add(mesh);
 
 					var location = locations[i];
 
@@ -150,7 +156,7 @@ Application.SceneLoader = (function () {
 			};
 		});
 	};
-	privateMethods.setUpSceneModel = function (meshes) {
+	privateMethods.setUpSceneModel = function (meshesContainer) {
 		var rawCar = store.preloader.getItemData("tCar");
 		if (!rawCar) {
 			return;
@@ -194,7 +200,7 @@ Application.SceneLoader = (function () {
 
 				var mesh = new THREE.Object3D();
 				mesh.add(clone);
-				meshes.push(mesh);
+				meshesContainer.add(mesh);
 
 				var location = locations[i];
 
@@ -213,7 +219,7 @@ Application.SceneLoader = (function () {
 			}
 		};
 	};
-	privateMethods.setUpSceneBox = function (meshes) {
+	privateMethods.setUpSceneBox = function (meshesContainer) {
 		var rawPattern = store.preloader.getItemData("tPattern");
 		if (!rawPattern) {
 			return;
@@ -258,22 +264,18 @@ Application.SceneLoader = (function () {
 			map: textureLeftRight
 		});
 
-		//wall
+		// wall
 		var leftRightGeometry = new THREE.PlaneBufferGeometry(height, depth);
 		var left = new THREE.Mesh(leftRightGeometry, leftRightMaterial); 
 		left.rotation.x = -0.5 * Math.PI;
 		left.rotation.y = 0.5 * Math.PI;
 		left.position.set(-0.5 * width, 0.5 * height, -depthShiftBackward);
 
-		//wall
+		// wall
 		var right = new THREE.Mesh(leftRightGeometry, leftRightMaterial); 
 		right.rotation.x = -0.5 * Math.PI;
 		right.rotation.y = -0.5 * Math.PI;
 		right.position.set(0.5 * width, 0.5 * height, -depthShiftBackward);
-
-		// var ceiling = new THREE.Mesh(geometry, material);
-		// ceiling.rotation.x = 0.5 * Math.PI;
-		// ceiling.position.set(0, 40, -480);
 
 // mark -
 
@@ -285,7 +287,7 @@ Application.SceneLoader = (function () {
 			map: textureBack
 		});
 
-		//wall
+		// wall
 		var backGeometry = new THREE.PlaneBufferGeometry(width, height);
 		var back = new THREE.Mesh(backGeometry, backMaterial);
 		back.rotation.x = -Math.PI;
@@ -293,12 +295,10 @@ Application.SceneLoader = (function () {
 
 // mark -
 		
-		//add to scene
-		meshes.push(ground);
-		meshes.push(left);
-		meshes.push(right);
-		// meshes.push(ceiling);
-		meshes.push(back);
+		meshesContainer.add(ground);
+		meshesContainer.add(left);
+		meshesContainer.add(right);
+		meshesContainer.add(back);
 	};	
 
 // mark -
