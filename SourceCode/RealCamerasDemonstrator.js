@@ -123,7 +123,8 @@ Application.RealCamerasDemonstrator = (function () {
 
 		var aboveTheGround = dvc(1.5, "m");
 		var toTheRight = dvc(1, "m");
-		this.camera.position.set(toTheRight, aboveTheGround, 0);
+		var back = dvc(1, "m");
+		this.camera.position.set(toTheRight, aboveTheGround, back);
 
 		privateMethods.initControls.call(this);	
 	};
@@ -137,7 +138,17 @@ Application.RealCamerasDemonstrator = (function () {
 	    this.scene.add(this.light);
 	};
 	privateMethods.initControls = function () {
+		var dvc = Application.DistanceValuesConvertor.getInstance();
+
+		var direction = new THREE.Vector3(0.0, 0.0, -1.0);
+		var displacement = dvc(0.0, "m");
+		var delta = dvc(0.1, "m");
+
 		this.controls = new Application.CameraControls(this.camera);
+		this.controls.setEnabled(true);
+		this.controls.setDelta(delta);
+		this.controls.setPlane(direction, displacement);
+
 		this.scene.add(this.controls.getObject());
 	};
 
