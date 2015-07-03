@@ -14,7 +14,12 @@ Application.RealCamerasDemonstrator = (function () {
 		this.canvasOffset = Math.max(0, 0.5 * (window.innerHeight - this.canvasHeight));
 
 		// this.devicePixelRatio = window.devicePixelRatio || 1,
+		this.requestedAnimationFrameId = null;
 
+		this.isSceneSetUp = false;
+		this.isSceneVisible = false;
+
+		this.container = null;
         this.renderer = null;
         this.camera = null;
         this.scene = null;
@@ -28,7 +33,8 @@ Application.RealCamerasDemonstrator = (function () {
 
         this.requestedAnimationFrameId = null;
 
-        privateMethods.init.call(this);
+        privateMethods.initGraphics.call(this);
+        privateMethods.initPostprocessing.call(this);
 	};
 	// inherit interface if needed here ...
 	RealCamerasDemonstrator.prototype.destroy = function () {
@@ -39,15 +45,21 @@ Application.RealCamerasDemonstrator = (function () {
             window.cancelAnimationFrame(this.requestedAnimationFrameId);
             this.requestedAnimationFrameId = null;
         }
+        privateMethods.destroyGraphics.call(this);
+        privateMethods.destroyPostprocessing.call(this);
+        privateMethods.destroyGui.call(this);
 	};
 	RealCamerasDemonstrator.prototype.setUpScene = function (meshes) {
+		if (!this.isSceneSetUp) {
+			this.isSceneSetUp = true;
+			for (var i = 0; i < meshes.length; ++i) {
 
-		for (var i = 0; i < meshes.length; ++i) {
-
-			var mesh = meshes[i];
+				var mesh = meshes[i];
 			// [.WebGLRenderingContext-0x7ffddb4584f0]GL ERROR :GL_INVALID_VALUE : LineWidth: width out of range
 			// Application.Debuger.addAxes(mesh);
-			this.scene.add(mesh);
+				this.scene.add(mesh);
+			}
+			privateMethods.animate.call(this);
 		}
 	};
 	RealCamerasDemonstrator.prototype.setUpBokehPass = function (passId) {
@@ -57,57 +69,41 @@ Application.RealCamerasDemonstrator = (function () {
 		if (!configuration)
 			return;
 
-		this.bokehPassConfiguration = configuration;
-
-		var shader = this.bokehPassConfiguration.shader;
-		var textureId = this.bokehPassConfiguration.textureId;
-
-		// bokeh pass
-		var bokehPass = new THREE.ShaderPass(shader, textureId);
-		bokehPass.uniforms["tDepth"].value = this.bokehPassDepthMapSource;
-		bokehPass.renderToScreen = true;
-
-		if (this.postprocessing.composer.passes.length > 1) {
-
-			this.postprocessing.composer.popPass();
-			this.postprocessing.composer.reset();	
-		}
-		this.postprocessing.composer.addPass(bokehPass);
-		this.bokehPassConfiguration.bokehPass = bokehPass;
-
-// mark -
-
-		// set initial values
+		privateMethods.destroyBokehPass.call(this);
+		privateMethods.setUpBokehPass.call(this, configuration);
+		
 		privateMethods.settingsUpdater.call(this);
 
-		// set up gui
+		privateMethods.destroyGui.call(this);
 		privateMethods.setUpGui.call(this);
 	};
 
 	var privateMethods = Object.create(RealCamerasDemonstrator.prototype);
-	privateMethods.init = function(){
-
+	privateMethods.initGraphics = function() {
 		privateMethods.initRenderer.call(this);
 		privateMethods.initScene.call(this);
 		privateMethods.initCamera.call(this);
-
-		privateMethods.initPostprocessing.call(this);
-
-		privateMethods.animate.call(this);
 	};
 
 	privateMethods.initRenderer = function () {
-
 		this.renderer = new THREE.WebGLRenderer();
 		this.renderer.setSize(this.canvasWidth, this.canvasHeight);
 
 		var container = document.createElement("div");
 		container.appendChild(this.renderer.domElement);
-		document.body.appendChild(container);
+		this.container = container;
 
+		var root = document.getElementById("root");
+		root.appendChild(container);
+
+		container.style.opacity = "0.0";
 		container.style.position = "absolute";
-		container.style.width = this.canvasWidth + "px";
+		container.style.left = 0.0 + "px";
 		container.style.top = this.canvasOffset + "px";
+		container.style.width = this.canvasWidth + "px";
+
+		this.renderer.domElement.style.position = "absolute";
+		this.renderer.domElement.style.left = 0.0 + "px";
 	};
 	privateMethods.initCamera = function () {
 
@@ -116,7 +112,7 @@ Application.RealCamerasDemonstrator = (function () {
 		// fov is calculated and set in setLens based on fame size and focal length
 		var emptyFov = 0.;
 		var near = dvc(0.01, "m");
-		var far = dvc(100, "m");
+		var far = dvc(1000, "m");
 		this.camera = new THREE.PerspectiveCamera(emptyFov, this.canvasWidth / this.canvasHeight, near, far);
 
 		this.camera.focalLength = dvc(45, "mm");
@@ -135,32 +131,6 @@ Application.RealCamerasDemonstrator = (function () {
 		privateMethods.initLight.call(this);
 	};
 	privateMethods.initLight = function () {
-
-// TODO:
-		// var dirLight = new THREE.DirectionalLight(0xffffff, 0.5);
-		// dirLight.color.setHSL(0.1, 1, 0.95);
-		// dirLight.position.set(0, 1.75, 1);
-		// dirLight.position.multiplyScalar(50);
-
-		// // dirLight.castShadow = true;
-
-		// // dirLight.shadowMapWidth = 2048;
-		// // dirLight.shadowMapHeight = 2048;
-
-		// // var d = 10;
-
-		// // dirLight.shadowCameraLeft = -d;
-		// // dirLight.shadowCameraRight = d;
-		// // dirLight.shadowCameraTop = d;
-		// // dirLight.shadowCameraBottom = -d;
-
-		// // dirLight.shadowCameraFar = 3500;
-		// // dirLight.shadowBias = -0.0001;
-		// // dirLight.shadowDarkness = 0.35;
-		// // dirLight.shadowCameraVisible = true;
-		
-		// this.light = dirLight
-
 		var dvc = Application.DistanceValuesConvertor.getInstance();
 
 		this.light = new THREE.HemisphereLight(0xffDDDD, 0x000000, 0.6);
@@ -170,10 +140,7 @@ Application.RealCamerasDemonstrator = (function () {
 	    this.scene.add(this.light);
 	};
 	privateMethods.initControls = function () {
-
-		this.controls = new THREE.PointerLockControls(this.camera);
-		this.controls.enabled = true;
-
+		this.controls = new Application.CameraControls(this.camera);
 		this.scene.add(this.controls.getObject());
 	};
 	privateMethods.initPostprocessing = function() {
@@ -192,54 +159,146 @@ Application.RealCamerasDemonstrator = (function () {
 		var renderPass = new THREE.RenderPass(this.scene, this.camera);
 		this.postprocessing.composer.addPass(renderPass);		
 	};
+	privateMethods.setUpBokehPass = function (configuration) {
+		this.bokehPassConfiguration = configuration;
+
+		var shader = this.bokehPassConfiguration.shader;
+		var textureId = this.bokehPassConfiguration.textureId;
+
+		// bokeh pass
+		var bokehPass = new THREE.ShaderPass(shader, textureId);
+		bokehPass.uniforms["tDepth"].value = this.bokehPassDepthMapSource;
+		bokehPass.renderToScreen = true;
+		
+		this.postprocessing.composer.addPass(bokehPass);
+		this.bokehPassConfiguration.bokehPass = bokehPass;
+	};
 
 	privateMethods.setUpGui = function () {
 
-		if (this.gui) {
-
-			this.gui.domElement.parentNode.removeChild(this.gui.domElement);
-		} 
+		var params = {
+ 			format: "16mm",
+ 			lens: "arri 16",
+ 			horsize: 10.26,
+    		versize: 7.49
+    	};
 		this.gui = new dat.GUI();
-	
+	    var dvc = Application.DistanceValuesConvertor.getInstance();
 		
 		var settings = this.bokehPassConfiguration.settings;
-		for (var param in settings) {
-			if (settings.hasOwnProperty(param)) {
+		var temp = this;	
 
-				if (settings[param].range !== undefined) {
+		var camfolder = this.gui.addFolder("Camera");
 
-					var begin = settings[param].range.begin;
-					var end = settings[param].range.end;
-					var step = settings[param].range.step;
+	 	$.getJSON("../Resource/jsonfiles/CameraData.json").then(function(data){
+ 			var ind= [];	
+ 			var listcams = [];	
+ 			$.each(data, function(name, value){
+ 				$.each(value, function(index, innervalue){
+ 					listcams.push(innervalue.format);
+ 			 	});
+			});
+		    camfolder.add(params, 'format', listcams).onChange(function(value){
+  				var i = listcams.indexOf(value);
+  		 		params.horsize = data.cameras[i].Dimensions[0];
+  		 		params.versize = data.cameras[i].Dimensions[1];
+  		 		settings["coc"].value = data.cameras[i].circleofconf;
+  		 		privateMethods.settingsUpdater.call(temp);
+  			});
+	    });
 
-					this.gui.add(settings[param], "value", begin, end, step).name(param)
-					.onChange(privateMethods.settingsUpdater.bind(this));
-				} else if (settings[param].show !== undefined && settings[param].show === true) {
 
-					this.gui.add(settings[param], "value").name(param)
-					.onChange(privateMethods.settingsUpdater.bind(this));
-				}
-			}
-		}
-		this.gui.open();
+	 	this.camfolder = camfolder;
+		this.camfolder.open();
+
+	    var lensfolder = this.gui.addFolder("Lens");
+
+	    $.getJSON("../Resource/jsonfiles/Lensdata.json").then(function(data){
+ 			var ind= [];	
+ 			var listlens = [];	
+ 			$.each(data, function(name, value){
+ 				$.each(value, function(index, innervalue){
+ 					listlens.push(innervalue.nameof);
+ 			 	});
+			});
+		    lensfolder.add(params, 'lens', listlens).onChange(function(value){
+  				var i = listlens.indexOf(value);
+  		 		settings["focalLength"].value = data.lenses[i].FocalLength;
+  		 		privateMethods.settingsUpdater.call(temp);
+  			});
+	    });
+		
+		this.lensfolder = lensfolder;
+		this.lensfolder.open();
+
+		
+		this.Userfolder = this.gui.addFolder("User Inputs");
+		
+		this.Userfolder.add(settings["focalDepth"], "value", 5.0, 60.0, 5.0).name("Distance to subject")
+		.onChange(privateMethods.settingsUpdater.bind(this));
+		
+		this.Userfolder.add(settings["aperture"], "value", 1.0, 22.0, 1.0).name("f-stop")
+		.onChange(privateMethods.settingsUpdater.bind(this));
+
+		this.Userfolder.open();
+	//	}
 	};
 	privateMethods.settingsUpdater = function () {
 
-		this.bokehPassConfiguration.updateCamera(this.camera);
+		 this.bokehPassConfiguration.updateCamera(this.camera);
 
-		var settings = this.bokehPassConfiguration.settings;	
-		for (var param in settings) {
-			if (settings.hasOwnProperty(param)) {
+		 var settings = this.bokehPassConfiguration.settings;	
+		 for (var param in settings) {
+		 	if (settings.hasOwnProperty(param)) {
 
-				this.bokehPassConfiguration.bokehPass.uniforms[param].value = settings[param].value;
-			}
-		}
+		this.bokehPassConfiguration.bokehPass.uniforms[param].value = settings[param].value;
+		  //this.bokehPassConfiguration.bokehPass.uniforms["focalLength"].value = settings["focalLength"].value;
+		  //this.bokehPassConfiguration.bokehPass.uniforms["focalDepth"].value = settings["focalDepth"].value;
+	//	  this.bokehPassConfiguration.bokehPass.uniforms["aperture"].value = settings["aperture"].value;
+		 	}
+		 }
 	};
 
-	privateMethods.animate = function () {
+	privateMethods.destroyGraphics = function () {
+		// TODO: ...
+	};
+	privateMethods.destroyPostprocessing = function () {
+		privateMethods.destroyBokehPass.call(this);
+		while (this.postprocessing.composer.passes.length) {
+			this.postprocessing.composer.popPass();
+		}
 
+		this.bokehPassDepthMapSource = null;
+		this.postprocessing = null;
+    };
+   	privateMethods.destroyBokehPass = function () {
+		if (this.postprocessing.composer.passes.length > 1) {
+			this.postprocessing.composer.popPass();
+			this.postprocessing.composer.reset();	
+		}
+		this.bokehPassConfiguration = null;;
+   	};
+    privateMethods.destroyGui = function () {
+    	if (this.gui) {
+			this.gui.domElement.parentNode.removeChild(this.gui.domElement);
+			this.gui = null;
+		} 
+	};
+	privateMethods.animate = function () {
+		var that = this;
+		function request () {
+			that.requestedAnimationFrameId = window.requestAnimationFrame(privateMethods.animate.bind(that));
+		};
+
+		this.controls.updateControls();
 		privateMethods.render.call(this);
-		this.requestedAnimationFrameId = window.requestAnimationFrame(privateMethods.animate.bind(this));
+		
+		if (!this.isSceneVisible && that.requestedAnimationFrameId) {
+			this.isSceneVisible = true;
+			privateMethods.transitionIn.call(this, request);
+		} else {
+			request();
+		}
 	};
 	privateMethods.render = function () {
 
@@ -259,6 +318,19 @@ Application.RealCamerasDemonstrator = (function () {
 			this.renderer.render(this.scene, this.camera);
 		}
 	};
+	privateMethods.transitionIn = function (callback) {
+		TweenLite.to(this.container, 1.5, {
+			opacity: 1.0,
+			// delay: 3.0,
+			onComplete: onComplete
+		});
+		function onComplete() {
+			if (callback !== undefined) {
+				callback();
+			}
+		};
+	};
+
 
 	return RealCamerasDemonstrator;
 })(); 

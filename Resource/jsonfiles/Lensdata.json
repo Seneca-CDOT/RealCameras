@@ -1,0 +1,22 @@
+{
+	"lenses":[
+		{"nameof":"Master Prime 12mm", "FocalLength": 12.0, "Mount": "PL LDS", "apeture": 1.3},
+		{"nameof":"Master Prime 14mm", "FocalLength": 14.0, "Mount": "PL LDS", "apeture": 1.3},
+		{"nameof":"Master Prime 16mm", "FocalLength": 16.0, "Mount": "PL LDS", "apeture": 1.3},
+		{"nameof":"Master Prime 18mm", "FocalLength": 18.0, "Mount": "PL LDS", "apeture": 1.3},
+		{"nameof":"Master Prime 21mm", "FocalLength": 21.0, "Mount": "PL LDS", "apeture": 1.3},
+		{"nameof":"Master Prime 25mm", "FocalLength": 25.0, "Mount": "PL LDS", "apeture": 1.3},
+		{"nameof":"Master Prime 27mm", "FocalLength": 27.0, "Mount": "PL LDS", "apeture": 1.3},
+		{"nameof":"Master Prime 32mm", "FocalLength": 32.0, "Mount": "PL LDS", "apeture": 1.3},
+		{"nameof":"Master Prime 35mm", "FocalLength": 35.0, "Mount": "PL LDS", "apeture": 1.3},
+		{"nameof":"Master Prime 40mm", "FocalLength": 40.0, "Mount": "PL LDS", "apeture": 1.3},
+		{"nameof":"Master Prime 50mm", "FocalLength": 50.0, "Mount": "PL LDS", "apeture": 1.3},
+		{"nameof":"Master Prime 65mm", "FocalLength": 65.0, "Mount": "PL LDS", "apeture": 1.3},
+		{"nameof":"Master Prime 75mm", "FocalLength": 75.0, "Mount": "PL LDS", "apeture": 1.3},
+		{"nameof":"Master Prime 100mm", "FocalLength": 100.0, "Mount": "PL LDS", "apeture": 1.3},
+		{"nameof":"Master Prime 135mm", "FocalLength": 135.0, "Mount": "PL LDS", "apeture": 1.3},
+		{"nameof":"Master Prime 150mm", "FocalLength": 150.0, "Mount": "PL LDS", "apeture": 1.3}
+		
+
+	]
+}

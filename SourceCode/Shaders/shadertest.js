@@ -11,9 +11,10 @@ THREE.TestShader = {
 		"textel":		{ type: "v2", value: new THREE.Vector2(1/512, 1/512)},
 		"noise":		{ type: "i", value: 1 },
 		"namount":		{ type: "f", value: 0.0001 },
-		"focalDepth": { type: "f", value: 20.00},
-		"focalLength": {type: "f", value: 100.00},
-		"aperture": {type: "f", value: 8.00}
+		"focalDepth": { type: "f", value: 200.00},
+		"focalLength": {type: "f", value: 35.00},
+		"aperture": {type: "f", value: 8.00},
+		"coc": {type: "f", value: 0.03}
 		
 
 	},
@@ -53,6 +54,7 @@ THREE.TestShader = {
 		"uniform float focalDepth;",
 		"uniform float focalLength;",
 		"uniform float aperture;",
+		"uniform float coc;",
 
 		//used for colour
 		"uniform bool noise;", // use noise instead of pattern for sample dithering
@@ -61,7 +63,6 @@ THREE.TestShader = {
 		"const int blurcount = 4;", //ring count
 
 		//used in the cacluation of depth of field
-		"float coc = 0.03;",
 		"float dfar =0.0;",
 		"float dnear = 0.0;",
 //*********
@@ -132,8 +133,8 @@ THREE.TestShader = {
 				"dnear = (hyper/2.0);",
 			"}",
 			"else {",
-				"dnear = ((hyper*focalDepth)/(hyper + (focalDepth- (focalLength)/1000.0)));",
-				"dfar = ((hyper*focalDepth)/(hyper - (focalDepth- (focalLength)/1000.0)));",
+				"dnear = ((hyper*focalDepth)/(hyper + (focalDepth- focalLength/1000.0)));",
+				"dfar = ((hyper*focalDepth)/(hyper - (focalDepth- focalLength/1000.0)));",
 			"}",
 
 		   // DoF blur factor calculation based on how far from dnear and dfar
