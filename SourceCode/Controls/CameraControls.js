@@ -4,10 +4,18 @@ var Application = Application || {};
 Application.CameraControls = (function () {
 
 	function CameraControls (camera) {
+		var position = camera.position.clone();
 		this.controls = new THREE.PointerLockControls(camera);
 
-		this.isControlsEnabled = true;
-		this.controls.enabled = this.isControlsEnabled;
+		var positionObject = new THREE.Object3D();
+		positionObject.position.x = position.x;
+		positionObject.position.y = position.y;
+		positionObject.position.z = position.z;
+		positionObject.add(this.controls.getObject());
+		this.positionObject = positionObject;
+
+		this.areControlsEnabled = true;
+		this.controls.enabled = this.areControlsEnabled;
 
 		this.moveForward = false;
 		this.moveBackward = false;
@@ -59,14 +67,14 @@ Application.CameraControls = (function () {
 		document.addEventListener('keyup', onKeyUp, false);
 	};
 	CameraControls.prototype.getObject = function () {
-		return this.controls.getObject();
+		return this.positionObject;
 	};
 	CameraControls.prototype.getDirection = function () {
 		return this.controls.getDirection();
 	};
 	CameraControls.prototype.updateControls = function () {
 
-		if (this.isControlsEnabled) {
+		if (this.areControlsEnabled) {
 			var displacement = new THREE.Vector3();
 
 			var dvc = Application.DistanceValuesConvertor.getInstance();
@@ -74,14 +82,14 @@ Application.CameraControls = (function () {
 			// var height = dvc(4, "m");
 			// var width = dvc(10, "m");
 			var delta = dvc(0.1, "m")
-			// displacement.y = this.moveForward ? delta : (this.moveBackward ? -delta : 0);
-			displacement.z = this.moveForward ? -delta : (this.moveBackward ? delta : 0);
+			displacement.y = this.moveForward ? delta : (this.moveBackward ? -delta : 0);
+			// displacement.z = this.moveForward ? -delta : (this.moveBackward ? delta : 0);
 			displacement.x = this.moveRight ? delta : (this.moveLeft ? -delta : 0);
 			
-			var obejct = this.getObject();
-			obejct.translateX(displacement.x);
-			obejct.translateY(displacement.y);
-			obejct.translateZ(displacement.z);
+			var object = this.getObject();
+			object.translateX(displacement.x);
+			object.translateY(displacement.y);
+			object.translateZ(displacement.z);
 		}
 	};
 
