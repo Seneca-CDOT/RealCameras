@@ -3,8 +3,14 @@ var Application = (function () {
 
     var privateStore = {};
     privateStore.started = false;
+    privateStore.gui = null;
     privateStore.bokehPassValues = ["Please, select bokeh style.","Bokeh Style 0", "Bokeh Style 1", "Depth Shader 1"];
     privateStore.bokehPassIds = ["-","bokeh_0", "bokeh_1", "depth_1"];
+    privateStore.settings = {
+        bokehPassValue: privateStore.bokehPassValues[0],
+        bokehPassId: privateStore.bokehPassIds[0],
+    };
+
     privateStore.files = [
         "SourceCode/Controls/PointerLockControls.js",
 
@@ -32,49 +38,35 @@ var Application = (function () {
          "SourceCode/Shaders/shadertest.js",
 
         "SourceCode/Helpers/Debuger.js",
+        
+        "SourceCode/Controls/CameraControls.js",
+        "SourceCode/CircularProgressControl.js",
 
         "SourceCode/DistanceValuesConvertor.js",
         "SourceCode/RealCamerasDemonstrator.js",
         "SourceCode/ShaderPassConfigurator.js",
-        "SourceCode/SceneLoader.js"
+        "SourceCode/SceneLoader.js",
+        "SourceCode/AssetsLoader.js"
     ];
     var privateMethods = {};
     privateMethods.setUpGui = function () {
             
-        var select = document.createElement("select");
-        select.style.width = "170px";
-        select.style.position = "absolute";
-        select.style.zIndex = "9999";
+       privateStore.gui = new dat.GUI();   
 
-        var bokehPassValues = privateStore.bokehPassValues;
-        for (var i = 0; i < bokehPassValues.length; ++i) {
+        var select = privateStore.gui.add(privateStore.settings, 'bokehPassValue', privateStore.bokehPassValues);
+        select.name("Bokeh Styles");
+        select.onChange(privateMethods.onBokehPassSelected.bind(this));
+        privateStore.gui.open();
 
-            var option = document.createElement('option');
-            option.value = i;            
-            option.innerHTML = bokehPassValues[i];
-
-            select.appendChild(option);
-        }
-
-        select.addEventListener('change', privateMethods.didSelectBokehPass.bind(this));
-        privateStore.select = select;
-
-        document.body.appendChild(privateStore.select);
     };  
-    privateMethods.didSelectBokehPass = function (e) {
+    privateMethods.onBokehPassSelected = function () {
+        var value = privateStore.settings.bokehPassValue;
 
-        var bokehPassIds = privateStore.bokehPassIds;
-
-        var options = e.target.children;
-        for (var i = 0; i < options.length; ++i) {
-
-            var option = options[i];
-            if (option.selected == true && option.value != 0) {
-
-                var passId = bokehPassIds[option.value];
-                privateStore.demonstrator.setUpBokehPass(passId);
-                break;
-            }                          
+        var idIndex = privateStore.bokehPassValues.indexOf(value);
+        privateStore.settings.bokehPassId = privateStore.bokehPassIds[idIndex];
+        if (idIndex > 0) {
+            var passId = privateStore.settings.bokehPassId;
+            privateStore.demonstrator.setUpBokehPass(passId);
         }
     };
     privateMethods.main = function() {
@@ -89,17 +81,15 @@ var Application = (function () {
 
             privateStore.demonstrator = new Application.RealCamerasDemonstrator();
 
-                var path = "Resource/testscene.scene/testscene.json";
-                var sl = Application.SceneLoader.getInstance();
-                sl.loadScene(path).then(function (meshes) {
-
-                    privateStore.demonstrator.setUpScene(meshes);
-                });
+            var sl = Application.SceneLoader.getInstance();
+            sl.load().then(function (meshes) {
+                console.log("Completion from Application");
+                privateStore.demonstrator.setUpScene(meshes);
+            });
 
             privateMethods.setUpGui.call(that);
         });        
     };
-
     return {
         main: privateMethods.main
     };

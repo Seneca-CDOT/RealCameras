@@ -179,6 +179,7 @@ Application.RealCamerasDemonstrator = (function () {
 		var params = {
  			format: "16mm",
  			lens: "arri 16",
+ 			lentype: 'Arri/Zeiss Master Prime',
  			horsize: 10.26,
     		versize: 7.49
     	};
@@ -186,7 +187,7 @@ Application.RealCamerasDemonstrator = (function () {
 	    var dvc = Application.DistanceValuesConvertor.getInstance();
 		
 		var settings = this.bokehPassConfiguration.settings;
-		var temp = this;	
+		var that = this;	
 
 		var camfolder = this.gui.addFolder("Camera");
 
@@ -203,7 +204,7 @@ Application.RealCamerasDemonstrator = (function () {
   		 		params.horsize = data.cameras[i].Dimensions[0];
   		 		params.versize = data.cameras[i].Dimensions[1];
   		 		settings["coc"].value = data.cameras[i].circleofconf;
-  		 		privateMethods.settingsUpdater.call(temp);
+  		 		privateMethods.settingsUpdater.call(that);
   			});
 	    });
 
@@ -216,16 +217,37 @@ Application.RealCamerasDemonstrator = (function () {
 	    $.getJSON("../Resource/jsonfiles/Lensdata.json").then(function(data){
  			var ind= [];	
  			var listlens = [];	
+ 			var listtype = [];
+
  			$.each(data, function(name, value){
- 				$.each(value, function(index, innervalue){
- 					listlens.push(innervalue.nameof);
- 			 	});
+ 				listtype.push(name);
+ 				//seclect the type before sotring the values, takes less memory
+ 			});
+ 		
+ 			var ltype = lensfolder.add(params, 'lentype', listtype);
+ 			var len = lensfolder.add(params, 'lens', listlens);
+ 			
+ 			ltype.onChange(function(value){
+ 				listlens = [];
+ 	
+ 				$.each(data, function(name, value){
+ 					if (name == params.lentype){
+ 						$.each(value, function(index, innervalue){
+ 							listlens.push(innervalue.nameof);
+ 			 			});
+ 			 		}
+				});
+
+				lensfolder.remove(len);
+
+			    len = lensfolder.add(params, 'lens', listlens).onChange(function(value){
+  					var i = listlens.indexOf(value);
+  					console.log(i);
+  			 		settings["focalLength"].value = data[params.lentype][i].FocalLength;
+  			 		privateMethods.settingsUpdater.call(that);
+  				});
 			});
-		    lensfolder.add(params, 'lens', listlens).onChange(function(value){
-  				var i = listlens.indexOf(value);
-  		 		settings["focalLength"].value = data.lenses[i].FocalLength;
-  		 		privateMethods.settingsUpdater.call(temp);
-  			});
+ 	
 	    });
 		
 		this.lensfolder = lensfolder;
