@@ -45,9 +45,9 @@ Application.SceneLoader = (function () {
 						privateMethods.setUpSceneBox.call(that, meshesContainer);
 
 						// test
-						var helper = new THREE.BoundingBoxHelper(meshesContainer, 0xff0000);
-						helper.update();
-						meshesContainer.add(helper);
+						// var helper = new THREE.BoundingBoxHelper(meshesContainer, 0xff0000);
+						// helper.update();
+						// meshesContainer.add(helper);
 
 						resolve(meshesContainer);
 					});
@@ -90,7 +90,7 @@ Application.SceneLoader = (function () {
 				// var depthInterval = dvc(3.5, "m");
 				// var width = dvc(10, "m") - dvc(2, "m");
 
-				var realHeight = dvc(1.8, "m");
+				var modelHeight = dvc(1.8, "m");
 
 				// mesh.position.x = 0.5 * width * Math.sin(i);
 				// mesh.position.z = -(depthStart + i * depthInterval);
@@ -127,31 +127,8 @@ Application.SceneLoader = (function () {
 					}
 				});
 
-
-				var template = model; // model.children[0]
-				for (var i = 0; i < locations.length; ++i) {
-					var clone = template.clone();
-
-					var mesh = new THREE.Object3D();
-					mesh.add(clone);
-					meshesContainer.add(mesh);
-
-					var location = locations[i];
-
-					mesh.position.x = location.position.x;
-					mesh.position.z = location.position.z;
-					mesh.position.y = location.position.y;
-
-					mesh.rotation.y = location.rotation.y;
-
-
-					var box = new THREE.Box3().setFromObject(mesh);
-					var factor = realHeight / box.size().y;
-					var scaleX = mesh.scale.x * factor;
-					var scaleY = mesh.scale.y * factor;
-					var scaleZ = mesh.scale.z * factor;
-					mesh.scale.set(scaleX, scaleY, scaleZ);
-				}
+				// model.children[0]
+				privateMethods.setUpModels(meshesContainer, model, modelHeight, locations)
 				resolve();
 			};
 		});
@@ -168,7 +145,7 @@ Application.SceneLoader = (function () {
 		function setUpContents(model) {
 			var dvc = Application.DistanceValuesConvertor.getInstance();
 
-			var realHeight = dvc(1.5, "m");
+			var modelHeight = dvc(1.5, "m");
 
 			var locations = [];
 			locations.push({
@@ -192,31 +169,7 @@ Application.SceneLoader = (function () {
 				}
 			});
 
-// mark -
-			
-			var template = model;
-			for (var i = 0; i < locations.length; ++i) {
-				var clone = template.clone();
-
-				var mesh = new THREE.Object3D();
-				mesh.add(clone);
-				meshesContainer.add(mesh);
-
-				var location = locations[i];
-
-				mesh.position.x = location.position.x;
-				mesh.position.z = location.position.z;
-				mesh.position.y = location.position.y;
-
-				mesh.rotation.y = location.rotation.y;
-
-				var box = new THREE.Box3().setFromObject(mesh);
-				var factor = realHeight / box.size().y;
-				var scaleX = mesh.scale.x * factor;
-				var scaleY = mesh.scale.y * factor;
-				var scaleZ = mesh.scale.z * factor;
-				mesh.scale.set(scaleX, scaleY, scaleZ);
-			}
+			privateMethods.setUpModels(meshesContainer, model, modelHeight, locations)
 		};
 	};
 	privateMethods.setUpSceneBox = function (meshesContainer) {
@@ -299,7 +252,32 @@ Application.SceneLoader = (function () {
 		meshesContainer.add(left);
 		meshesContainer.add(right);
 		meshesContainer.add(back);
-	};	
+	};
+	privateMethods.setUpModels = function (meshesContainer, model, modelHeight, locations) {
+		var template = model;
+		for (var i = 0; i < locations.length; ++i) {
+			var clone = template.clone();
+
+			var mesh = new THREE.Object3D();
+			mesh.add(clone);
+			meshesContainer.add(mesh);
+
+			var location = locations[i];
+
+			mesh.position.x = location.position.x;
+			mesh.position.z = location.position.z;
+			mesh.position.y = location.position.y;
+
+			mesh.rotation.y = location.rotation.y;
+
+			var box = new THREE.Box3().setFromObject(mesh);
+			var factor = modelHeight / box.size().y;
+			var scaleX = mesh.scale.x * factor;
+			var scaleY = mesh.scale.y * factor;
+			var scaleZ = mesh.scale.z * factor;
+			mesh.scale.set(scaleX, scaleY, scaleZ);
+		}
+	};
 
 // mark -
 

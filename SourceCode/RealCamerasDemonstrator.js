@@ -139,8 +139,8 @@ Application.RealCamerasDemonstrator = (function () {
 	privateMethods.initControls = function () {
 		var dvc = Application.DistanceValuesConvertor.getInstance();
 
-		// var direction = new THREE.Vector3(0.0, 0.0, -1.0);
-		var direction = new THREE.Vector3(-1.0, 0.0, -1.0);
+		var direction = new THREE.Vector3(0.0, 0.0, -1.0);
+		// var direction = new THREE.Vector3(-1.0, 0.0, -1.0);
 		var displacement = dvc(0.0, "m");
 		var delta = dvc(0.05, "m");
 
