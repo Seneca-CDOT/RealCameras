@@ -277,7 +277,7 @@ THREE.DoFShader = {
 
 			// 	"blur = (a > 0.0) ? b : c;",
 			// "} else {",
-				"float f = focalLength;", 
+				"float f = 0.001 * focalLength;", 
 				"float d = fDepth;",
 				"float o = depth;",
 

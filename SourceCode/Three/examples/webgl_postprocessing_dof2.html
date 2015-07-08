@@ -40,13 +40,13 @@ Setup Number Focus Test Plates
 Use WEBGL Depth buffer support?
 -->
 	<body>
-		<script src="../build/three.min.js"></script>
+		<script src="../three.min.js"></script>
 
 
-		<script src="js/Detector.js"></script>
-		<script src="js/libs/stats.min.js"></script>
+		<!-- <script src="js/Detector.js"></script> -->
+		<script src="../../Libraries/stats.min.js"></script>
 
-		<script src='js/libs/dat.gui.min.js'></script>
+		<script src='../../Libraries/dat.gui.min.js'></script>
 
 		<div id="info">
 
@@ -57,10 +57,10 @@ Use WEBGL Depth buffer support?
 		</div>
 
 
-		<script src="js/shaders/BokehShader2.js"></script>
+		<script src="../../Shaders/BokehShader2.js"></script>
 		<script>
 
-			if ( ! Detector.webgl ) Detector.addGetWebGLMessage();
+			// if ( ! Detector.webgl ) Detector.addGetWebGLMessage();
 
 			var container, stats;
 			var camera, scene, renderer,
@@ -115,10 +115,15 @@ Use WEBGL Depth buffer support?
 				object = new THREE.Object3D();
 				scene.add( object );
 
-				var r = "textures/cube/Bridge2/";
-				var urls = [ r + "posx.jpg", r + "negx.jpg",
-							 r + "posy.jpg", r + "negy.jpg",
-							 r + "posz.jpg", r + "negz.jpg" ];
+				// var r = "textures/cube/Bridge2/";
+				// var urls = [ r + "posx.jpg", r + "negx.jpg",
+				// 			 r + "posy.jpg", r + "negy.jpg",
+				// 			 r + "posz.jpg", r + "negz.jpg" ];
+				var r = "../../../Resource/";
+				var urls = [ r + "checker.png", r + "checker.png",
+				 r + "checker.png", r + "checker.png",
+				 r + "checker.png", r + "checker.png" ];
+
 
 				var textureCube = THREE.ImageUtils.loadTextureCube( urls  );
 				textureCube.format = THREE.RGBFormat;
@@ -185,7 +190,7 @@ Use WEBGL Depth buffer support?
 				// Adding Monkeys
 
 				var loader2 = new THREE.JSONLoader();
-				loader2.load( 'obj/Suzanne.js', function ( geometry ) {
+				loader2.load( '../resources/Suzanne.js', function ( geometry ) {
 
 					var material = new THREE.MeshPhongMaterial( {
 						color: 0xffffff,
@@ -417,7 +422,7 @@ Use WEBGL Depth buffer support?
 
 
 
-				var bokeh_shader = THREE.BokehShader;
+				var bokeh_shader = THREE.BokehShader2;
 
 				postprocessing.bokeh_uniforms = THREE.UniformsUtils.clone( bokeh_shader.uniforms );
 
@@ -481,14 +486,13 @@ Use WEBGL Depth buffer support?
 
 			function render() {
 
-				var time = Date.now() * 0.00015;
+				// var time = Date.now() * 0.00015;
 
-				camera.position.x = Math.cos(time) * 400;
-				camera.position.z = Math.sin(time) * 500;
-				camera.position.y = Math.sin(time / 1.4) * 100;
+				// camera.position.x = Math.cos(time) * 400;
+				// camera.position.z = Math.sin(time) * 500;
+				// camera.position.y = Math.sin(time / 1.4) * 100;
 
 				camera.lookAt( target );
-
 				camera.updateMatrixWorld();
 
 				if ( effectController.jsDepthCalculation ) {

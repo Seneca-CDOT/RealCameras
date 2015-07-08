@@ -10,7 +10,7 @@
 
 
 
-THREE.BokehShader = {
+THREE.BokehShader2 = {
 
 	uniforms: {
 
@@ -44,25 +44,24 @@ THREE.BokehShader = {
 		"pentagon": { type: "i", value: 0 },
 
 		"shaderFocus":  { type: "i", value: 1 },
-		"focusCoords":  { type: "v2", value: new THREE.Vector2() },
-
+		"focusCoords":  { type: "v2", value: new THREE.Vector2() }
 
 	},
 
 	vertexShader: [
 
 		"varying vec2 vUv;",
-
 		"void main() {",
 
 			"vUv = uv;",
 			"gl_Position = projectionMatrix * modelViewMatrix * vec4( position, 1.0 );",
-
 		"}"
 
 	].join("\n"),
 
 	fragmentShader: [
+		"#define SAMPLES 4",
+		"#define RINGS 3",
 
 		"varying vec2 vUv;",
 
@@ -151,7 +150,7 @@ THREE.BokehShader = {
 		"//------------------------------------------",
 
 		"float penta(vec2 coords) {",
-			"//pentagonal shape",
+			//pentagonal shape
 			"float scale = float(rings) - 1.3;",
 			"vec4  HS0 = vec4( 1.0,         0.0,         0.0,  1.0);",
 			"vec4  HS1 = vec4( 0.309016994, 0.951056516, 0.0,  1.0);",
@@ -186,7 +185,7 @@ THREE.BokehShader = {
 		"}",
 
 		"float bdepth(vec2 coords) {",
-			"// Depth buffer blur",
+			// Depth buffer blur
 			"float d = 0.0;",
 			"float kernel[9];",
 			"vec2 offset[9];",
@@ -220,7 +219,7 @@ THREE.BokehShader = {
 
 
 		"vec3 color(vec2 coords,float blur) {",
-			"//processing the sample",
+			//processing the sample
 
 			"vec3 col = vec3(0.0);",
 
@@ -249,7 +248,7 @@ THREE.BokehShader = {
 		"}",
 
 		"vec3 debugFocus(vec3 col, float blur, float depth) {",
-			"float edge = 0.002*depth; //distance based edge smoothing",
+			"float edge = 0.002*depth;", //distance based edge smoothing
 			"float m = clamp(smoothstep(0.0,edge,blur),0.0,1.0);",
 			"float e = clamp(smoothstep(1.0-edge,1.0,blur),0.0,1.0);",
 
@@ -284,63 +283,59 @@ THREE.BokehShader = {
 		"}",
 
 		"void main() {",
-			"//scene depth calculation",
+			//scene depth calculation
 
 			"float depth = linearize(texture2D(tDepth,vUv.xy).x);",
 
-			"// Blur depth?",
+			// Blur depth?
 			"if (depthblur) {",
 				"depth = linearize(bdepth(vUv.xy));",
 			"}",
 
-			"//focal plane calculation",
+			//focal plane calculation
 
 			"float fDepth = focalDepth;",
-
 			"if (autofocus) {",
 
 				"fDepth = linearize(texture2D(tDepth,focusCoords).x);",
-
 			"}",
 
-			"// dof blur factor calculation",
+			// dof blur factor calculation
 
 			"float blur = 0.0;",
-
 			"if (manualdof) {",
-				"float a = depth-fDepth; // Focal plane",
-				"float b = (a-fdofstart)/fdofdist; // Far DoF",
-				"float c = (-a-ndofstart)/ndofdist; // Near Dof",
+				"float a = depth-fDepth;", // Focal plane
+				"float b = (a-fdofstart)/fdofdist;", // Far DoF
+				"float c = (-a-ndofstart)/ndofdist;", // Near Dof
 				"blur = (a>0.0) ? b : c;",
 			"} else {",
-				"float f = focalLength; // focal length in mm",
-				"float d = fDepth*1000.0; // focal plane in mm",
-				"float o = depth*1000.0; // depth in mm",
+				"float f = focalLength;", // focal length in mm
+				"float d = fDepth*1000.0;", // focal plane in mm
+				"float o = depth*1000.0;", // depth in mm
 
 				"float a = (o*f)/(o-f);",
 				"float b = (d*f)/(d-f);",
 				"float c = (d-f)/(d*fstop*CoC);",
-
 				"blur = abs(a-b)*c;",
 			"}",
 
 			"blur = clamp(blur,0.0,1.0);",
 
-			"// calculation of pattern for dithering",
+			// calculation of pattern for dithering"
 
 			"vec2 noise = rand(vUv.xy)*namount*blur;",
 
-			"// getting blur x and y step factor",
+			// getting blur x and y step factor"
 
 			"float w = (1.0/width)*blur*maxblur+noise.x;",
 			"float h = (1.0/height)*blur*maxblur+noise.y;",
 
-			"// calculation of final color",
+			// calculation of final color"
 
 			"vec3 col = vec3(0.0);",
 
 			"if(blur < 0.05) {",
-				"//some optimization thingy",
+				//some optimization thingy"
 				"col = texture2D(tColor, vUv.xy).rgb;",
 			"} else {",
 				"col = texture2D(tColor, vUv.xy).rgb;",
@@ -348,17 +343,17 @@ THREE.BokehShader = {
 				"int ringsamples;",
 
 				"for (int i = 1; i <= rings; i++) {",
-					"/*unboxstart*/",
+					/*unboxstart*/
 					"ringsamples = i * samples;",
 
 					"for (int j = 0 ; j < maxringsamples ; j++) {",
 						"if (j >= ringsamples) break;",
 						"s += gather(float(i), float(j), ringsamples, col, w, h, blur);",
 					"}",
-					"/*unboxend*/",
+					/*unboxend*/
 				"}",
-
-				"col /= s; //divide by sample count",
+				//divide by sample count
+				"col /= s;",
 			"}",
 
 			"if (showFocus) {",

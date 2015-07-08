@@ -188,12 +188,13 @@ Application.SceneLoader = (function () {
 		var depthShiftBackward = dvc(20, "m");
 		var depthShiftForward = dvc(10, "m");
 		var depth = dvc(60, "m");
-		var height = dvc(10, "feet");
+		var height = dvc(3, "m");
 		var width = dvc(10, "m");
 
-		var depthT = 0.5 * depth;
-		var heightT = 0.5 * height;
-		var widthT = 0.5 * width;
+		var foot = dvc(1, "feet");
+		var depthT = 0.5 * depth / foot;
+		var heightT = 0.5 * height / foot;
+		var widthT = 0.5 * width / foot;
 		
 		texture.needsUpdate = true;
 		texture.wrapS = THREE.RepeatWrapping;

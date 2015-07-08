@@ -116,8 +116,9 @@ Application.RealCamerasDemonstrator = (function () {
 		var far = dvc(100, "m");
 		this.camera = new THREE.PerspectiveCamera(emptyFov, this.canvasWidth / this.canvasHeight, near, far);
 
-		this.camera.focalLength = dvc(45, "mm");
-		this.camera.frameSize = dvc(32, "mm");
+// TODO:
+		this.camera.focalLength = 35; // dvc(35, "mm");
+		this.camera.frameSize = 43; // dvc(43, "mm");
 		this.camera.setLens(this.camera.focalLength, this.camera.frameSize);
 
 		var aboveTheGround = dvc(1.5, "m");
@@ -154,13 +155,21 @@ Application.RealCamerasDemonstrator = (function () {
 // mark -
 
 	privateMethods.initPostprocessing = function() {
-		// intermediate renderer targets
-		this.bokehPassDepthMapSource = new THREE.WebGLRenderTarget(this.canvasWidth, this.canvasHeight, {
 
+		var params = {
 			minFilter: THREE.NearestFilter,
 			magFilter: THREE.NearestFilter,
 			format: THREE.RGBAFormat
-		});
+		};
+
+		// var params = { 
+		// 	minFilter: THREE.LinearFilter, 
+		// 	magFilter: THREE.LinearFilter, 
+		// 	format: THREE.RGBFormat 
+		// };
+	
+		// intermediate renderer targets
+		this.bokehPassDepthMapSource = new THREE.WebGLRenderTarget(this.canvasWidth, this.canvasHeight, params);
 
 		this.postprocessing.composer = new THREE.EffectComposer(this.renderer);
 
@@ -223,7 +232,7 @@ Application.RealCamerasDemonstrator = (function () {
 // mark -
 	
 	privateMethods.destroyGraphics = function () {
-		// TODO: ...
+// TODO: ...
 	};
 	privateMethods.destroyPostprocessing = function () {
 		privateMethods.destroyBokehPass.call(this);
@@ -301,32 +310,4 @@ Application.RealCamerasDemonstrator = (function () {
 	};
 
 	return RealCamerasDemonstrator;
-})(); 
-
-// DoFFolder.add(uniforms.manualdof, 'value').name('Manual DoF');
-// DoFFolder.add(uniforms.ndofstart, 'value', 0, 200).name('near start');
-// DoFFolder.add(uniforms.ndofdist, 'value', 0, 200).name('near falloff');
-// DoFFolder.add(uniforms.fdofstart, 'value', 0, 200).name('far start');
-// DoFFolder.add(uniforms.fdofdist, 'value', 0, 200).name('far falloff');
-
-// DoFFolder.add(uniforms.vignetting, 'value').name('Vignetting');
-// DoFFolder.add(uniforms.vignout, 'value', 0, 2).name('outer border');
-// DoFFolder.add(uniforms.vignin, 'value', 0, 1).step(0.01).name('inner border');
-// DoFFolder.add(uniforms.vignfade, 'value', 0, 22).name('fade at');
-
-
-// DoFFolder.add(uniforms.focus.value, 'x', 0.0, 1.0, 0.01).name('Focus - x');
-// DoFFolder.add(uniforms.focus.value, 'y', 0.0, 1.0, 0.01).name('Focus - y');
-
-// DoFFolder.add(uniforms.threshold, 'value', 0, 1).step(0.01).name('threshold');
-// DoFFolder.add(uniforms.gain, 'value', 0, 100).name('gain');
-
-// DoFFolder.add(uniforms.bias, 'value', 0, 4).step(0.01).name('bias');
-// DoFFolder.add(uniforms.fringe, 'value', 0, 5).step(0.01).name('fringe');
-
-// DoFFolder.add(uniforms.noise, 'value').name('Use Noise');
-// DoFFolder.add(uniforms.namount, 'value', 0, 0.001).step(0.0001).name('dither');
-
-// DoFFolder.add(uniforms.depthblur, 'value').name('Blur Depth');
-// DoFFolder.add(uniforms.dbsize, 'value', 0, 5).name('blur size');
-
+})();

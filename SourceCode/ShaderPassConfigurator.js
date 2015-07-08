@@ -7,7 +7,7 @@ Application.ShaderPassConfigurator = (function () {
 	function ShaderPassConfigurator () {
 
 		var dvc = Application.DistanceValuesConvertor.getInstance();
-		// TODO:
+// TODO:
 		// ACM p.13
 		privateStore.aspect = 2.35; // 1.85;
 		privateStore.near = dvc(0.01, "m");
@@ -20,6 +20,7 @@ Application.ShaderPassConfigurator = (function () {
 		switch (passId) {
 			case "bokeh_0": {
 				configuration = privateMethods.bokehPassConfiguration_0.call(this);
+				// configuration = privateMethods.bokehPassConfiguration_0_alt.call(this);
 				break;
 			} 
 			case "bokeh_1": {
@@ -36,7 +37,6 @@ Application.ShaderPassConfigurator = (function () {
 
 	var privateMethods = Object.create(ShaderPassConfigurator.prototype);
 	privateMethods.bokehPassConfiguration_0 = function () {
- 		
 		var dvc = Application.DistanceValuesConvertor.getInstance();
 
 // TODO:
@@ -52,18 +52,14 @@ Application.ShaderPassConfigurator = (function () {
 			textel: {
 				value: new THREE.Vector2(1.0 / canvasWidth, 1.0 / canvasHeight) 
 			},
-
 // mark - 
-
 			znear: {
 				value: privateStore.near 
 			},
 			zfar: {
 				value: privateStore.far
 			},
-
 // mark -
-
 			showFocus: {
 				value: true,
 				show: true
@@ -72,18 +68,25 @@ Application.ShaderPassConfigurator = (function () {
 				value: dvc(5.0, "m"),
 				range: {begin: beforeNear, end: privateStore.far, step: dvc(0.001, "m")} 
 			},
+			// focalLength: {
+			// 	value: dvc(35, "mm"),
+			// 	range: {begin: dvc(25, "mm"), end: dvc(75, "mm"), step: dvc(0.1, "mm")}
+			// },
 			focalLength: {
-				value: dvc(45, "mm"),
-				range: {begin: dvc(25, "mm"), end: dvc(75, "mm"), step: dvc(0.1, "mm")}
+				value: 35,
+				range: {begin: 25, end: 75, step: 0.1}
 			},
 			// Non-dimensional value (f-stop = focal-length/aperture)
 			fstop: {
 				value: 0.0001,
 				range: {begin: 0.00001, end: 0.001, step: 0.00001}
 			},
+			// CoC: {
+			// 	value: dvc(0.03, "mm"),
+			// 	// range: {begin: dvc(0.0, "mm"), end: dvc(1.0, "mm"), step: dvc(0.001, "mm")}
+			// },
 			CoC: {
-				value: dvc(0.03, "mm"),
-				// range: {begin: dvc(0.0, "mm"), end: dvc(1.0, "mm"), step: dvc(0.001, "mm")}
+				value: 0.03,
 			},
 			autofocus: {
 				value: false,
@@ -98,9 +101,7 @@ Application.ShaderPassConfigurator = (function () {
 				value: 2.0,
 				range: {begin: 0.0, end: 3.0, step: 0.025}
 			},
-
 // mark -
-
 			manualdof: {
 				value: false
 			},
@@ -116,9 +117,7 @@ Application.ShaderPassConfigurator = (function () {
 			fdofdist: {
 				value: 3.0
 			},
-
 // mark -
-
 			vignetting: {
 				value: true
 			},
@@ -176,7 +175,121 @@ Application.ShaderPassConfigurator = (function () {
 			settings: settings,
 			material: material,
 			updateCamera: function (camera) {
+// TODO:
+				// size: {
+				// 	value: new THREE.Vector2(canvasWidth, canvasHeight) 
+				// 	// new THREE.Vector2(this.canvasWidth, this.canvasHeight)
+				// },
+				// textel: {
+				// 	value: new THREE.Vector2(1.0 / canvasWidth, 1.0 / canvasHeight) 
+				// 	// new THREE.Vector2(1.0 / this.canvasWidth, 1.0 / this.canvasHeight)
+				// },
 
+				camera.near = this.settings.znear.value;
+				camera.far = this.settings.zfar.value;
+
+				camera.focalLength = this.settings.focalLength.value;
+				camera.setLens(camera.focalLength, camera.frameSize);
+				camera.updateProjectionMatrix();
+			}
+		};	
+	};
+
+	privateMethods.bokehPassConfiguration_0_alt = function () {
+		var dvc = Application.DistanceValuesConvertor.getInstance();
+
+// TODO:
+		var canvasWidth = window.innerWidth;
+		var canvasHeight = canvasWidth / privateStore.aspect;
+
+		var beforeNear = privateStore.near + dvc(1.0, "m");
+		var settings = {
+
+			textureWidth: {
+				value: canvasWidth
+			},
+			textureHeight: {
+				value: canvasHeight
+			},
+// mark - 			
+			focalDepth: {
+				value: dvc(5.0, "m"),
+				range: {begin: beforeNear, end: privateStore.far, step: dvc(0.001, "m")} 
+			},
+			// focalLength: {
+			// 	value: dvc(35, "mm") * 1000.0,
+			// 	range: {begin: dvc(25, "mm") * 1000.0, end: dvc(75, "mm") * 1000.0, step: dvc(0.1, "mm") * 1000.0}
+			// },
+			focalLength: {
+				value: 35,
+				range: {begin: 25, end: 75, step: 0.1}
+			},
+			// Non-dimensional value (f-stop = focal-length/aperture)
+			fstop: {
+				value: 2.2,
+				range: {begin: 0.1, end: 22, step: 0.001}
+			},
+			maxblur: {
+				value: 1.0,
+				range: {begin: 0.0, end: 3.0, step: 0.025}
+			},
+// mark -
+			shaderFocus: {
+				value: false
+				// show: true
+			},
+			// Non-dimensional 2D-vector.
+			focusCoords: {
+				value: new THREE.Vector2(0.5, 0.5)
+			},
+// mark -
+			showFocus: {
+				value: true,
+				show: true
+			},
+			manualdof: {
+				value: false
+			},
+			vignetting: {
+				value: false,
+				show: true
+			},
+			depthblur: {
+				value: false
+			},
+// mark - 
+			threshold: {
+				value: 0.5
+			},
+			gain: {
+				value: 2.0
+			},
+			bias: {
+				value: 0.5
+			},
+			fringe: {
+				value: 0.7
+			},
+// mark -
+			znear: {
+				value: privateStore.near 
+			},
+			zfar: {
+				value: privateStore.far
+			},
+// mark - 			
+			noise: {
+				value: false
+			}
+		};
+		var material = new THREE.MeshDepthMaterial();
+
+		return {
+			shader: THREE.BokehShader2,
+			textureId: "tColor",
+			settings: settings,
+			material: material,
+			updateCamera: function (camera) {
 // TODO:
 				// size: {
 				// 	value: new THREE.Vector2(canvasWidth, canvasHeight) 
@@ -244,7 +357,7 @@ Application.ShaderPassConfigurator = (function () {
 		var canvasWidth = window.innerWidth;
 		var canvasHeight = canvasWidth / privateStore.aspect;
 		var near = 0.01;
-		var far = 1000;
+		var far = 100;
 		
 		var settings = {
 			size: {
@@ -270,7 +383,7 @@ Application.ShaderPassConfigurator = (function () {
 				range: {begin: 1.00, end: 200.0, step: 5.00}
 			},
 			focalLength: {
-				value:100,
+				value: 100,
 				range: {begin: 12, end: 200, step: 20}
 			},
 			aperture: {
@@ -299,7 +412,7 @@ Application.ShaderPassConfigurator = (function () {
 			 // 	camera.near = this.settings.znear.value;
 				// camera.far = this.settings.zfar.value;
 
-				camera.focalLength = this.settings.focalLength.value/ 1000;
+				camera.focalLength = this.settings.focalLength.value;
 				camera.setLens(camera.focalLength, camera.frameSize);
 				camera.updateProjectionMatrix();
 			// 	camera.aspect = this.settings.aspect.value;
