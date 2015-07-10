@@ -14,7 +14,8 @@ THREE.TestShader = {
 		"focalDepth": { type: "f", value: 200.00},
 		"focalLength": {type: "f", value: 35.00},
 		"aperture": {type: "f", value: 8.00},
-		"coc": {type: "f", value: 0.03}
+		"coc": {type: "f", value: 0.03},
+		"framesize": {type: "f", value: 35.00}
 		
 
 	},
@@ -127,14 +128,14 @@ THREE.TestShader = {
 		//find the hyper focal distance and near and far distances for depth 
 			"float blur = 0.0;",
 			"float hyper = (focalLength*focalLength)/(aperture*coc) + focalLength;",
-			"hyper = hyper/1000.0;",
+			//"hyper = hyper/1000.0;",
 			"if (focalDepth >= hyper){",
 				"dfar = 100000.0;",
 				"dnear = (hyper/2.0);",
 			"}",
 			"else {",
-				"dnear = ((hyper*focalDepth)/(hyper + (focalDepth- focalLength/1000.0)));",
-				"dfar = ((hyper*focalDepth)/(hyper - (focalDepth- focalLength/1000.0)));",
+				"dnear = ((hyper*focalDepth)/(hyper + (focalDepth- focalLength)));",
+				"dfar = ((hyper*focalDepth)/(hyper - (focalDepth- focalLength)));",
 			"}",
 
 		   // DoF blur factor calculation based on how far from dnear and dfar

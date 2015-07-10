@@ -7,11 +7,11 @@ Application.RealCamerasDemonstrator = (function () {
 
 // TODO:
 		// ACM p.13
-		var aspect = 2.35; // 1.85; 
-
+	
 		this.canvasWidth = window.innerWidth;
-		this.canvasHeight = this.canvasWidth / aspect;
-		this.canvasOffset = Math.max(0, 0.5 * (window.innerHeight - this.canvasHeight));
+
+		this.canvasHeight = window.innerHeight;
+	
 
 		// this.devicePixelRatio = window.devicePixelRatio || 1,
 		this.requestedAnimationFrameId = null;
@@ -86,6 +86,7 @@ Application.RealCamerasDemonstrator = (function () {
 	};
 
 	privateMethods.initRenderer = function () {
+		//need to remove some on this and put an standard basic full screen size
 		this.renderer = new THREE.WebGLRenderer();
 		this.renderer.setSize(this.canvasWidth, this.canvasHeight);
 
@@ -98,10 +99,7 @@ Application.RealCamerasDemonstrator = (function () {
 
 		container.style.opacity = "0.0";
 		container.style.position = "absolute";
-		container.style.left = 0.0 + "px";
-		container.style.top = this.canvasOffset + "px";
 		container.style.width = this.canvasWidth + "px";
-
 		this.renderer.domElement.style.position = "absolute";
 		this.renderer.domElement.style.left = 0.0 + "px";
 	};
@@ -112,7 +110,7 @@ Application.RealCamerasDemonstrator = (function () {
 		// fov is calculated and set in setLens based on fame size and focal length
 		var emptyFov = 0.;
 		var near = dvc(0.01, "m");
-		var far = dvc(1000, "m");
+		var far = dvc(1000.0, "m");
 		this.camera = new THREE.PerspectiveCamera(emptyFov, this.canvasWidth / this.canvasHeight, near, far);
 
 		this.camera.focalLength = dvc(45, "mm");
@@ -173,15 +171,18 @@ Application.RealCamerasDemonstrator = (function () {
 		this.postprocessing.composer.addPass(bokehPass);
 		this.bokehPassConfiguration.bokehPass = bokehPass;
 	};
+//TODO Move this logic out
+//Changing aperture
+//changing aspect ratio
 
 	privateMethods.setUpGui = function () {
 
 		var params = {
- 			format: "16mm",
- 			lens: "arri 16",
- 			lentype: 'Arri/Zeiss Master Prime',
- 			horsize: 10.26,
-    		versize: 7.49
+ 			camera: "Please select camera",
+ 			lens: "Please select lens",
+ 			lentype: "Please select type",
+ 			fov: 27.00,
+    		focaldep: 5.00
     	};
 		this.gui = new dat.GUI();
 	    var dvc = Application.DistanceValuesConvertor.getInstance();
@@ -193,18 +194,22 @@ Application.RealCamerasDemonstrator = (function () {
 
 	 	$.getJSON("../Resource/jsonfiles/CameraData.json").then(function(data){
  			var ind= [];	
- 			var listcams = [];	
+ 			var listcams = ["please select camera"];	
  			$.each(data, function(name, value){
  				$.each(value, function(index, innervalue){
- 					listcams.push(innervalue.format);
+ 					listcams.push(innervalue.namecam);
  			 	});
 			});
-		    camfolder.add(params, 'format', listcams).onChange(function(value){
+		    camfolder.add(params, 'camera', listcams).onChange(function(value){
   				var i = listcams.indexOf(value);
-  		 		params.horsize = data.cameras[i].Dimensions[0];
-  		 		params.versize = data.cameras[i].Dimensions[1];
-  		 		settings["coc"].value = data.cameras[i].circleofconf;
-  		 		privateMethods.settingsUpdater.call(that);
+  				if (i>0){
+  					i--;
+  		 			params.fov = data.cameras[i].FoV;
+  		 			settings["coc"].value = dvc(data.cameras[i].circleofconf, "mm");
+  		 			settings["aspect"].value = data.cameras[i].aspect;
+  		 			settings["framesize"].value = data.cameras[i].FoV;
+  		 			privateMethods.settingsUpdater.call(that);
+  		 		}
   			});
 	    });
 
@@ -216,8 +221,8 @@ Application.RealCamerasDemonstrator = (function () {
 
 	    $.getJSON("../Resource/jsonfiles/Lensdata.json").then(function(data){
  			var ind= [];	
- 			var listlens = [];	
- 			var listtype = [];
+ 			var listlens = ["Please select lens"];	
+ 			var listtype = ["Please select type"];
 
  			$.each(data, function(name, value){
  				listtype.push(name);
@@ -228,7 +233,7 @@ Application.RealCamerasDemonstrator = (function () {
  			var len = lensfolder.add(params, 'lens', listlens);
  			
  			ltype.onChange(function(value){
- 				listlens = [];
+ 				listlens = ["Please select lens"];
  	
  				$.each(data, function(name, value){
  					if (name == params.lentype){
@@ -242,9 +247,11 @@ Application.RealCamerasDemonstrator = (function () {
 
 			    len = lensfolder.add(params, 'lens', listlens).onChange(function(value){
   					var i = listlens.indexOf(value);
-  					console.log(i);
-  			 		settings["focalLength"].value = data[params.lentype][i].FocalLength;
-  			 		privateMethods.settingsUpdater.call(that);
+  					if (i>0){ //"select lens" dosent change focal length
+  						i--; //cause the first value on list is the "select list" option
+  			 			settings["focalLength"].value = dvc(data[params.lentype][i].FocalLength, "mm");
+  			 			privateMethods.settingsUpdater.call(that);
+					}  			
   				});
 			});
  	
@@ -256,8 +263,13 @@ Application.RealCamerasDemonstrator = (function () {
 		
 		this.Userfolder = this.gui.addFolder("User Inputs");
 		
-		this.Userfolder.add(settings["focalDepth"], "value", 5.0, 60.0, 5.0).name("Distance to subject")
-		.onChange(privateMethods.settingsUpdater.bind(this));
+		var that = this;
+		this.Userfolder.add(params, "focaldep", 5.0, 80.0, 5.0).name("Distance to subject")
+		.onChange(function(value){
+			settings["focalDepth"].value = dvc(params.focaldep, "feet");
+			privateMethods.settingsUpdater.call(that);
+		});
+		
 		
 		this.Userfolder.add(settings["aperture"], "value", 1.0, 22.0, 1.0).name("f-stop")
 		.onChange(privateMethods.settingsUpdater.bind(this));
@@ -268,6 +280,9 @@ Application.RealCamerasDemonstrator = (function () {
 	privateMethods.settingsUpdater = function () {
 
 		 this.bokehPassConfiguration.updateCamera(this.camera);
+
+		 //add other things other than this.renderer, like container 
+		 this.bokehPassConfiguration.updateRender(this.renderer, this.container);
 
 		 var settings = this.bokehPassConfiguration.settings;	
 		 for (var param in settings) {

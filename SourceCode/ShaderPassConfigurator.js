@@ -10,8 +10,8 @@ Application.ShaderPassConfigurator = (function () {
 		// TODO:
 		// ACM p.13
 		privateStore.aspect = 2.35; // 1.85;
-		privateStore.near = dvc(0.01, "m");
-		privateStore.far = dvc(1000.0, "m");
+		privateStore.near = 0.01;
+		privateStore.far = 1000.0;
 	};
 	
 	ShaderPassConfigurator.prototype.configuration = function (passId) {
@@ -63,16 +63,21 @@ Application.ShaderPassConfigurator = (function () {
 			},
 
 // mark -
-
+			aspect: {
+				value: 1.33
+			},
+			framesize:{
+				value: 35.00
+			},
 			showFocus: {
 				value: true,
 				show: true
 			},
 			focalDepth: {
-				value: 5.0 
+				value: dvc(5.0, "m") 
 			},
 			focalLength: {
-				value: 100.0
+				value: dvc(35.0, "mm")
 			//	range: {begin: 35, end: 200, step: 10}
 			},
 			// Non-dimensional value (f-stop = focal-length/aperture)
@@ -81,7 +86,7 @@ Application.ShaderPassConfigurator = (function () {
 			//	range: {begin: 1, end: 10, step: 2}
 			},
 			coc: {
-				value: 0.03
+				value: dvc(0.03, "mm")
 				// range: {begin: dvc(0.0, "mm"), end: dvc(1.0, "mm"), step: dvc(0.001, "mm")}
 			},
 			autofocus: {
@@ -188,10 +193,17 @@ Application.ShaderPassConfigurator = (function () {
 
 				camera.near = this.settings.znear.value;
 				camera.far = this.settings.zfar.value;
+				//var frameSize = 88.00;
 
-				camera.focalLength = this.settings.focalLength.value/1000.0;
+				camera.focalLength = this.settings.focalLength.value;
 				camera.setLens(camera.focalLength, camera.frameSize);
 				camera.updateProjectionMatrix();
+			},
+			updateRender: function (render) {
+				//change size of render, 
+				//find aspect 
+				//find offset				
+
 			}
 		};	
 	};
@@ -209,14 +221,17 @@ Application.ShaderPassConfigurator = (function () {
 				value: privateStore.far
 			},
 			aspect: {
-				value: privateStore.aspect
+				value: 1.33
+			},
+			framesize:{
+				value: 35.00
 			},
 			focalDepth: {
-				value: 5.0
+				value: dvc(5.0, "feet")
 			//	range: {begin: beforeNear, end: privateStore.far, step: dvc(0.001, "m")}
 			},
 			focalLength: {
-				value: 100.0
+				value: dvc(100.0, "mm")
 			},
 			aperture: {
 				value: 12
@@ -238,13 +253,20 @@ Application.ShaderPassConfigurator = (function () {
 
 				camera.aspect = this.settings.aspect.value;
 				camera.updateProjectionMatrix();
+			},
+			updateRender: function (render) {
+				//change size of render, 
+				//find aspect 
+				//find offset				
+
 			}
 		};
 	};
 	privateMethods.bokehPassConfiguration_2 = function () {
 
 		var canvasWidth = window.innerWidth;
-		var canvasHeight = canvasWidth / privateStore.aspect;
+		var aspect = 1.33;
+		var canvasHeight = canvasWidth / aspect;
 		var near = 0.01;
 		var far = 1000;
 		var dvc = Application.DistanceValuesConvertor.getInstance();
@@ -269,11 +291,11 @@ Application.ShaderPassConfigurator = (function () {
 				value: 0.0001
 			},
 			focalDepth: {
-				value: 5.0
+				value: dvc(5.0, "feet")
 			//	range: {begin: 1.00, end: 200.0, step: 5.00}
 			},
 			focalLength: {
-				value: 100.0
+				value: dvc(35.0, "mm")
 			//	range: {begin: 35.0, end: 200.0, step: 20.0}
 			},
 			aperture: {
@@ -281,7 +303,13 @@ Application.ShaderPassConfigurator = (function () {
 			//	range: {begin: 1.0, end: 12.0, step: 1.0}
 			},
 			coc: {
-				value: 0.03
+				value: dvc(0.03, "mm")
+			},
+			aspect: {
+				value: 1.33
+			},
+			framesize:{
+				value: 35.00
 			}
 
 		};
@@ -300,16 +328,56 @@ Application.ShaderPassConfigurator = (function () {
 			textureId: "tColor",
 			settings: settings,
 			material: material,
-			 updateCamera: function (camera) {
+			updateCamera: function (camera) {
 
-			 // 	camera.near = this.settings.znear.value;
-				// camera.far = this.settings.zfar.value;
+			 	camera.near = this.settings.znear.value;
+				camera.far = this.settings.zfar.value;
+				camera.frameSize = dvc(this.settings.framesize.value, "mm");
+				console.log(camera.frameSize);
+				camera.focalLength = this.settings.focalLength.value;
 
-				camera.focalLength = this.settings.focalLength.value/1000.0;
 				camera.setLens(camera.focalLength, camera.frameSize);
+				
 				camera.updateProjectionMatrix();
-			// 	camera.aspect = this.settings.aspect.value;
-			// 	camera.updateProjectionMatrix();
+
+			},
+			updateRender: function (renderer, container) {
+				//find the screen aspect ratio 
+				var he = window.innerHeight;
+				var wi = window.innerWidth;
+				var a = wi/he;
+
+				var aspect = this.settings.aspect.value;
+
+				//depends on aspect of screen and aspect of user 
+				//if the aspect of the screen is larger than the aspect of camera than vertical bars
+				//if the aspect of the screen is smaller than the aspect of the camera than horizontal bars
+	
+				if (a < aspect){
+					this.canvasWidth = window.innerWidth;
+					this.canvasHeight = this.canvasWidth / aspect;
+					this.canvasOffset = Math.max(0, 0.5 * (window.innerHeight - this.canvasHeight));
+					this.aspecttype="hor";
+				}
+				else if (a >=aspect){
+					this.canvasHeight = window.innerHeight;
+					this.canvasWidth = aspect * this.canvasHeight;
+					this.canvasOffset = Math.max(0, 0.5 * (window.innerWidth - this.canvasWidth));
+					this.aspecttype="ver";
+				}
+				renderer.setSize(this.canvasWidth, this.canvasHeight);
+
+				if (this.aspecttype == "hor"){
+					container.style.left = 0.0 + "px";
+					container.style.top = this.canvasOffset + "px";
+					
+				}
+				else if (this.aspecttype == "ver"){
+					container.style.left = this.canvasOffset + "px";
+					container.style.top = 0.0 + "px";
+				}
+							
+
 			}
 		};
 	};

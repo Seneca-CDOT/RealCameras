@@ -17,7 +17,7 @@ THREE.DoFShader = {
 		"zfar":			{ type: "f", value: 1000.0 },
 		"showFocus":	{ type: "i", value: 0 },
 		"focalDepth":	{ type: "f", value: 60.0 },
-		"focalLength":	{ type: "f", value: 28.0 },
+		"focalLength":	{ type: "f", value: 35.0 },
 		"aperture":		{ type: "f", value: 2.8 },	
 		"autofocus":	{ type: "i", value: 1 },
 		"focus":        { type: "v2", value: new THREE.Vector2(0.5, 0.5) },
@@ -39,7 +39,8 @@ THREE.DoFShader = {
 		"noise":		{ type: "i", value: 1 },
 		"namount":		{ type: "f", value: 0.0001 },
 		"depthblur":	{ type: "i", value: 0 },
-		"dbsize":		{ type: "f", value: 1.25}
+		"dbsize":		{ type: "f", value: 1.25},
+		"framesize": {type: "f", value: 35.00}
 	},
 
 	vertexShader: [
@@ -278,8 +279,8 @@ THREE.DoFShader = {
 			// 	"blur = (a > 0.0) ? b : c;",
 			// "} else {",
 				"float f = focalLength;", 
-				"float d = fDepth*1000.0;",
-				"float o = depth*1000.0;",
+				"float d = fDepth;",
+				"float o = depth;",
 
 				// "float a = (o * f) / (o - f);",
 				// "float b = (d * f) / (d - f);",
@@ -347,7 +348,7 @@ THREE.DoFShader = {
 
 
 			"if (showFocus) {",
-				"col = debugFocus(col, blur, depth);",
+			//	"col = debugFocus(col, blur, depth);",
 			"}",
 
 

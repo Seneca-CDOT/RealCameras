@@ -22,7 +22,8 @@ THREE.BokehShader = {
 		"focalLength": {type: "f", value: 100.0},
 		"coc": {type: "f", value: 0.03},
 		
-		"maxblur":  { type: "f", value: 1.0 }
+		"maxblur":  { type: "f", value: 1.0 },
+		"framesize": {type: "f", value: 35.00}
 	},
 
 	vertexShader: [
@@ -63,7 +64,7 @@ THREE.BokehShader = {
 			// "float factor = depth1.x - (1.0 - focalDepth);",
 			"float factor = (mix(znear, zfar, 1.0 - depth1.x) - focalDepth) / (zfar - znear);",
 
-			"vec2 dofblur = vec2(clamp(factor * ((focalLength/1000.0)/aperture), -maxblur, maxblur));",
+			"vec2 dofblur = vec2(clamp(factor * ((focalLength)/aperture), -maxblur, maxblur));",
 
 			"vec2 dofblur9 = dofblur * 0.9;",
 			"vec2 dofblur7 = dofblur * 0.7;",
