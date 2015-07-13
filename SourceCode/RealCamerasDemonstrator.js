@@ -28,7 +28,6 @@ Application.RealCamerasDemonstrator = (function () {
 
         this.postprocessing = {};
         this.bokehPassConfiguration = null;
-		this.bokehPassDepthMapSource = null;
 
 		this.gui = null;
 
@@ -117,8 +116,8 @@ Application.RealCamerasDemonstrator = (function () {
 		this.camera = new THREE.PerspectiveCamera(emptyFov, this.canvasWidth / this.canvasHeight, near, far);
 
 // TODO:
-		this.camera.focalLength = 35; // dvc(35, "mm");
-		this.camera.frameSize = 43; // dvc(43, "mm");
+		this.camera.focalLength = 35; // in "mm"
+		this.camera.frameSize = 43; // in "mm"
 		this.camera.setLens(this.camera.focalLength, this.camera.frameSize);
 
 		var aboveTheGround = dvc(1.5, "m");
@@ -140,8 +139,8 @@ Application.RealCamerasDemonstrator = (function () {
 	privateMethods.initControls = function () {
 		var dvc = Application.DistanceValuesConvertor.getInstance();
 
-		var direction = new THREE.Vector3(0.0, 0.0, -1.0);
 		// var direction = new THREE.Vector3(-1.0, 0.0, -1.0);
+		var direction = new THREE.Vector3(0.0, 0.0, -1.0);
 		var displacement = dvc(0.0, "m");
 		var delta = dvc(0.05, "m");
 
@@ -155,22 +154,6 @@ Application.RealCamerasDemonstrator = (function () {
 // mark -
 
 	privateMethods.initPostprocessing = function() {
-
-		var params = {
-			minFilter: THREE.NearestFilter,
-			magFilter: THREE.NearestFilter,
-			format: THREE.RGBAFormat
-		};
-
-		// var params = { 
-		// 	minFilter: THREE.LinearFilter, 
-		// 	magFilter: THREE.LinearFilter, 
-		// 	format: THREE.RGBFormat 
-		// };
-	
-		// intermediate renderer targets
-		this.bokehPassDepthMapSource = new THREE.WebGLRenderTarget(this.canvasWidth, this.canvasHeight, params);
-
 		this.postprocessing.composer = new THREE.EffectComposer(this.renderer);
 
 		// render pass
@@ -185,7 +168,7 @@ Application.RealCamerasDemonstrator = (function () {
 
 		// bokeh pass
 		var bokehPass = new THREE.ShaderPass(shader, textureId);
-		bokehPass.uniforms["tDepth"].value = this.bokehPassDepthMapSource;
+		bokehPass.uniforms["tDepth"].value = this.bokehPassConfiguration.depthMapTarget;
 		bokehPass.renderToScreen = true;
 		
 		this.postprocessing.composer.addPass(bokehPass);
@@ -197,7 +180,7 @@ Application.RealCamerasDemonstrator = (function () {
 // TODO: move this logic out
 	privateMethods.setUpGui = function () {
 		this.gui = new dat.GUI();	
-		var settings = this.bokehPassConfiguration.settings;
+		var settings = this.bokehPassConfiguration.shaderSettings;
 		for (var param in settings) {
 			if (settings.hasOwnProperty(param)) {
 
@@ -219,8 +202,10 @@ Application.RealCamerasDemonstrator = (function () {
 		this.gui.open();
 	};
 	privateMethods.settingsUpdater = function () {
-		this.bokehPassConfiguration.updateCamera(this.camera);
-		var settings = this.bokehPassConfiguration.settings;	
+		this.bokehPassConfiguration.updateFromConfiguration(this.camera);
+		this.bokehPassConfiguration.updateToConfiguration(this.canvasWidth, this.canvasHeight);
+
+		var settings = this.bokehPassConfiguration.shaderSettings;	
 		for (var param in settings) {
 			if (settings.hasOwnProperty(param)) {
 
@@ -240,7 +225,6 @@ Application.RealCamerasDemonstrator = (function () {
 			this.postprocessing.composer.popPass();
 		}
 
-		this.bokehPassDepthMapSource = null;
 		this.postprocessing = null;
     };
    	privateMethods.destroyBokehPass = function () {
@@ -279,8 +263,8 @@ Application.RealCamerasDemonstrator = (function () {
 		if (this.bokehPassConfiguration) {
 
 			// depth into texture rendering
-			this.scene.overrideMaterial = this.bokehPassConfiguration.material;
-			this.renderer.render(this.scene, this.camera, this.bokehPassDepthMapSource);
+			this.scene.overrideMaterial = this.bokehPassConfiguration.depthMaterial;
+			this.renderer.render(this.scene, this.camera, this.bokehPassConfiguration.depthMapTarget);
 			this.scene.overrideMaterial = null;
 
 			// on screen rendering

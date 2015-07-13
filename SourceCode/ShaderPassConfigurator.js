@@ -5,22 +5,20 @@ Application.ShaderPassConfigurator = (function () {
 
 	var privateStore = {};
 	function ShaderPassConfigurator () {
-
 		var dvc = Application.DistanceValuesConvertor.getInstance();
 // TODO:
 		// ACM p.13
 		privateStore.aspect = 2.35; // 1.85;
+
 		privateStore.near = dvc(0.01, "m");
 		privateStore.far = dvc(100, "m");
 	};
 	
 	ShaderPassConfigurator.prototype.configuration = function (passId) {
-
 		var configuration = null;
 		switch (passId) {
-			case "bokeh_0": {
-				configuration = privateMethods.bokehPassConfiguration_0.call(this);
-				// configuration = privateMethods.bokehPassConfiguration_0_alt.call(this);
+			case "bokeh_main": {
+				configuration = privateMethods.bokehPassConfigurationMain.call(this);
 				break;
 			} 
 			case "bokeh_1": {
@@ -36,207 +34,38 @@ Application.ShaderPassConfigurator = (function () {
 	};
 
 	var privateMethods = Object.create(ShaderPassConfigurator.prototype);
-	privateMethods.bokehPassConfiguration_0 = function () {
+	privateMethods.bokehPassConfigurationMain = function () {
 		var dvc = Application.DistanceValuesConvertor.getInstance();
 
-// TODO:
-		var canvasWidth = window.innerWidth;
-		var canvasHeight = canvasWidth / privateStore.aspect;
-
 		var beforeNear = privateStore.near + dvc(1.0, "m");
-		var settings = {
-
-			size: {
-				value: new THREE.Vector2(canvasWidth, canvasHeight) 
-			},
-			textel: {
-				value: new THREE.Vector2(1.0 / canvasWidth, 1.0 / canvasHeight) 
-			},
-// mark - 
-			znear: {
-				value: privateStore.near 
-			},
-			zfar: {
-				value: privateStore.far
-			},
-// mark -
-			showFocus: {
-				value: true,
-				show: true
-			},
-			focalDepth: {
-				value: dvc(5.0, "m"),
-				range: {begin: beforeNear, end: privateStore.far, step: dvc(0.001, "m")} 
-			},
-			// focalLength: {
-			// 	value: dvc(35, "mm"),
-			// 	range: {begin: dvc(25, "mm"), end: dvc(75, "mm"), step: dvc(0.1, "mm")}
-			// },
-			focalLength: {
-				value: 35,
-				range: {begin: 25, end: 75, step: 0.1}
-			},
-			// Non-dimensional value (f-stop = focal-length/aperture)
-			fstop: {
-				value: 0.0001,
-				range: {begin: 0.00001, end: 0.001, step: 0.00001}
-			},
-			// CoC: {
-			// 	value: dvc(0.03, "mm"),
-			// 	// range: {begin: dvc(0.0, "mm"), end: dvc(1.0, "mm"), step: dvc(0.001, "mm")}
-			// },
-			CoC: {
-				value: 0.03,
-			},
-			autofocus: {
-				value: false,
-				// show: true
-			},
-			// Non-dimensional 2D-vector.
-			focus: {
-				value: new THREE.Vector2(0.5, 0.5)
-			},
-
-			maxblur: {
-				value: 2.0,
-				range: {begin: 0.0, end: 3.0, step: 0.025}
-			},
-// mark -
-			manualdof: {
-				value: false
-			},
-			ndofstart: {
-				value: 1.0
-			},
-			ndofdist: {
-				value: 2.0
-			},
-			fdofstart: {
-				value: 2.0
-			},
-			fdofdist: {
-				value: 3.0
-			},
-// mark -
-			vignetting: {
-				value: true
-			},
-			vignout: {
-				value: 1.3
-			},
-			vignin: {
-				value: 0.1
-			},
-			vignfade: {
-				value: 22.0
-			},
-// mark - 
-			threshold: {
-				value: 0.5
-			},
-			gain: {
-				value: 2.0
-			},
-			bias: {
-				value: 0.5
-			},
-			fringe: {
-				value: 3.7
-			},
-// mark -
-			noise: {
-				value: true
-			},
-			namount: {
-				value: 0.0001
-			},
-// mark -
-			depthblur: {
-				value: false
-			},
-			dbsize: {
-				value: 1.25
-			}				
-		};
-
-		var shader = THREE.ShaderLib["depthRGBA"];
-		var uniforms = THREE.UniformsUtils.clone(shader.uniforms);
-		var material = new THREE.ShaderMaterial({ 
-
-			fragmentShader: shader.fragmentShader,
-			vertexShader: shader.vertexShader,
-			uniforms: uniforms
-		});
-		material.blending = THREE.NoBlending;
-
-		return {
-			shader: THREE.DoFShader,
-			textureId: "tDiffuse",
-			settings: settings,
-			material: material,
-			updateCamera: function (camera) {
-// TODO:
-				// size: {
-				// 	value: new THREE.Vector2(canvasWidth, canvasHeight) 
-				// 	// new THREE.Vector2(this.canvasWidth, this.canvasHeight)
-				// },
-				// textel: {
-				// 	value: new THREE.Vector2(1.0 / canvasWidth, 1.0 / canvasHeight) 
-				// 	// new THREE.Vector2(1.0 / this.canvasWidth, 1.0 / this.canvasHeight)
-				// },
-
-				camera.near = this.settings.znear.value;
-				camera.far = this.settings.zfar.value;
-
-				camera.focalLength = this.settings.focalLength.value;
-				camera.setLens(camera.focalLength, camera.frameSize);
-				camera.updateProjectionMatrix();
-			}
-		};	
-	};
-
-	privateMethods.bokehPassConfiguration_0_alt = function () {
-		var dvc = Application.DistanceValuesConvertor.getInstance();
-
-// TODO:
-		var canvasWidth = window.innerWidth;
-		var canvasHeight = canvasWidth / privateStore.aspect;
-
-		var beforeNear = privateStore.near + dvc(1.0, "m");
-		var settings = {
-
+		var shaderSettings = {
 			textureWidth: {
-				value: canvasWidth
+				value: 0.0
 			},
 			textureHeight: {
-				value: canvasHeight
+				value: 0.0
 			},
 // mark - 			
 			focalDepth: {
-				value: dvc(5.0, "m"),
-				range: {begin: beforeNear, end: privateStore.far, step: dvc(0.001, "m")} 
+				value: beforeNear,
+				range: {begin: beforeNear, end: 0.5 * privateStore.far, step: dvc(0.01, "m")} 
 			},
-			// focalLength: {
-			// 	value: dvc(35, "mm") * 1000.0,
-			// 	range: {begin: dvc(25, "mm") * 1000.0, end: dvc(75, "mm") * 1000.0, step: dvc(0.1, "mm") * 1000.0}
-			// },
-			focalLength: {
+			focalLength: { // in "mm"
 				value: 35,
 				range: {begin: 25, end: 75, step: 0.1}
 			},
 			// Non-dimensional value (f-stop = focal-length/aperture)
 			fstop: {
-				value: 2.2,
-				range: {begin: 0.1, end: 22, step: 0.001}
+				value: 1.2,
+				range: {begin: 0.2, end: 8, step: 0.01}
 			},
 			maxblur: {
 				value: 1.0,
-				range: {begin: 0.0, end: 3.0, step: 0.025}
+				range: {begin: 0.0, end: 2.0, step: 0.025}
 			},
 // mark -
 			shaderFocus: {
 				value: false
-				// show: true
 			},
 			// Non-dimensional 2D-vector.
 			focusCoords: {
@@ -247,12 +76,12 @@ Application.ShaderPassConfigurator = (function () {
 				value: true,
 				show: true
 			},
+			vignetting: {
+				value: true,
+				show: true
+			},
 			manualdof: {
 				value: false
-			},
-			vignetting: {
-				value: false,
-				show: true
 			},
 			depthblur: {
 				value: false
@@ -282,40 +111,41 @@ Application.ShaderPassConfigurator = (function () {
 				value: false
 			}
 		};
-		var material = new THREE.MeshDepthMaterial();
+		var depthMaterial = new THREE.MeshDepthMaterial();
+
+		var params = { 
+			minFilter: THREE.LinearFilter, 
+			magFilter: THREE.LinearFilter, 
+			format: THREE.RGBFormat 
+		};
+		var depthMapTarget = new THREE.WebGLRenderTarget(0.0, 0.0, params);
 
 		return {
 			shader: THREE.BokehShader2,
 			textureId: "tColor",
-			settings: settings,
-			material: material,
-			updateCamera: function (camera) {
-// TODO:
-				// size: {
-				// 	value: new THREE.Vector2(canvasWidth, canvasHeight) 
-				// 	// new THREE.Vector2(this.canvasWidth, this.canvasHeight)
-				// },
-				// textel: {
-				// 	value: new THREE.Vector2(1.0 / canvasWidth, 1.0 / canvasHeight) 
-				// 	// new THREE.Vector2(1.0 / this.canvasWidth, 1.0 / this.canvasHeight)
-				// },
+			shaderSettings: shaderSettings,
+			depthMaterial: depthMaterial,
+			depthMapTarget: depthMapTarget,
+			updateFromConfiguration: function (camera) {
+				camera.near = this.shaderSettings.znear.value;
+				camera.far = this.shaderSettings.zfar.value;
 
-				camera.near = this.settings.znear.value;
-				camera.far = this.settings.zfar.value;
-
-				camera.focalLength = this.settings.focalLength.value;
+				camera.focalLength = this.shaderSettings.focalLength.value;
 				camera.setLens(camera.focalLength, camera.frameSize);
 				camera.updateProjectionMatrix();
+			},
+			updateToConfiguration: function (width, height) {
+				this.depthMapTarget.setSize(width, height);
+				this.shaderSettings.textureWidth.value = width;
+				this.shaderSettings.textureHeight.value = height;
 			}
 		};	
 	};
 	privateMethods.bokehPassConfiguration_1 = function () {
-
 		var dvc = Application.DistanceValuesConvertor.getInstance();
 
 		var beforeNear = privateStore.near + dvc(1.0, "m");
-		var settings = {
-
+		var shaderSettings = {
 			znear: {
 				value: privateStore.near 
 			},
@@ -338,33 +168,40 @@ Application.ShaderPassConfigurator = (function () {
 				range: {begin: 0.0, end: 0.5, step: 0.001}
 			}
 		};
-		var material = new THREE.MeshDepthMaterial();
+		var depthMaterial = new THREE.MeshDepthMaterial();
+
+		var params = { 
+			minFilter: THREE.LinearFilter, 
+			magFilter: THREE.LinearFilter, 
+			format: THREE.RGBFormat 
+		};
+		var depthMapTarget = new THREE.WebGLRenderTarget(0.0, 0.0, params);
 
 		return {
 			shader: THREE.BokehShader,
 			textureId: "tColor",
-			settings: settings,
-			material: material,
-			updateCamera: function (camera) {
-
-				camera.aspect = this.settings.aspect.value;
+			shaderSettings: shaderSettings,
+			depthMaterial: depthMaterial,
+			depthMapTarget: depthMapTarget,
+			updateFromConfiguration: function (camera) {
+				camera.aspect = this.shaderSettings.aspect.value;
 				camera.updateProjectionMatrix();
+			},
+			updateToConfiguration: function (width, height) {
+				this.depthMapTarget.setSize(width, height);
 			}
 		};
 	};
 	privateMethods.bokehPassConfiguration_2 = function () {
-
-		var canvasWidth = window.innerWidth;
-		var canvasHeight = canvasWidth / privateStore.aspect;
 		var near = 0.01;
 		var far = 100;
 		
-		var settings = {
+		var shaderSettings = {
 			size: {
-				value: new THREE.Vector2(canvasWidth, canvasHeight) 
+				value: new THREE.Vector2(10.0, 10.0) 
 			},
 			textel: {
-				value: new THREE.Vector2(1.0 / canvasWidth, 1.0 / canvasHeight) 
+				value: new THREE.Vector2(0.1, 0.1) 
 			},
 			znear: {
 				value: near 
@@ -392,50 +229,57 @@ Application.ShaderPassConfigurator = (function () {
 			}
 
 		};
-		//var material = new THREE.MeshDepthMaterial();
+		
 		var shader = THREE.ShaderLib["depthRGBA"];
 		var uniforms = THREE.UniformsUtils.clone(shader.uniforms);
-		var material = new THREE.ShaderMaterial({ 
+		var depthMaterial = new THREE.ShaderMaterial({ 
 
 			fragmentShader: shader.fragmentShader,
 			vertexShader: shader.vertexShader,
 			uniforms: uniforms
 		});
-		material.blending = THREE.NoBlending;
+		depthMaterial.blending = THREE.NoBlending;
+
+		var params = {
+			minFilter: THREE.NearestFilter,
+			magFilter: THREE.NearestFilter,
+			format: THREE.RGBAFormat
+		};
+		var depthMapTarget = new THREE.WebGLRenderTarget(0.0, 0.0, params);
+
 		return {
 			shader: THREE.TestShader,
 			textureId: "tColor",
-			settings: settings,
-			material: material,
-			 updateCamera: function (camera) {
+			shaderSettings: shaderSettings,
+			depthMaterial: depthMaterial,
+			depthMapTarget: depthMapTarget,
+			updateFromConfiguration: function (camera) {
+			 	// camera.near = this.shaderSettings.znear.value;
+				// camera.far = this.shaderSettings.zfar.value;
 
-			 // 	camera.near = this.settings.znear.value;
-				// camera.far = this.settings.zfar.value;
-
-				camera.focalLength = this.settings.focalLength.value;
+				camera.focalLength = this.shaderSettings.focalLength.value;
 				camera.setLens(camera.focalLength, camera.frameSize);
 				camera.updateProjectionMatrix();
-			// 	camera.aspect = this.settings.aspect.value;
-			// 	camera.updateProjectionMatrix();
+			},
+			updateToConfiguration: function (width, height) {
+				this.shaderSettings.size.value = new THREE.Vector2(width, height);
+				this.shaderSettings.textel.value = new THREE.Vector2(1.0 / width, 1.0 / height);
 			}
 		};
 	};
 		
 	var instance = null;
 	function createInstance() {
-
 		var newInstance = new ShaderPassConfigurator();
 		return newInstance;
 	};
 
 	return {
 		getInstance: function () {
-
 			if (!instance) {
-
 				instance = createInstance();
 			}
 			return instance;
 		}
 	}
-})(); 
+})();

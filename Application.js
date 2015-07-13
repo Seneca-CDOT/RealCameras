@@ -5,8 +5,8 @@ var Application = (function () {
     store.started = false;
 
     store.gui = null;
-    store.bokehPassValues = ["-","Bokeh Style 0", "Bokeh Style 1", "Depth Shader 1"];
-    store.bokehPassIds = ["-","bokeh_0", "bokeh_1", "depth_1"];
+    store.bokehPassValues = ["-","Bokeh Style Main", "Bokeh Style 1", "Depth Shader 1"];
+    store.bokehPassIds = ["-","bokeh_main", "bokeh_1", "depth_1"];
     store.settings = {
         bokehPassValue: store.bokehPassValues[0],
         bokehPassId: store.bokehPassIds[0],

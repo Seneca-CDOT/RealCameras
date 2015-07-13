@@ -294,7 +294,8 @@ THREE.BokehShader2 = {
 
 			//focal plane calculation
 
-			"float fDepth = focalDepth;",
+			// "float fDepth = focalDepth;",
+			"float fDepth = linearize(1.0 - smoothstep(znear, zfar, focalDepth));",
 			"if (autofocus) {",
 
 				"fDepth = linearize(texture2D(tDepth,focusCoords).x);",
