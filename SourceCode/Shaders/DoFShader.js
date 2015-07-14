@@ -40,7 +40,8 @@ THREE.DoFShader = {
 		"namount":		{ type: "f", value: 0.0001 },
 		"depthblur":	{ type: "i", value: 0 },
 		"dbsize":		{ type: "f", value: 1.25},
-		"framesize": {type: "f", value: 35.00}
+		"framesize": {type: "f", value: 35.00},
+		"aspect": {type: "f", value: 1.33}
 	},
 
 	vertexShader: [

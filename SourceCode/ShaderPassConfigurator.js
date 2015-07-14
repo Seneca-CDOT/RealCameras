@@ -194,15 +194,40 @@ Application.ShaderPassConfigurator = (function () {
 				camera.near = this.settings.znear.value;
 				camera.far = this.settings.zfar.value;
 				//var frameSize = 88.00;
-
+				console.log(camera.frameSize);
 				camera.focalLength = this.settings.focalLength.value;
+				camera.frameSize = dvc(this.settings.framesize.value, "mm");
 				camera.setLens(camera.focalLength, camera.frameSize);
 				camera.updateProjectionMatrix();
 			},
-			updateRender: function (render) {
-				//change size of render, 
-				//find aspect 
-				//find offset				
+			updateRender: function (renderer, container) {
+				//find the screen aspect ratio 
+				var he = window.innerHeight;
+				var wi = window.innerWidth;
+				var a = wi/he;
+
+				//from camera select
+				var aspect = this.settings.aspect.value;
+
+				//depends on aspect of screen and aspect of user 
+				//if the aspect of the screen is larger than the aspect of camera than vertical bars
+				//if the aspect of the screen is smaller than the aspect of the camera than horizontal bars
+	
+				if (a < aspect){
+					this.canvasWidth = window.innerWidth;
+					this.canvasHeight = this.canvasWidth / aspect;
+					this.canvasOffset = Math.max(0, 0.5 * (window.innerHeight - this.canvasHeight));
+					container.style.left = 0.0 + "px";
+					container.style.top = this.canvasOffset + "px";
+				}
+				else if (a >=aspect){
+					this.canvasHeight = window.innerHeight;
+					this.canvasWidth = aspect * this.canvasHeight;
+					this.canvasOffset = Math.max(0, 0.5 * (window.innerWidth - this.canvasWidth));
+				}
+				renderer.setSize(this.canvasWidth, this.canvasHeight);	
+					container.style.left = this.canvasOffset + "px";
+					container.style.top = 0.0 + "px";		
 
 			}
 		};	
@@ -237,6 +262,9 @@ Application.ShaderPassConfigurator = (function () {
 				value: 12
 			//	range: {begin: 5, end: 22, step: 1} 	
 			},
+			coc: {
+				value: .001
+			},
 			maxblur: {
 				value: 0.01,
 				range: {begin: 0.0, end: 0.5, step: 0.001}
@@ -251,13 +279,37 @@ Application.ShaderPassConfigurator = (function () {
 			material: material,
 			updateCamera: function (camera) {
 
-				camera.aspect = this.settings.aspect.value;
-				camera.updateProjectionMatrix();
+			//	camera.aspect = this.settings.aspect.value;
+			//	camera.updateProjectionMatrix();
 			},
-			updateRender: function (render) {
-				//change size of render, 
-				//find aspect 
-				//find offset				
+			updateRender: function (renderer, container) {
+				//find the screen aspect ratio 
+				var he = window.innerHeight;
+				var wi = window.innerWidth;
+				var a = wi/he;
+
+				//from camera select
+				var aspect = this.settings.aspect.value;
+
+				//depends on aspect of screen and aspect of user 
+				//if the aspect of the screen is larger than the aspect of camera than vertical bars
+				//if the aspect of the screen is smaller than the aspect of the camera than horizontal bars
+	
+				if (a < aspect){
+					this.canvasWidth = window.innerWidth;
+					this.canvasHeight = this.canvasWidth / aspect;
+					this.canvasOffset = Math.max(0, 0.5 * (window.innerHeight - this.canvasHeight));
+					container.style.left = 0.0 + "px";
+					container.style.top = this.canvasOffset + "px";
+				}
+				else if (a >=aspect){
+					this.canvasHeight = window.innerHeight;
+					this.canvasWidth = aspect * this.canvasHeight;
+					this.canvasOffset = Math.max(0, 0.5 * (window.innerWidth - this.canvasWidth));
+					container.style.left = this.canvasOffset + "px";
+					container.style.top = 0.0 + "px";
+				}
+				renderer.setSize(this.canvasWidth, this.canvasHeight);			
 
 			}
 		};
@@ -309,7 +361,7 @@ Application.ShaderPassConfigurator = (function () {
 				value: 1.33
 			},
 			framesize:{
-				value: 35.00
+				value: 27.00
 			}
 
 		};
@@ -333,7 +385,7 @@ Application.ShaderPassConfigurator = (function () {
 			 	camera.near = this.settings.znear.value;
 				camera.far = this.settings.zfar.value;
 				camera.frameSize = dvc(this.settings.framesize.value, "mm");
-				console.log(camera.frameSize);
+				//frame size controls the field of view for veritcal 
 				camera.focalLength = this.settings.focalLength.value;
 
 				camera.setLens(camera.focalLength, camera.frameSize);
@@ -347,6 +399,7 @@ Application.ShaderPassConfigurator = (function () {
 				var wi = window.innerWidth;
 				var a = wi/he;
 
+				//from camera select
 				var aspect = this.settings.aspect.value;
 
 				//depends on aspect of screen and aspect of user 
@@ -357,27 +410,17 @@ Application.ShaderPassConfigurator = (function () {
 					this.canvasWidth = window.innerWidth;
 					this.canvasHeight = this.canvasWidth / aspect;
 					this.canvasOffset = Math.max(0, 0.5 * (window.innerHeight - this.canvasHeight));
-					this.aspecttype="hor";
+				
 				}
 				else if (a >=aspect){
 					this.canvasHeight = window.innerHeight;
 					this.canvasWidth = aspect * this.canvasHeight;
 					this.canvasOffset = Math.max(0, 0.5 * (window.innerWidth - this.canvasWidth));
-					this.aspecttype="ver";
+	
 				}
-				renderer.setSize(this.canvasWidth, this.canvasHeight);
-
-				if (this.aspecttype == "hor"){
-					container.style.left = 0.0 + "px";
-					container.style.top = this.canvasOffset + "px";
-					
-				}
-				else if (this.aspecttype == "ver"){
+				renderer.setSize(this.canvasWidth, this.canvasHeight);			
 					container.style.left = this.canvasOffset + "px";
 					container.style.top = 0.0 + "px";
-				}
-							
-
 			}
 		};
 	};

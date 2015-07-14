@@ -172,51 +172,30 @@ Application.RealCamerasDemonstrator = (function () {
 		this.bokehPassConfiguration.bokehPass = bokehPass;
 	};
 //TODO Move this logic out
-//Changing aperture
-//changing aspect ratio
 
 	privateMethods.setUpGui = function () {
 
+		//special values and values that need to be convereted
 		var params = {
- 			camera: "Please select camera",
  			lens: "Please select lens",
  			lentype: "Please select type",
- 			fov: 27.00,
-    		focaldep: 5.00
+     		focaldep: 5.00
     	};
+
 		this.gui = new dat.GUI();
 	    var dvc = Application.DistanceValuesConvertor.getInstance();
 		
 		var settings = this.bokehPassConfiguration.settings;
 		var that = this;	
 
+		//camera
 		var camfolder = this.gui.addFolder("Camera");
-
-	 	$.getJSON("../Resource/jsonfiles/CameraData.json").then(function(data){
- 			var ind= [];	
- 			var listcams = ["please select camera"];	
- 			$.each(data, function(name, value){
- 				$.each(value, function(index, innervalue){
- 					listcams.push(innervalue.namecam);
- 			 	});
-			});
-		    camfolder.add(params, 'camera', listcams).onChange(function(value){
-  				var i = listcams.indexOf(value);
-  				if (i>0){
-  					i--;
-  		 			params.fov = data.cameras[i].FoV;
-  		 			settings["coc"].value = dvc(data.cameras[i].circleofconf, "mm");
-  		 			settings["aspect"].value = data.cameras[i].aspect;
-  		 			settings["framesize"].value = data.cameras[i].FoV;
-  		 			privateMethods.settingsUpdater.call(that);
-  		 		}
-  			});
-	    });
-
+		privateMethods.CameraSelect.call(this);
 
 	 	this.camfolder = camfolder;
 		this.camfolder.open();
 
+		//lens
 	    var lensfolder = this.gui.addFolder("Lens");
 
 	    $.getJSON("../Resource/jsonfiles/Lensdata.json").then(function(data){
@@ -260,7 +239,7 @@ Application.RealCamerasDemonstrator = (function () {
 		this.lensfolder = lensfolder;
 		this.lensfolder.open();
 
-		
+		//user 
 		this.Userfolder = this.gui.addFolder("User Inputs");
 		
 		var that = this;
@@ -270,19 +249,50 @@ Application.RealCamerasDemonstrator = (function () {
 			privateMethods.settingsUpdater.call(that);
 		});
 		
-		
 		this.Userfolder.add(settings["aperture"], "value", 1.0, 22.0, 1.0).name("f-stop")
 		.onChange(privateMethods.settingsUpdater.bind(this));
 
 		this.Userfolder.open();
-	//	}
+
 	};
+
+	privateMethods.CameraSelect = function(){
+		var that= this;
+		var params = {
+ 			camera: "Please select camera",
+ 			fov: 27.00
+    	};
+    	var settings = this.bokehPassConfiguration.settings;
+    	var dvc = Application.DistanceValuesConvertor.getInstance();
+    	
+		$.getJSON("../Resource/jsonfiles/CameraData.json").then(function(data){
+ 			var ind= [];	
+ 			var listcams = ["please select camera"];	
+ 			$.each(data, function(name, value){
+ 				$.each(value, function(index, innervalue){
+ 					listcams.push(innervalue.namecam);
+ 			 	});
+			});
+		    that.camfolder.add(params, 'camera', listcams).onChange(function(value){
+  				var i = listcams.indexOf(value);
+  				if (i>0){
+  					i--;
+  		 			params.fov = data.cameras[i].FoV;
+  		 			settings["coc"].value = dvc(data.cameras[i].circleofconf, "mm");
+  		 			settings["aspect"].value = data.cameras[i].aspect;
+  		 			settings["framesize"].value = data.cameras[i].FoV;
+  		 			privateMethods.settingsUpdater.call(that);
+  		 		}
+  			});
+	    });
+	};
+
 	privateMethods.settingsUpdater = function () {
 
 		 this.bokehPassConfiguration.updateCamera(this.camera);
 
 		 //add other things other than this.renderer, like container 
-		 this.bokehPassConfiguration.updateRender(this.renderer, this.container);
+	//	 this.bokehPassConfiguration.updateRender(this.renderer, this.container);
 
 		 var settings = this.bokehPassConfiguration.settings;	
 		 for (var param in settings) {
