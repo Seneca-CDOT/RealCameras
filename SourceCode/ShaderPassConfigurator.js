@@ -199,37 +199,37 @@ Application.ShaderPassConfigurator = (function () {
 				camera.frameSize = dvc(this.settings.framesize.value, "mm");
 				camera.setLens(camera.focalLength, camera.frameSize);
 				camera.updateProjectionMatrix();
-			},
-			updateRender: function (renderer, container) {
-				//find the screen aspect ratio 
-				var he = window.innerHeight;
-				var wi = window.innerWidth;
-				var a = wi/he;
-
-				//from camera select
-				var aspect = this.settings.aspect.value;
-
-				//depends on aspect of screen and aspect of user 
-				//if the aspect of the screen is larger than the aspect of camera than vertical bars
-				//if the aspect of the screen is smaller than the aspect of the camera than horizontal bars
-	
-				if (a < aspect){
-					this.canvasWidth = window.innerWidth;
-					this.canvasHeight = this.canvasWidth / aspect;
-					this.canvasOffset = Math.max(0, 0.5 * (window.innerHeight - this.canvasHeight));
-					container.style.left = 0.0 + "px";
-					container.style.top = this.canvasOffset + "px";
-				}
-				else if (a >=aspect){
-					this.canvasHeight = window.innerHeight;
-					this.canvasWidth = aspect * this.canvasHeight;
-					this.canvasOffset = Math.max(0, 0.5 * (window.innerWidth - this.canvasWidth));
-				}
-				renderer.setSize(this.canvasWidth, this.canvasHeight);	
-					container.style.left = this.canvasOffset + "px";
-					container.style.top = 0.0 + "px";		
-
 			}
+			// updateRender: function (renderer, container) {
+			// 	//find the screen aspect ratio 
+			// 	var he = window.innerHeight;
+			// 	var wi = window.innerWidth;
+			// 	var a = wi/he;
+
+			// 	//from camera select
+			// 	var aspect = this.settings.aspect.value;
+
+			// 	//depends on aspect of screen and aspect of user 
+			// 	//if the aspect of the screen is larger than the aspect of camera than vertical bars
+			// 	//if the aspect of the screen is smaller than the aspect of the camera than horizontal bars
+	
+			// 	if (a < aspect){
+			// 		this.canvasWidth = window.innerWidth;
+			// 		this.canvasHeight = this.canvasWidth / aspect;
+			// 		this.canvasOffset = Math.max(0, 0.5 * (window.innerHeight - this.canvasHeight));
+			// 		container.style.left = 0.0 + "px";
+			// 		container.style.top = this.canvasOffset + "px";
+			// 	}
+			// 	else if (a >=aspect){
+			// 		this.canvasHeight = window.innerHeight;
+			// 		this.canvasWidth = aspect * this.canvasHeight;
+			// 		this.canvasOffset = Math.max(0, 0.5 * (window.innerWidth - this.canvasWidth));
+			// 	}
+			// 	renderer.setSize(this.canvasWidth, this.canvasHeight);	
+			// 		container.style.left = this.canvasOffset + "px";
+			// 		container.style.top = 0.0 + "px";		
+
+			// }
 		};	
 	};
 	privateMethods.bokehPassConfiguration_1 = function () {
@@ -281,37 +281,37 @@ Application.ShaderPassConfigurator = (function () {
 
 			//	camera.aspect = this.settings.aspect.value;
 			//	camera.updateProjectionMatrix();
-			},
-			updateRender: function (renderer, container) {
-				//find the screen aspect ratio 
-				var he = window.innerHeight;
-				var wi = window.innerWidth;
-				var a = wi/he;
-
-				//from camera select
-				var aspect = this.settings.aspect.value;
-
-				//depends on aspect of screen and aspect of user 
-				//if the aspect of the screen is larger than the aspect of camera than vertical bars
-				//if the aspect of the screen is smaller than the aspect of the camera than horizontal bars
-	
-				if (a < aspect){
-					this.canvasWidth = window.innerWidth;
-					this.canvasHeight = this.canvasWidth / aspect;
-					this.canvasOffset = Math.max(0, 0.5 * (window.innerHeight - this.canvasHeight));
-					container.style.left = 0.0 + "px";
-					container.style.top = this.canvasOffset + "px";
-				}
-				else if (a >=aspect){
-					this.canvasHeight = window.innerHeight;
-					this.canvasWidth = aspect * this.canvasHeight;
-					this.canvasOffset = Math.max(0, 0.5 * (window.innerWidth - this.canvasWidth));
-					container.style.left = this.canvasOffset + "px";
-					container.style.top = 0.0 + "px";
-				}
-				renderer.setSize(this.canvasWidth, this.canvasHeight);			
-
 			}
+			// updateRender: function (renderer, container) {
+			// 	//find the screen aspect ratio 
+			// 	var he = window.innerHeight;
+			// 	var wi = window.innerWidth;
+			// 	var a = wi/he;
+
+			// 	//from camera select
+			// 	var aspect = this.settings.aspect.value;
+
+			// 	//depends on aspect of screen and aspect of user 
+			// 	//if the aspect of the screen is larger than the aspect of camera than vertical bars
+			// 	//if the aspect of the screen is smaller than the aspect of the camera than horizontal bars
+	
+			// 	if (a < aspect){
+			// 		this.canvasWidth = window.innerWidth;
+			// 		this.canvasHeight = this.canvasWidth / aspect;
+			// 		this.canvasOffset = Math.max(0, 0.5 * (window.innerHeight - this.canvasHeight));
+			// 		container.style.left = 0.0 + "px";
+			// 		container.style.top = this.canvasOffset + "px";
+			// 	}
+			// 	else if (a >=aspect){
+			// 		this.canvasHeight = window.innerHeight;
+			// 		this.canvasWidth = aspect * this.canvasHeight;
+			// 		this.canvasOffset = Math.max(0, 0.5 * (window.innerWidth - this.canvasWidth));
+			// 		container.style.left = this.canvasOffset + "px";
+			// 		container.style.top = 0.0 + "px";
+			// 	}
+			// 	renderer.setSize(this.canvasWidth, this.canvasHeight);			
+
+			// }
 		};
 	};
 	privateMethods.bokehPassConfiguration_2 = function () {
@@ -392,36 +392,36 @@ Application.ShaderPassConfigurator = (function () {
 				
 				camera.updateProjectionMatrix();
 
-			},
-			updateRender: function (renderer, container) {
-				//find the screen aspect ratio 
-				var he = window.innerHeight;
-				var wi = window.innerWidth;
-				var a = wi/he;
-
-				//from camera select
-				var aspect = this.settings.aspect.value;
-
-				//depends on aspect of screen and aspect of user 
-				//if the aspect of the screen is larger than the aspect of camera than vertical bars
-				//if the aspect of the screen is smaller than the aspect of the camera than horizontal bars
-	
-				if (a < aspect){
-					this.canvasWidth = window.innerWidth;
-					this.canvasHeight = this.canvasWidth / aspect;
-					this.canvasOffset = Math.max(0, 0.5 * (window.innerHeight - this.canvasHeight));
-				
-				}
-				else if (a >=aspect){
-					this.canvasHeight = window.innerHeight;
-					this.canvasWidth = aspect * this.canvasHeight;
-					this.canvasOffset = Math.max(0, 0.5 * (window.innerWidth - this.canvasWidth));
-	
-				}
-				renderer.setSize(this.canvasWidth, this.canvasHeight);			
-					container.style.left = this.canvasOffset + "px";
-					container.style.top = 0.0 + "px";
 			}
+			// updateRender: function (renderer, container) {
+			// 	//find the screen aspect ratio 
+			// 	var he = window.innerHeight;
+			// 	var wi = window.innerWidth;
+			// 	var a = wi/he;
+
+			// 	//from camera select
+			// 	var aspect = this.settings.aspect.value;
+
+			// 	//depends on aspect of screen and aspect of user 
+			// 	//if the aspect of the screen is larger than the aspect of camera than vertical bars
+			// 	//if the aspect of the screen is smaller than the aspect of the camera than horizontal bars
+	
+			// 	if (a < aspect){
+			// 		this.canvasWidth = window.innerWidth;
+			// 		this.canvasHeight = this.canvasWidth / aspect;
+			// 		this.canvasOffset = Math.max(0, 0.5 * (window.innerHeight - this.canvasHeight));
+				
+			// 	}
+			// 	else if (a >=aspect){
+			// 		this.canvasHeight = window.innerHeight;
+			// 		this.canvasWidth = aspect * this.canvasHeight;
+			// 		this.canvasOffset = Math.max(0, 0.5 * (window.innerWidth - this.canvasWidth));
+	
+			// 	}
+			// 	renderer.setSize(this.canvasWidth, this.canvasHeight);			
+			// 		container.style.left = this.canvasOffset + "px";
+			// 		container.style.top = 0.0 + "px";
+			// }
 		};
 	};
 		

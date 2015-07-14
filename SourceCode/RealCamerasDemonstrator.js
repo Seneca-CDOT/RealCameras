@@ -171,14 +171,12 @@ Application.RealCamerasDemonstrator = (function () {
 		this.postprocessing.composer.addPass(bokehPass);
 		this.bokehPassConfiguration.bokehPass = bokehPass;
 	};
-//TODO Move this logic out
+
 
 	privateMethods.setUpGui = function () {
 
 		//special values and values that need to be convereted
 		var params = {
- 			lens: "Please select lens",
- 			lentype: "Please select type",
      		focaldep: 5.00
     	};
 
@@ -197,45 +195,8 @@ Application.RealCamerasDemonstrator = (function () {
 
 		//lens
 	    var lensfolder = this.gui.addFolder("Lens");
-
-	    $.getJSON("../Resource/jsonfiles/Lensdata.json").then(function(data){
- 			var ind= [];	
- 			var listlens = ["Please select lens"];	
- 			var listtype = ["Please select type"];
-
- 			$.each(data, function(name, value){
- 				listtype.push(name);
- 				//seclect the type before sotring the values, takes less memory
- 			});
- 		
- 			var ltype = lensfolder.add(params, 'lentype', listtype);
- 			var len = lensfolder.add(params, 'lens', listlens);
- 			
- 			ltype.onChange(function(value){
- 				listlens = ["Please select lens"];
- 	
- 				$.each(data, function(name, value){
- 					if (name == params.lentype){
- 						$.each(value, function(index, innervalue){
- 							listlens.push(innervalue.nameof);
- 			 			});
- 			 		}
-				});
-
-				lensfolder.remove(len);
-
-			    len = lensfolder.add(params, 'lens', listlens).onChange(function(value){
-  					var i = listlens.indexOf(value);
-  					if (i>0){ //"select lens" dosent change focal length
-  						i--; //cause the first value on list is the "select list" option
-  			 			settings["focalLength"].value = dvc(data[params.lentype][i].FocalLength, "mm");
-  			 			privateMethods.settingsUpdater.call(that);
-					}  			
-  				});
-			});
- 	
-	    });
-		
+	    privateMethods.LensSelect.call(this);
+	
 		this.lensfolder = lensfolder;
 		this.lensfolder.open();
 
@@ -287,6 +248,53 @@ Application.RealCamerasDemonstrator = (function () {
 	    });
 	};
 
+	privateMethods.LensSelect = function(){
+		var that = this;
+		var params = {
+ 			lens: "Please select lens",
+ 			lentype: "Please select type"
+    	};
+    	var settings = this.bokehPassConfiguration.settings;
+    	var dvc = Application.DistanceValuesConvertor.getInstance();
+
+		$.getJSON("../Resource/jsonfiles/Lensdata.json").then(function(data){
+ 			var ind= [];	
+ 			var listlens = ["Please select lens"];	
+ 			var listtype = ["Please select type"];
+
+ 			$.each(data, function(name, value){
+ 				listtype.push(name);
+ 				//seclect the type before sotring the values, takes less memory
+ 			});
+ 		
+ 			var ltype = that.lensfolder.add(params, 'lentype', listtype);
+ 			var len = that.lensfolder.add(params, 'lens', listlens);
+ 			
+ 			ltype.onChange(function(value){
+ 				listlens = ["Please select lens"];
+ 	
+ 				$.each(data, function(name, value){
+ 					if (name == params.lentype){
+ 						$.each(value, function(index, innervalue){
+ 							listlens.push(innervalue.nameof);
+ 			 			});
+ 			 		}
+				});
+
+				that.lensfolder.remove(len);
+
+			    len = that.lensfolder.add(params, 'lens', listlens).onChange(function(value){
+  					var i = listlens.indexOf(value);
+  					if (i>0){ //"select lens" dosent change focal length
+  						i--; //cause the first value on list is the "select list" option
+  			 			settings["focalLength"].value = dvc(data[params.lentype][i].FocalLength, "mm");
+  			 			privateMethods.settingsUpdater.call(that);
+					}  			
+  				});
+			});
+		});
+	};
+
 	privateMethods.settingsUpdater = function () {
 
 		 this.bokehPassConfiguration.updateCamera(this.camera);
@@ -298,12 +306,10 @@ Application.RealCamerasDemonstrator = (function () {
 		 for (var param in settings) {
 		 	if (settings.hasOwnProperty(param)) {
 
-		this.bokehPassConfiguration.bokehPass.uniforms[param].value = settings[param].value;
-		  //this.bokehPassConfiguration.bokehPass.uniforms["focalLength"].value = settings["focalLength"].value;
-		  //this.bokehPassConfiguration.bokehPass.uniforms["focalDepth"].value = settings["focalDepth"].value;
-	//	  this.bokehPassConfiguration.bokehPass.uniforms["aperture"].value = settings["aperture"].value;
+				this.bokehPassConfiguration.bokehPass.uniforms[param].value = settings[param].value;
+	
 		 	}
-		 }
+		}
 	};
 
 	privateMethods.destroyGraphics = function () {
