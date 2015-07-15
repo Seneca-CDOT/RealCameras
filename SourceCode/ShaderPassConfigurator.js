@@ -6,10 +6,6 @@ Application.ShaderPassConfigurator = (function () {
 	var privateStore = {};
 	function ShaderPassConfigurator () {
 		var dvc = Application.DistanceValuesConvertor.getInstance();
-// TODO:
-		// ACM p.13
-		privateStore.aspect = 2.35; // 1.85;
-
 		privateStore.near = dvc(0.01, "m");
 		privateStore.far = dvc(100, "m");
 	};
@@ -153,7 +149,7 @@ Application.ShaderPassConfigurator = (function () {
 				value: privateStore.far
 			},
 			aspect: {
-				value: privateStore.aspect
+				value: 1.0
 			},
 			focalDepth: {
 				value: dvc(5.0, "m"),
@@ -184,11 +180,10 @@ Application.ShaderPassConfigurator = (function () {
 			depthMaterial: depthMaterial,
 			depthMapTarget: depthMapTarget,
 			updateFromConfiguration: function (camera) {
-				camera.aspect = this.shaderSettings.aspect.value;
-				camera.updateProjectionMatrix();
 			},
 			updateToConfiguration: function (width, height) {
 				this.depthMapTarget.setSize(width, height);
+				this.shaderSettings.aspect.value = width / height;
 			}
 		};
 	};

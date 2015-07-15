@@ -115,7 +115,6 @@ Application.RealCamerasDemonstrator = (function () {
 		var far = dvc(100, "m");
 		this.camera = new THREE.PerspectiveCamera(emptyFov, this.canvasWidth / this.canvasHeight, near, far);
 
-// TODO:
 		this.camera.focalLength = 35; // in "mm"
 		this.camera.frameSize = 43; // in "mm"
 		this.camera.setLens(this.camera.focalLength, this.camera.frameSize);
