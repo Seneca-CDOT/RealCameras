@@ -10,6 +10,7 @@ Application.SceneLoader = (function () {
 	};
 
 	SceneLoader.prototype.load = function () {
+
 		return new Promise(function (resolve, reject) {
 
 			var preloader = store.preloader;
@@ -35,15 +36,21 @@ Application.SceneLoader = (function () {
 			function cH() {
 				console.log("Completion from SceneLoader");
 				var that = this;
-				var meshes = [];
+				var meshesContainer = new THREE.Object3D();
 				
 				store.progressControl.stopProgress(callback);
 				function callback () {
 					// when parsing raw scene JSON, image assests get loaded asynchronously
-					privateMethods.setUpSceneContents.call(that, meshes).then(function () {
-						privateMethods.setUpSceneModel.call(that, meshes);
-						privateMethods.setUpSceneBox.call(that, meshes);
-						resolve(meshes);
+					privateMethods.setUpSceneContents.call(that, meshesContainer).then(function () {
+						privateMethods.setUpSceneModel.call(that, meshesContainer);
+						privateMethods.setUpSceneBox.call(that, meshesContainer);
+
+						// test
+						// var helper = new THREE.BoundingBoxHelper(meshesContainer, 0xff0000);
+						// helper.update();
+						// meshesContainer.add(helper);
+
+						resolve(meshesContainer);
 					});
 				};
 			};
@@ -55,13 +62,12 @@ Application.SceneLoader = (function () {
 	};	
 	
 	var privateMethods = Object.create(SceneLoader.prototype);
-	privateMethods.setUpSceneContents = function (meshes) {	
+	privateMethods.setUpSceneContents = function (meshesContainer) {	
 		return new Promise(function (resolve, reject) {
 			var rawHuman = store.preloader.getItemData("tHuman");
 			if (!rawHuman) {
 				resolve();
 			}
-
 			var loader = new THREE.ObjectLoader();
 
 			// // Danger! TODO:
@@ -84,7 +90,7 @@ Application.SceneLoader = (function () {
 				// var depthInterval = dvc(3.5, "m");
 				// var width = dvc(10, "m") - dvc(2, "m");
 
-				var realHeight = dvc(1.8, "m");
+				var modelHeight = dvc(1.8, "m");
 
 				// mesh.position.x = 0.5 * width * Math.sin(i);
 				// mesh.position.z = -(depthStart + i * depthInterval);
@@ -121,36 +127,13 @@ Application.SceneLoader = (function () {
 					}
 				});
 
-
-				var template = model; // model.children[0]
-				for (var i = 0; i < locations.length; ++i) {
-					var clone = template.clone();
-
-					var mesh = new THREE.Object3D();
-					mesh.add(clone);
-					meshes.push(mesh);
-
-					var location = locations[i];
-
-					mesh.position.x = location.position.x;
-					mesh.position.z = location.position.z;
-					mesh.position.y = location.position.y;
-
-					mesh.rotation.y = location.rotation.y;
-
-
-					var box = new THREE.Box3().setFromObject(mesh);
-					var factor = realHeight / box.size().y;
-					var scaleX = mesh.scale.x * factor;
-					var scaleY = mesh.scale.y * factor;
-					var scaleZ = mesh.scale.z * factor;
-					mesh.scale.set(scaleX, scaleY, scaleZ);
-				}
+				// model.children[0]
+				privateMethods.setUpModels(meshesContainer, model, modelHeight, locations)
 				resolve();
 			};
 		});
 	};
-	privateMethods.setUpSceneModel = function (meshes) {
+	privateMethods.setUpSceneModel = function (meshesContainer) {
 		var rawCar = store.preloader.getItemData("tCar");
 		if (!rawCar) {
 			return;
@@ -162,7 +145,7 @@ Application.SceneLoader = (function () {
 		function setUpContents(model) {
 			var dvc = Application.DistanceValuesConvertor.getInstance();
 
-			var realHeight = dvc(1.5, "m");
+			var modelHeight = dvc(1.5, "m");
 
 			var locations = [];
 			locations.push({
@@ -186,34 +169,10 @@ Application.SceneLoader = (function () {
 				}
 			});
 
-// mark -
-			
-			var template = model;
-			for (var i = 0; i < locations.length; ++i) {
-				var clone = template.clone();
-
-				var mesh = new THREE.Object3D();
-				mesh.add(clone);
-				meshes.push(mesh);
-
-				var location = locations[i];
-
-				mesh.position.x = location.position.x;
-				mesh.position.z = location.position.z;
-				mesh.position.y = location.position.y;
-
-				mesh.rotation.y = location.rotation.y;
-
-				var box = new THREE.Box3().setFromObject(mesh);
-				var factor = realHeight / box.size().y;
-				var scaleX = mesh.scale.x * factor;
-				var scaleY = mesh.scale.y * factor;
-				var scaleZ = mesh.scale.z * factor;
-				mesh.scale.set(scaleX, scaleY, scaleZ);
-			}
+			privateMethods.setUpModels(meshesContainer, model, modelHeight, locations)
 		};
 	};
-	privateMethods.setUpSceneBox = function (meshes) {
+	privateMethods.setUpSceneBox = function (meshesContainer) {
 		var rawPattern = store.preloader.getItemData("tPattern");
 		if (!rawPattern) {
 			return;
@@ -229,12 +188,13 @@ Application.SceneLoader = (function () {
 		var depthShiftBackward = dvc(20, "m");
 		var depthShiftForward = dvc(10, "m");
 		var depth = dvc(60, "m");
-		var height = dvc(10, "feet");
+		var height = dvc(3, "m");
 		var width = dvc(10, "m");
 
-		var depthT = 0.5 * depth;
-		var heightT = 0.5 * height;
-		var widthT = 0.5 * width;
+		var foot = dvc(1, "feet");
+		var depthT = 0.5 * depth / foot;
+		var heightT = 0.5 * height / foot;
+		var widthT = 0.5 * width / foot;
 		
 		texture.needsUpdate = true;
 		texture.wrapS = THREE.RepeatWrapping;
@@ -258,25 +218,20 @@ Application.SceneLoader = (function () {
 			map: textureLeftRight
 		});
 
-		//wall
+		// wall
 		var leftRightGeometry = new THREE.PlaneBufferGeometry(height, depth);
 		var left = new THREE.Mesh(leftRightGeometry, leftRightMaterial); 
 		left.rotation.x = -0.5 * Math.PI;
 		left.rotation.y = 0.5 * Math.PI;
 		left.position.set(-0.5 * width, 0.5 * height, -depthShiftBackward);
 
-		//wall
+		// wall
 		var right = new THREE.Mesh(leftRightGeometry, leftRightMaterial); 
 		right.rotation.x = -0.5 * Math.PI;
 		right.rotation.y = -0.5 * Math.PI;
 		right.position.set(0.5 * width, 0.5 * height, -depthShiftBackward);
 
-		// var ceiling = new THREE.Mesh(geometry, material);
-		// ceiling.rotation.x = 0.5 * Math.PI;
-		// ceiling.position.set(0, 40, -480);
-
-// mark -
-
+				
 		textureBack.needsUpdate = true;
 		textureBack.wrapS = THREE.RepeatWrapping;
 		textureBack.wrapT = THREE.RepeatWrapping;
@@ -285,7 +240,7 @@ Application.SceneLoader = (function () {
 			map: textureBack
 		});
 
-		//wall
+		// wall
 		var backGeometry = new THREE.PlaneBufferGeometry(width, height);
 		var back = new THREE.Mesh(backGeometry, backMaterial);
 		back.rotation.x = -Math.PI;
@@ -293,13 +248,37 @@ Application.SceneLoader = (function () {
 
 // mark -
 		
-		//add to scene
-		meshes.push(ground);
-		meshes.push(left);
-		meshes.push(right);
-		// meshes.push(ceiling);
-		meshes.push(back);
-	};	
+		meshesContainer.add(ground);
+		meshesContainer.add(left);
+		meshesContainer.add(right);
+		meshesContainer.add(back);
+	};
+	privateMethods.setUpModels = function (meshesContainer, model, modelHeight, locations) {
+		var template = model;
+		for (var i = 0; i < locations.length; ++i) {
+			var clone = template.clone();
+
+			var mesh = new THREE.Object3D();
+			mesh.add(clone);
+			meshesContainer.add(mesh);
+
+			var location = locations[i];
+
+			mesh.position.x = location.position.x;
+			mesh.position.z = location.position.z;
+			mesh.position.y = location.position.y;
+
+			mesh.rotation.y = location.rotation.y;
+
+			var box = new THREE.Box3().setFromObject(mesh);
+			var factor = modelHeight / box.size().y;
+			var scaleX = mesh.scale.x * factor;
+			var scaleY = mesh.scale.y * factor;
+			var scaleZ = mesh.scale.z * factor;
+			mesh.scale.set(scaleX, scaleY, scaleZ);
+		}
+	};
+
 
 // mark -
 

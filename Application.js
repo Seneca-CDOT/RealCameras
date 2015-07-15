@@ -1,17 +1,19 @@
 
 var Application = (function () {
 
-    var privateStore = {};
-    privateStore.started = false;
-    privateStore.gui = null;
-    privateStore.bokehPassValues = ["Please, select bokeh style.","Bokeh Style 0", "Bokeh Style 1", "Depth Shader 1"];
-    privateStore.bokehPassIds = ["-","bokeh_0", "bokeh_1", "depth_1"];
-    privateStore.settings = {
-        bokehPassValue: privateStore.bokehPassValues[0],
-        bokehPassId: privateStore.bokehPassIds[0],
+
+    var store = {};
+    store.started = false;
+
+    store.gui = null;
+    store.bokehPassValues = ["-","Bokeh Style Main", "Bokeh Style 1", "Depth Shader 1"];
+    store.bokehPassIds = ["-","bokeh_main", "bokeh_1", "depth_1"];
+    store.settings = {
+        bokehPassValue: store.bokehPassValues[0],
+        bokehPassId: store.bokehPassIds[0],
     };
 
-    privateStore.files = [
+    store.files = [
         "SourceCode/Controls/PointerLockControls.js",
 
         "SourceCode/Three/postprocessing/EffectComposer.js",
@@ -34,7 +36,7 @@ var Application = (function () {
 // mark -
         "SourceCode/Shaders/DoFShader.js",
         "SourceCode/Shaders/BokehShader.js",
-        // "SourceCode/Shaders/BokehShader2.js",
+        "SourceCode/Shaders/BokehShader2.js",
          "SourceCode/Shaders/shadertest.js",
 
         "SourceCode/Helpers/Debuger.js",
@@ -42,49 +44,56 @@ var Application = (function () {
         "SourceCode/Controls/CameraControls.js",
         "SourceCode/CircularProgressControl.js",
 
+        "SourceCode/Controls/CameraControls.js",
+        "SourceCode/CircularProgressControl.js",
+
         "SourceCode/DistanceValuesConvertor.js",
         "SourceCode/RealCamerasDemonstrator.js",
         "SourceCode/ShaderPassConfigurator.js",
-        "SourceCode/SceneLoader.js",
-        "SourceCode/AssetsLoader.js"
+
+        "SourceCode/AssetsLoader.js",
+        "SourceCode/SceneLoader.js"
+
     ];
+    
     var privateMethods = {};
     privateMethods.setUpGui = function () {
-            
-       privateStore.gui = new dat.GUI();   
 
-        var select = privateStore.gui.add(privateStore.settings, 'bokehPassValue', privateStore.bokehPassValues);
+        store.gui = new dat.GUI();   
+
+        var select = store.gui.add(store.settings, 'bokehPassValue', store.bokehPassValues);
         select.name("Bokeh Styles");
         select.onChange(privateMethods.onBokehPassSelected.bind(this));
-        privateStore.gui.open();
-
+        store.gui.open();
     };  
     privateMethods.onBokehPassSelected = function () {
-        var value = privateStore.settings.bokehPassValue;
+        var value = store.settings.bokehPassValue;
 
-        var idIndex = privateStore.bokehPassValues.indexOf(value);
-        privateStore.settings.bokehPassId = privateStore.bokehPassIds[idIndex];
+        var idIndex = store.bokehPassValues.indexOf(value);
+        store.settings.bokehPassId = store.bokehPassIds[idIndex];
         if (idIndex > 0) {
-            var passId = privateStore.settings.bokehPassId;
-            privateStore.demonstrator.setUpBokehPass(passId);
+            var passId = store.settings.bokehPassId;
+            store.demonstrator.setUpBokehPass(passId);
         }
     };
     privateMethods.main = function() {
 
-        if (privateStore.started) {
+        if (store.started) {
             return;
         }
-        privateStore.isStarted = true;
+        store.isStarted = true;
 
         var that = this;
-        require(privateStore.files, function() {
+        require(store.files, function() {
 
-            privateStore.demonstrator = new Application.RealCamerasDemonstrator();
+
+            store.demonstrator = new Application.RealCamerasDemonstrator();
 
             var sl = Application.SceneLoader.getInstance();
-            sl.load().then(function (meshes) {
+            sl.load().then(function (meshesContainer) {
                 console.log("Completion from Application");
-                privateStore.demonstrator.setUpScene(meshes);
+                store.demonstrator.setUpScene(meshesContainer);
+
             });
 
             privateMethods.setUpGui.call(that);

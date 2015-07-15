@@ -5,21 +5,20 @@ Application.ShaderPassConfigurator = (function () {
 
 	var privateStore = {};
 	function ShaderPassConfigurator () {
-
 		var dvc = Application.DistanceValuesConvertor.getInstance();
-		// TODO:
+// TODO:
 		// ACM p.13
 		privateStore.aspect = 2.35; // 1.85;
-		privateStore.near = 0.01;
-		privateStore.far = 1000.0;
+
+		privateStore.near = dvc(0.01, "m");
+		privateStore.far = dvc(1000.0, "m");
 	};
 	
 	ShaderPassConfigurator.prototype.configuration = function (passId) {
-
 		var configuration = null;
 		switch (passId) {
-			case "bokeh_0": {
-				configuration = privateMethods.bokehPassConfiguration_0.call(this);
+			case "bokeh_main": {
+				configuration = privateMethods.bokehPassConfigurationMain.call(this);
 				break;
 			} 
 			case "bokeh_1": {
@@ -35,45 +34,23 @@ Application.ShaderPassConfigurator = (function () {
 	};
 
 	var privateMethods = Object.create(ShaderPassConfigurator.prototype);
-	privateMethods.bokehPassConfiguration_0 = function () {
- 		
+	privateMethods.bokehPassConfigurationMain = function () {
 		var dvc = Application.DistanceValuesConvertor.getInstance();
 
-// TODO:
-		var canvasWidth = window.innerWidth;
-		var canvasHeight = canvasWidth / privateStore.aspect;
-
 		var beforeNear = privateStore.near + dvc(1.0, "m");
-		var settings = {
-
-			size: {
-				value: new THREE.Vector2(canvasWidth, canvasHeight) 
-			},
-			textel: {
-				value: new THREE.Vector2(1.0 / canvasWidth, 1.0 / canvasHeight) 
-			},
-
-// mark - 
-
-			znear: {
-				value: privateStore.near
-			},
-			zfar: {
-				value: privateStore.far
-			},
 
 // mark -
-			aspect: {
-				value: 1.33
+		var shaderSettings = {
+			textureWidth: {
+				value: 0.0
 			},
-			framesize:{
-				value: 35.00
+			textureHeight: {
+				value: 0.0
+
 			},
-			showFocus: {
-				value: true,
-				show: true
-			},
+// mark - 			
 			focalDepth: {
+
 				value: dvc(5.0, "m") 
 			},
 			focalLength: {
@@ -89,51 +66,33 @@ Application.ShaderPassConfigurator = (function () {
 				value: dvc(0.03, "mm")
 				// range: {begin: dvc(0.0, "mm"), end: dvc(1.0, "mm"), step: dvc(0.001, "mm")}
 			},
-			autofocus: {
+		
+			maxblur: {
+				value: 1.0,
+				range: {begin: 0.0, end: 2.0, step: 0.025}
+			},
+// mark -
+			shaderFocus: {
 				value: false
-				// show: true
 			},
 			// Non-dimensional 2D-vector.
-			focus: {
+			focusCoords: {
 				value: new THREE.Vector2(0.5, 0.5)
 			},
-
-			maxblur: {
-				value: 2.0,
-				range: {begin: 0.0, end: 3.0, step: 0.025}
-			},
-
 // mark -
-
+			showFocus: {
+				value: true,
+				show: true
+			},
+			vignetting: {
+				value: true,
+				show: true
+			},
 			manualdof: {
 				value: false
 			},
-			ndofstart: {
-				value: 1.0
-			},
-			ndofdist: {
-				value: 2.0
-			},
-			fdofstart: {
-				value: 2.0
-			},
-			fdofdist: {
-				value: 3.0
-			},
-
-// mark -
-
-			vignetting: {
-				value: true
-			},
-			vignout: {
-				value: 1.3
-			},
-			vignin: {
-				value: 0.1
-			},
-			vignfade: {
-				value: 22.0
+			depthblur: {
+				value: false
 			},
 // mark - 
 			threshold: {
@@ -146,59 +105,54 @@ Application.ShaderPassConfigurator = (function () {
 				value: 0.5
 			},
 			fringe: {
-				value: 3.7
+				value: 0.7
 			},
 // mark -
+			znear: {
+				value: privateStore.near 
+			},
+			zfar: {
+				value: privateStore.far
+			},
+			aspect: {
+				value: 1.33
+			},
+			framesize:{
+				value: 35.00
+			},
+// mark - 			
 			noise: {
-				value: true
-			},
-			namount: {
-				value: 0.0001
-			},
-// mark -
-			depthblur: {
 				value: false
-			},
-			dbsize: {
-				value: 1.25
-			}				
+			}
 		};
+		var depthMaterial = new THREE.MeshDepthMaterial();
 
-		var shader = THREE.ShaderLib["depthRGBA"];
-		var uniforms = THREE.UniformsUtils.clone(shader.uniforms);
-		var material = new THREE.ShaderMaterial({ 
-
-			fragmentShader: shader.fragmentShader,
-			vertexShader: shader.vertexShader,
-			uniforms: uniforms
-		});
-		material.blending = THREE.NoBlending;
+		var params = { 
+			minFilter: THREE.LinearFilter, 
+			magFilter: THREE.LinearFilter, 
+			format: THREE.RGBFormat 
+		};
+		var depthMapTarget = new THREE.WebGLRenderTarget(0.0, 0.0, params);
 
 		return {
-			shader: THREE.DoFShader,
-			textureId: "tDiffuse",
-			settings: settings,
-			material: material,
-			updateCamera: function (camera) {
+			shader: THREE.BokehShader2,
+			textureId: "tColor",
+			shaderSettings: shaderSettings,
+			depthMaterial: depthMaterial,
+			depthMapTarget: depthMapTarget,
+			updateFromConfiguration: function (camera) {
+				camera.near = this.shaderSettings.znear.value;
+				camera.far = this.shaderSettings.zfar.value;
 
-// TODO:
-				// size: {
-				// 	value: new THREE.Vector2(canvasWidth, canvasHeight) 
-				// 	// new THREE.Vector2(this.canvasWidth, this.canvasHeight)
-				// },
-				// textel: {
-				// 	value: new THREE.Vector2(1.0 / canvasWidth, 1.0 / canvasHeight) 
-				// 	// new THREE.Vector2(1.0 / this.canvasWidth, 1.0 / this.canvasHeight)
-				// },
-
-				camera.near = this.settings.znear.value;
-				camera.far = this.settings.zfar.value;
-				//var frameSize = 88.00;
-				console.log(camera.frameSize);
-				camera.focalLength = this.settings.focalLength.value;
-				camera.frameSize = dvc(this.settings.framesize.value, "mm");
+				camera.focalLength = this.shaderSettings.focalLength.value;
+				camera.frameSize = dvc(this.shaderSettings.framesize.value, "mm");
 				camera.setLens(camera.focalLength, camera.frameSize);
 				camera.updateProjectionMatrix();
+			},
+			updateToConfiguration: function (width, height) {
+				this.depthMapTarget.setSize(width, height);
+				this.shaderSettings.textureWidth.value = width;
+				this.shaderSettings.textureHeight.value = height;
 			}
 			// updateRender: function (renderer, container) {
 			// 	//find the screen aspect ratio 
@@ -233,12 +187,10 @@ Application.ShaderPassConfigurator = (function () {
 		};	
 	};
 	privateMethods.bokehPassConfiguration_1 = function () {
-
 		var dvc = Application.DistanceValuesConvertor.getInstance();
 
 		var beforeNear = privateStore.near + dvc(1.0, "m");
-		var settings = {
-
+		var shaderSettings = {
 			znear: {
 				value: privateStore.near 
 			},
@@ -270,17 +222,28 @@ Application.ShaderPassConfigurator = (function () {
 				range: {begin: 0.0, end: 0.5, step: 0.001}
 			}
 		};
-		var material = new THREE.MeshDepthMaterial();
+		var depthMaterial = new THREE.MeshDepthMaterial();
+
+		var params = { 
+			minFilter: THREE.LinearFilter, 
+			magFilter: THREE.LinearFilter, 
+			format: THREE.RGBFormat 
+		};
+		var depthMapTarget = new THREE.WebGLRenderTarget(0.0, 0.0, params);
 
 		return {
 			shader: THREE.BokehShader,
 			textureId: "tColor",
-			settings: settings,
-			material: material,
-			updateCamera: function (camera) {
+			shaderSettings: shaderSettings,
+			depthMaterial: depthMaterial,
+			depthMapTarget: depthMapTarget,
+			updateFromConfiguration: function (camera) {
+			//	camera.aspect = this.shaderSettings.aspect.value;
+				camera.updateProjectionMatrix();
+			},
+			updateToConfiguration: function (width, height) {
+				this.depthMapTarget.setSize(width, height);
 
-			//	camera.aspect = this.settings.aspect.value;
-			//	camera.updateProjectionMatrix();
 			}
 			// updateRender: function (renderer, container) {
 			// 	//find the screen aspect ratio 
@@ -316,19 +279,20 @@ Application.ShaderPassConfigurator = (function () {
 	};
 	privateMethods.bokehPassConfiguration_2 = function () {
 
+
 		var canvasWidth = window.innerWidth;
 		var aspect = 1.33;
 		var canvasHeight = canvasWidth / aspect;
 		var near = 0.01;
-		var far = 1000;
+		var far = 1000.0;
 		var dvc = Application.DistanceValuesConvertor.getInstance();
 		
-		var settings = {
+		var shaderSettings = {
 			size: {
-				value: new THREE.Vector2(canvasWidth, canvasHeight) 
+				value: new THREE.Vector2(10.0, 10.0) 
 			},
 			textel: {
-				value: new THREE.Vector2(1.0 / canvasWidth, 1.0 / canvasHeight) 
+				value: new THREE.Vector2(0.1, 0.1) 
 			},
 			znear: {
 				value: near 
@@ -365,33 +329,46 @@ Application.ShaderPassConfigurator = (function () {
 			}
 
 		};
-		//var material = new THREE.MeshDepthMaterial();
-		var shader = THREE.ShaderLib["depthRGBA"];
-		var uniforms = THREE.UniformsUtils.clone(shader.uniforms);
-		var material = new THREE.ShaderMaterial({ 
+		
+		// var shader = THREE.ShaderLib["depthRGBA"];
+		// var uniforms = THREE.UniformsUtils.clone(shader.uniforms);
+		// var depthMaterial = new THREE.ShaderMaterial({ 
 
-			fragmentShader: shader.fragmentShader,
-			vertexShader: shader.vertexShader,
-			uniforms: uniforms
-		});
-		material.blending = THREE.NoBlending;
+		// 	fragmentShader: shader.fragmentShader,
+		// 	vertexShader: shader.vertexShader,
+		// 	uniforms: uniforms
+		// });
+		var depthMaterial = new THREE.MeshDepthMaterial();
+		//depthMaterial.blending = THREE.NoBlending;
+
+		var params = {
+			minFilter: THREE.NearestFilter,
+			magFilter: THREE.NearestFilter,
+			format: THREE.RGBAFormat
+		};
+		var depthMapTarget = new THREE.WebGLRenderTarget(0.0, 0.0, params);
+
 		return {
 			shader: THREE.TestShader,
 			textureId: "tColor",
-			settings: settings,
-			material: material,
-			updateCamera: function (camera) {
 
-			 	camera.near = this.settings.znear.value;
-				camera.far = this.settings.zfar.value;
-				camera.frameSize = dvc(this.settings.framesize.value, "mm");
-				//frame size controls the field of view for veritcal 
-				camera.focalLength = this.settings.focalLength.value;
+			shaderSettings: shaderSettings,
+			depthMaterial: depthMaterial,
+			depthMapTarget: depthMapTarget,
+			updateFromConfiguration: function (camera) {
+			 	// camera.near = this.shaderSettings.znear.value;
+				// camera.far = this.shaderSettings.zfar.value;
 
+				camera.focalLength = this.shaderSettings.focalLength.value;
+				camera.frameSize = dvc(this.shaderSettings.framesize.value, "mm");
 				camera.setLens(camera.focalLength, camera.frameSize);
 				
 				camera.updateProjectionMatrix();
-
+			},
+			updateToConfiguration: function (width, height) {
+				this.depthMapTarget.setSize(width, height);
+				this.shaderSettings.size.value = new THREE.Vector2(width, height);
+				this.shaderSettings.textel.value = new THREE.Vector2(1.0 / width, 1.0 / height);
 			}
 			// updateRender: function (renderer, container) {
 			// 	//find the screen aspect ratio 
@@ -427,19 +404,16 @@ Application.ShaderPassConfigurator = (function () {
 		
 	var instance = null;
 	function createInstance() {
-
 		var newInstance = new ShaderPassConfigurator();
 		return newInstance;
 	};
 
 	return {
 		getInstance: function () {
-
 			if (!instance) {
-
 				instance = createInstance();
 			}
 			return instance;
 		}
 	}
-})(); 
+})();

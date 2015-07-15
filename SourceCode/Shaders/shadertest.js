@@ -123,7 +123,7 @@ THREE.TestShader = {
 		"void main() {",
 
 		//finde depth value using unpack and linearize
-			"float depth = linearize(unpackDepth(texture2D(tDepth, vUv)));",
+			"float depth = linearize(texture2D(tDepth, vUv.xy).x);",
 	
 		//find the hyper focal distance and near and far distances for depth 
 			"float blur = 0.0;",
