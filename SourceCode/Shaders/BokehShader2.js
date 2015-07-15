@@ -249,11 +249,13 @@ THREE.BokehShader2 = {
 
 		"vec3 debugFocus(vec3 col, float blur, float depth) {",
 			"float edge = 0.002*depth;", //distance based edge smoothing
-			"float m = clamp(smoothstep(0.0,edge,blur),0.0,1.0);",
-			"float e = clamp(smoothstep(1.0-edge,1.0,blur),0.0,1.0);",
+			// "float edge = depth;",
 
-			"col = mix(col,vec3(1.0,0.5,0.0),(1.0-m)*0.6);",
-			"col = mix(col,vec3(0.0,0.5,1.0),((1.0-e)-(1.0-m))*0.2);",
+			"float m = clamp(smoothstep(0.0, edge, blur), 0.0, 1.0);",
+			"float e = clamp(smoothstep(1.0 - edge, 1.0, blur), 0.0, 1.0);",
+
+			"col = mix(col, vec3(1.0, 0.5, 0.0), (1.0-m) * 0.6);",
+			"col = mix(col, vec3(0.0, 0.5, 1.0), ((1.0-e)-(1.0-m)) * 0.2);",
 
 			"return col;",
 		"}",
@@ -284,7 +286,6 @@ THREE.BokehShader2 = {
 
 		"void main() {",
 			//scene depth calculation
-
 			"float depth = linearize(texture2D(tDepth,vUv.xy).x);",
 
 			// Blur depth?
@@ -297,7 +298,6 @@ THREE.BokehShader2 = {
 			// "float fDepth = focalDepth;",
 			"float fDepth = linearize(1.0 - smoothstep(znear, zfar, focalDepth));",
 			"if (autofocus) {",
-
 				"fDepth = linearize(texture2D(tDepth,focusCoords).x);",
 			"}",
 
@@ -318,24 +318,39 @@ THREE.BokehShader2 = {
 				"float b = (d*f)/(d-f);",
 				"float c = (d-f)/(d*fstop*CoC);",
 				"blur = abs(a-b)*c;",
+
+				// h=(F*F)/(f*c);
+				// dofNear=(h*D)/(h+(D-F)); 
+				// dofFar=(h*D)/(h-(D-F)); 
+
+				// "float f = focalLength;",
+				// "float d = linearize(smoothstep(znear, zfar, focalDepth)) * 1000.0;",
+				// "float o = linearize(1.0 - texture2D(tDepth,vUv.xy).x) * 1000.0;",
+				
+				// "float h = (f*f)/(fstop*43.0);",
+				// "float dofNear = (h*d)/(h+(d-f)); ;",
+				// "float dofFar = (h*d)/(h-(d-f));",
+				// "if (o > dofFar) {",
+				// 	"blur = clamp((o - dofFar) / (zfar - dofFar), 0.0, 1.0);;",
+				// "} else if (o < dofNear) {",
+				// 	"blur = clamp((o - znear) / (dofNear - znear), 0.0, 1.0);;",
+				// "} else {",
+				// 	"blur = 1.0;",
+				// "}",
 			"}",
 
 			"blur = clamp(blur,0.0,1.0);",
 
 			// calculation of pattern for dithering"
-
 			"vec2 noise = rand(vUv.xy)*namount*blur;",
 
 			// getting blur x and y step factor"
-
 			"float w = (1.0/width)*blur*maxblur+noise.x;",
 			"float h = (1.0/height)*blur*maxblur+noise.y;",
 
 			// calculation of final color"
-
 			"vec3 col = vec3(0.0);",
-
-			"if(blur < 0.05) {",
+			"if(blur < 0.0001) {",
 				//some optimization thingy"
 				"col = texture2D(tColor, vUv.xy).rgb;",
 			"} else {",

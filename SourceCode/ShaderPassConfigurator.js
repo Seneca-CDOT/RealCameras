@@ -44,7 +44,7 @@ Application.ShaderPassConfigurator = (function () {
 // mark - 			
 			focalDepth: {
 				value: beforeNear,
-				range: {begin: beforeNear, end: 0.5 * privateStore.far, step: dvc(0.01, "m")} 
+				range: {begin: beforeNear, end:privateStore.far, step: dvc(0.01, "m")} 
 			},
 			focalLength: { // in "mm"
 				value: 35,
