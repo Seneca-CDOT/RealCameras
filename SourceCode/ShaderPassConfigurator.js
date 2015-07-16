@@ -11,7 +11,7 @@ Application.ShaderPassConfigurator = (function () {
 		privateStore.aspect = 2.35; // 1.85;
 
 		privateStore.near = dvc(0.01, "m");
-		privateStore.far = dvc(1000.0, "m");
+		privateStore.far = dvc(100.0, "m");
 	};
 	
 	ShaderPassConfigurator.prototype.configuration = function (passId) {
@@ -51,10 +51,10 @@ Application.ShaderPassConfigurator = (function () {
 // mark - 			
 			focalDepth: {
 
-				value: dvc(5.0, "m") 
+				value: beforeNear
 			},
 			focalLength: {
-				value: dvc(35.0, "mm")
+				value: 35.0
 			//	range: {begin: 35, end: 200, step: 10}
 			},
 			// Non-dimensional value (f-stop = focal-length/aperture)
@@ -63,7 +63,7 @@ Application.ShaderPassConfigurator = (function () {
 			//	range: {begin: 1, end: 10, step: 2}
 			},
 			coc: {
-				value: dvc(0.03, "mm")
+				value: 0.03
 				// range: {begin: dvc(0.0, "mm"), end: dvc(1.0, "mm"), step: dvc(0.001, "mm")}
 			},
 		
@@ -144,7 +144,7 @@ Application.ShaderPassConfigurator = (function () {
 				camera.near = this.shaderSettings.znear.value;
 				camera.far = this.shaderSettings.zfar.value;
 
-				camera.focalLength = this.shaderSettings.focalLength.value;
+				camera.focalLength = dvc(this.shaderSettings.focalLength.value, "mm");
 				camera.frameSize = dvc(this.shaderSettings.framesize.value, "mm");
 				camera.setLens(camera.focalLength, camera.frameSize);
 				camera.updateProjectionMatrix();

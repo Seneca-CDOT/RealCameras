@@ -169,7 +169,7 @@ Application.RealCamerasDemonstrator = (function () {
 		// bokeh pass
 		var bokehPass = new THREE.ShaderPass(shader, textureId);
 
-		bokehPass.uniforms["tDepth"].value = this.bokehPassDepthMapSource;
+		bokehPass.uniforms["tDepth"].value = this.bokehPassConfiguration.depthMapTarget;
 		bokehPass.renderToScreen = true;
 		
 		this.postprocessing.composer.addPass(bokehPass);
@@ -181,11 +181,16 @@ Application.RealCamerasDemonstrator = (function () {
 
 		//special values and values that need to be convereted
 		var params = {
-     		focaldep: 5.00
+     		focaldep: 10.00
     	};
 
 		this.gui = new dat.GUI();
 	    var dvc = Application.DistanceValuesConvertor.getInstance();
+
+	    var privateStore = {};
+    	privateStore.near = dvc(0.01, "m");
+		privateStore.far = dvc(100.0, "m");
+		var beforeNear = privateStore.near + dvc(1.0, "m");
 		
 		var settings = this.bokehPassConfiguration.shaderSettings;
 		var that = this;	
@@ -208,9 +213,9 @@ Application.RealCamerasDemonstrator = (function () {
 		this.Userfolder = this.gui.addFolder("User Inputs");
 		
 		var that = this;
-		this.Userfolder.add(params, "focaldep", 5.0, 80.0, 5.0).name("Distance to subject")
+		this.Userfolder.add(params, "focaldep", beforeNear, 0.5*privateStore.far, dvc(0.01, "m")).name("Distance to subject")
 		.onChange(function(value){
-			settings["focalDepth"].value = dvc(params.focaldep, "feet");
+			settings["focalDepth"].value = params.focaldep;
 			privateMethods.settingsUpdater.call(that);
 		});
 		
@@ -243,7 +248,7 @@ Application.RealCamerasDemonstrator = (function () {
   				if (i>0){
   					i--;
   		 			params.fov = data.cameras[i].FoV;
-  		 			settings["coc"].value = dvc(data.cameras[i].circleofconf, "mm");
+  		 			settings["coc"].value = data.cameras[i].circleofconf;
   		 			settings["aspect"].value = data.cameras[i].aspect;
   		 			settings["framesize"].value = data.cameras[i].FoV;
   		 			privateMethods.settingsUpdater.call(that);
@@ -291,7 +296,7 @@ Application.RealCamerasDemonstrator = (function () {
   					var i = listlens.indexOf(value);
   					if (i>0){ //"select lens" dosent change focal length
   						i--; //cause the first value on list is the "select list" option
-  			 			settings["focalLength"].value = dvc(data[params.lentype][i].FocalLength, "mm");
+  			 			settings["focalLength"].value = data[params.lentype][i].FocalLength;
   			 			privateMethods.settingsUpdater.call(that);
 					}  			
   				});
