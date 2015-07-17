@@ -46,8 +46,7 @@ Application.DistanceValuesConvertor = (function () {
 	function createInstance () {
 		// var one = 1; 'one' corresponds to 1 meter
 		// var one = 0.3048; 'one' corresponds to 0.3048 meter (1 feet)
-// TODO:		
-		var one = 0.01;
+		var one = 1;
 		var newInstance = function (value, units) {
 			var meters = new Application.MeterDistanceValue(value, units);
 			return meters.getValue() / one;

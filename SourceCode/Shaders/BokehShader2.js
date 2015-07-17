@@ -72,82 +72,111 @@ THREE.BokehShader2 = {
 
 		"const float PI = 3.14159265;",
 
-		"float width = textureWidth; //texture width",
-		"float height = textureHeight; //texture height",
+		"float width = textureWidth;",
+		"float height = textureHeight;",
 
 		"vec2 texel = vec2(1.0/width,1.0/height);",
 
-		"uniform float focalDepth;  //focal distance value in meters, but you may use autofocus option below",
-		"uniform float focalLength; //focal length in mm",
-		"uniform float fstop; //f-stop value",
-		"uniform bool showFocus; //show debug focus point and focal range (red = focal point, green = focal range)",
+		// focal distance value in 'm', but you may use autofocus option below
+		"uniform float focalDepth;",
+		// focal length in 'mm'
+		"uniform float focalLength;",
+		// f-stop value
+		"uniform float fstop;",
+		// show debug focus point and focal range (red = focal point, green = focal range)
+		"uniform bool showFocus;",
 
-		"/*",
-		"make sure that these two values are the same for your camera, otherwise distances will be wrong.",
-		"*/",
+		/*
+		make sure that these two values are the same for your camera, otherwise distances will be wrong.
+		*/
 
-		"uniform float znear; // camera clipping start",
-		"uniform float zfar; // camera clipping end",
+		// camera clipping start
+		"uniform float znear;",
+		// camera clipping end
+		"uniform float zfar;",
 
-		"//------------------------------------------",
-		"//user variables",
+		//------------------------------------------
+		//user variables
 
-		"const int samples = SAMPLES; //samples on the first ring",
-		"const int rings = RINGS; //ring count",
+		//samples on the first ring
+		"const int samples = SAMPLES;",
+		// ring count
+		"const int rings = RINGS;",
 
 		"const int maxringsamples = rings * samples;",
 
-		"uniform bool manualdof; // manual dof calculation",
-		"float ndofstart = 1.0; // near dof blur start",
-		"float ndofdist = 2.0; // near dof blur falloff distance",
-		"float fdofstart = 1.0; // far dof blur start",
-		"float fdofdist = 3.0; // far dof blur falloff distance",
+		// manual dof calculation
+		"uniform bool manualdof;",
+		// near dof blur start
+		"float ndofstart = 1.0;",
+		// near dof blur falloff distance
+		"float ndofdist = 2.0;",
+		// far dof blur start
+		"float fdofstart = 1.0;",
+		// far dof blur falloff distance
+		"float fdofdist = 3.0;",
 
-		"float CoC = 0.03; //circle of confusion size in mm (35mm film = 0.03mm)",
+		// circle of confusion size in mm (35mm film = 0.03mm)
+		"float CoC = 0.03;",
 
-		"uniform bool vignetting; // use optical lens vignetting",
+		// use optical lens vignetting
+		"uniform bool vignetting;",
 
-		"float vignout = 1.3; // vignetting outer border",
-		"float vignin = 0.0; // vignetting inner border",
-		"float vignfade = 22.0; // f-stops till vignete fades",
+		// vignetting outer border
+		"float vignout = 1.3;",
+		// vignetting inner border
+		"float vignin = 0.0;",
+		// f-stops till vignete fades
+		"float vignfade = 22.0;",
 
 		"uniform bool shaderFocus;",
 
 		"bool autofocus = shaderFocus;",
-		"//use autofocus in shader - use with focusCoords",
-		"// disable if you use external focalDepth value",
+		// use autofocus in shader - use with focusCoords
+		// disable if you use external focalDepth value
 
 		"uniform vec2 focusCoords;",
-		"// autofocus point on screen (0.0,0.0 - left lower corner, 1.0,1.0 - upper right)",
-		"// if center of screen use vec2(0.5, 0.5);",
+		// autofocus point on screen (0.0,0.0 - left lower corner, 1.0,1.0 - upper right)
+		// if center of screen use vec2(0.5, 0.5)
 
 		"uniform float maxblur;",
-		"//clamp value of max blur (0.0 = no blur, 1.0 default)",
+		//clamp value of max blur (0.0 = no blur, 1.0 default)
 
-		"uniform float threshold; // highlight threshold;",
-		"uniform float gain; // highlight gain;",
+		// highlight threshold
+		"uniform float threshold;",
+		// highlight gain
+		"uniform float gain;",
 
-		"uniform float bias; // bokeh edge bias",
-		"uniform float fringe; // bokeh chromatic aberration / fringing",
+		// bokeh edge bias
+		"uniform float bias;",
 
-		"uniform bool noise; //use noise instead of pattern for sample dithering",
+		// bokeh chromatic aberration / fringing
+		"uniform float fringe;",
+
+		// use noise instead of pattern for sample dithering
+		"uniform bool noise;",
 
 		"uniform float dithering;",
-		"float namount = dithering; //dither amount",
+		//dither amount
+		"float namount = dithering;",
 
-		"uniform bool depthblur; // blur the depth buffer",
-		"float dbsize = 1.25; // depth blur size",
+		// blur the depth buffer
+		"uniform bool depthblur;",
+		// depth blur size
+		"float dbsize = 1.25;",
 
-		"/*",
-		"next part is experimental",
-		"not looking good with small sample and ring count",
-		"looks okay starting from samples = 4, rings = 4",
-		"*/",
+		/*
+		next part is experimental
+		not looking good with small sample and ring count
+		looks okay starting from samples = 4, rings = 4
+		*/
 
-		"uniform bool pentagon; //use pentagon as bokeh shape?",
-		"float feather = 0.4; //pentagon shape feather",
+		//use pentagon as bokeh shape?
+		"uniform bool pentagon;",
+		//pentagon shape feather
+		"float feather = 0.4;",
 
-		"//------------------------------------------",
+		//------------------------------------------
 
 		"float penta(vec2 coords) {",
 			//pentagonal shape
@@ -234,7 +263,7 @@ THREE.BokehShader2 = {
 		"}",
 
 		"vec2 rand(vec2 coord) {",
-			"// generating noise / pattern texture for dithering",
+			// generating noise / pattern texture for dithering
 
 			"float noiseX = ((fract(1.0-coord.s*(width/2.0))*0.25)+(fract(coord.t*(height/2.0))*0.75))*2.0-1.0;",
 			"float noiseY = ((fract(1.0-coord.s*(width/2.0))*0.75)+(fract(coord.t*(height/2.0))*0.25))*2.0-1.0;",
@@ -248,8 +277,8 @@ THREE.BokehShader2 = {
 		"}",
 
 		"vec3 debugFocus(vec3 col, float blur, float depth) {",
-			"float edge = 0.002*depth;", //distance based edge smoothing
-			// "float edge = depth;",
+			//distance based edge smoothing
+			"float edge = 0.002*depth;", 
 
 			"float m = clamp(smoothstep(0.0, edge, blur), 0.0, 1.0);",
 			"float e = clamp(smoothstep(1.0 - edge, 1.0, blur), 0.0, 1.0);",
@@ -264,6 +293,32 @@ THREE.BokehShader2 = {
 			"return -zfar * znear / (depth * (zfar - znear) - zfar);",
 		"}",
 
+		"float rSmoothstep(float color) {",
+			"color = clamp(color, 0.0, 1.0);",
+			"float rColor = 1.0 - color;",
+
+			"float y = rColor;",
+			"float x = 0.0;",
+			"if (y < 1.0 / 3.0) {",
+				"x = sqrt(y / 3.0);",
+			"} else if (y < 2.0 / 3.0) {",
+				"x = 1.0 / 2.0 + (2.0 * y - 1.0) / 3.0;",
+			"} else {",
+				"x = 1.0 - sqrt((1.0 - y) / 3.0);",
+			"}",
+
+			// http://math.stackexchange.com/questions/1342833/how-do-i-reverse-the-smooth-step-equation
+			// https://en.wikipedia.org/wiki/Newton%27s_method
+
+			// Newton–Raphson method
+			// yx = x * x * (3 - 2*x);
+			// while (abs(yx - y) > 0.01) {
+			// 		x = x - yx / (6 * x - 6 * x * x);
+			// 		yx = x * x * (3 - 2 * x);
+			// }
+
+			"return znear + (zfar - znear) * x;",
+		"}",
 
 		"float vignette() {",
 			"float dist = distance(vUv.xy, vec2(0.5,0.5));",
@@ -284,22 +339,26 @@ THREE.BokehShader2 = {
 			"return 1.0 * mix(1.0, i /rings2, bias) * p;",
 		"}",
 
+// mark - 
+
 		"void main() {",
 			//scene depth calculation
-			"float depth = linearize(texture2D(tDepth,vUv.xy).x);",
+			// "float depth = linearize(texture2D(tDepth,vUv.xy).x);",
+			"float depth = rSmoothstep(texture2D(tDepth,vUv.xy).x);",
 
-			// Blur depth?
-			"if (depthblur) {",
-				"depth = linearize(bdepth(vUv.xy));",
-			"}",
+			// blur depth
+			// "if (depthblur) {",
+			// 	"depth = linearize(bdepth(vUv.xy));",
+			// "}",
 
 			//focal plane calculation
 
 			// "float fDepth = focalDepth;",
-			"float fDepth = linearize(1.0 - smoothstep(znear, zfar, focalDepth));",
-			"if (autofocus) {",
-				"fDepth = linearize(texture2D(tDepth,focusCoords).x);",
-			"}",
+			// "float fDepth = linearize(1.0 - smoothstep(znear, zfar, focalDepth));",
+			"float fDepth = rSmoothstep(1.0 - smoothstep(znear, zfar, focalDepth));",
+			// "if (autofocus) {",
+			// 	"fDepth = linearize(texture2D(tDepth,focusCoords).x);",
+			// "}",
 
 			// dof blur factor calculation
 
@@ -310,14 +369,16 @@ THREE.BokehShader2 = {
 				"float c = (-a-ndofstart)/ndofdist;", // Near Dof
 				"blur = (a>0.0) ? b : c;",
 			"} else {",
-				"float f = focalLength;", // focal length in mm
-				"float d = fDepth*1000.0;", // focal plane in mm
-				"float o = depth*1000.0;", // depth in mm
+				"float focalL = focalLength;", // focal length in mm
 
-				"float a = (o*f)/(o-f);",
-				"float b = (d*f)/(d-f);",
-				"float c = (d-f)/(d*fstop*CoC);",
-				"blur = abs(a-b)*c;",
+				"float focalD = fDepth * 1000.0;", // focal plane in mm
+				"float objectD = depth * 1000.0;", // depth in mm
+
+				"float a = (objectD * focalL) / (objectD - focalL);",
+				"float b = (focalD * focalL) / (focalD - focalL);",
+				
+				"float c = (focalD - focalL) / (focalD * fstop * CoC);",
+				"blur = abs(a-b) * c;",
 
 				// h=(F*F)/(f*c);
 				// dofNear=(h*D)/(h+(D-F)); 
@@ -350,7 +411,7 @@ THREE.BokehShader2 = {
 
 			// calculation of final color"
 			"vec3 col = vec3(0.0);",
-			"if(blur < 0.0001) {",
+			"if(blur < 0.0) {",
 				//some optimization thingy"
 				"col = texture2D(tColor, vUv.xy).rgb;",
 			"} else {",
