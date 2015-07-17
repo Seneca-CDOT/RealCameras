@@ -465,15 +465,15 @@ Use WEBGL Depth buffer support?
 					// Newton–Raphson method
 					var yx = x * x * (3 - 2*x);
 					console.log("***");
-					console.log("delta:", Math.abs(yx - y));
+					// console.log("delta:", Math.abs(yx - y));
 
 					// setTimeout(function () {
-					// 	while (Math.abs(yx - y) > 0.01) {
-					// 		x = x - yx / (6*x - 6*x * x);
-					// 		yx = x * x * (3 - 2*x);
+						while (Math.abs(yx - y) > 0.001) {
+							x = x - (yx - y) / (6*x - 6*x * x);
+							yx = x * x * (3 - 2*x);
 
-					// 		console.log(Math.abs(yx - y));
-					// 	}
+							console.log(Math.abs(yx - y));
+						}
 					// }, 10000);
 
 					var rDistance = near + (far - near) * x;
@@ -506,7 +506,7 @@ Use WEBGL Depth buffer support?
 						var targetDistance = intersects[0].distance;
 						distance += (targetDistance - distance) * 0.03; // slow focusing
 
-						reverseSmoothStepApproximation(distance);
+						rSmoothstep(distance);
 				
 						// var sdistance = smoothstep(camera.near, camera.far, distance);
 						// var ldistance = linearize(1 -  sdistance);

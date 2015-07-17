@@ -311,12 +311,12 @@ THREE.BokehShader2 = {
 			// https://en.wikipedia.org/wiki/Newton%27s_method
 
 			// Newton–Raphson method
-			// yx = x * x * (3 - 2*x);
-			// while (abs(yx - y) > 0.01) {
-			// 		x = x - yx / (6 * x - 6 * x * x);
-			// 		yx = x * x * (3 - 2 * x);
-			// }
-
+			"float yx = x * x * (3.0 - 2.0 * x);",
+			// abs(yx - y) > 0.001
+			"for (int i = 0; i < 2; i++) {",
+				"x = x - (yx - y) / (6.0 * x - 6.0 * x * x);",
+				"yx = x * x * (3.0 - 2.0 * x);",
+			"}",
 			"return znear + (zfar - znear) * x;",
 		"}",
 
@@ -403,11 +403,11 @@ THREE.BokehShader2 = {
 			"blur = clamp(blur,0.0,1.0);",
 
 			// calculation of pattern for dithering"
-			"vec2 noise = rand(vUv.xy)*namount*blur;",
+			"vec2 noise = rand(vUv.xy) * namount * blur;",
 
 			// getting blur x and y step factor"
-			"float w = (1.0/width)*blur*maxblur+noise.x;",
-			"float h = (1.0/height)*blur*maxblur+noise.y;",
+			"float w = (1.0/width) * blur * maxblur + noise.x;",
+			"float h = (1.0/height) * blur * maxblur + noise.y;",
 
 			// calculation of final color"
 			"vec3 col = vec3(0.0);",
@@ -423,7 +423,7 @@ THREE.BokehShader2 = {
 					/*unboxstart*/
 					"ringsamples = i * samples;",
 
-					"for (int j = 0 ; j < maxringsamples ; j++) {",
+					"for (int j = 0; j < maxringsamples ; j++) {",
 						"if (j >= ringsamples) break;",
 						"s += gather(float(i), float(j), ringsamples, col, w, h, blur);",
 					"}",
