@@ -7,7 +7,7 @@ Application.ShaderPassConfigurator = (function () {
 	function ShaderPassConfigurator () {
 		var dvc = Application.DistanceValuesConvertor.getInstance();
 		privateStore.near = dvc(0.01, "m");
-		privateStore.far = dvc(50, "m");
+		privateStore.far = dvc(100, "m");
 	};
 	
 	ShaderPassConfigurator.prototype.configuration = function (passId) {

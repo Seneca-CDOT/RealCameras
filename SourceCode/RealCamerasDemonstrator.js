@@ -49,9 +49,14 @@ Application.RealCamerasDemonstrator = (function () {
 	RealCamerasDemonstrator.prototype.setUpScene = function (meshesContainer) {
 		if (!this.isSceneSetUp) {
 			this.isSceneSetUp = true;
-			this.scene.add(meshesContainer);
 
-			var box = new THREE.Box3().setFromObject(meshesContainer);
+			var internals = meshesContainer.internals;
+			var externals = meshesContainer.externals;
+			
+			this.scene.add(internals);
+			this.scene.add(externals);
+
+			var box = new THREE.Box3().setFromObject(internals);
 			this.controls.setBox(box);
 			this.controls.setEnabled(true);
 			

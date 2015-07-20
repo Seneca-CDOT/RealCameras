@@ -313,7 +313,7 @@ THREE.BokehShader2 = {
 			// Newton–Raphson method
 			"float yx = x * x * (3.0 - 2.0 * x);",
 			// abs(yx - y) > 0.001
-			"for (int i = 0; i < 2; i++) {",
+			"for (int i = 0; i < 3; i++) {",
 				"x = x - (yx - y) / (6.0 * x - 6.0 * x * x);",
 				"yx = x * x * (3.0 - 2.0 * x);",
 			"}",
