@@ -7,7 +7,7 @@ Application.ShaderPassConfigurator = (function () {
 	function ShaderPassConfigurator () {
 		var dvc = Application.DistanceValuesConvertor.getInstance();
 		privateStore.near = dvc(0.01, "m");
-		privateStore.far = dvc(100, "m");
+		privateStore.far = dvc(50, "m");
 	};
 	
 	ShaderPassConfigurator.prototype.configuration = function (passId) {
@@ -32,7 +32,7 @@ Application.ShaderPassConfigurator = (function () {
 	var privateMethods = Object.create(ShaderPassConfigurator.prototype);
 	privateMethods.bokehPassConfigurationMain = function () {
 		var dvc = Application.DistanceValuesConvertor.getInstance();
-
+		var offset = dvc(0.1, "m");
 		var shaderSettings = {
 			textureWidth: {
 				value: 0.0
@@ -43,7 +43,7 @@ Application.ShaderPassConfigurator = (function () {
 // mark - 			
 			focalDepth: {
 				value: 0.5 * (privateStore.near + privateStore.far),
-				range: {begin: privateStore.near, end: privateStore.far, step: dvc(0.001, "m")} 
+				range: {begin: privateStore.near + offset, end: privateStore.far - offset, step: dvc(0.001, "m")} 
 			},
 			focalLength: { // in "mm"
 				value: 35,

@@ -86,14 +86,7 @@ Application.SceneLoader = (function () {
 			function setUpContents(model) {
 				var dvc = Application.DistanceValuesConvertor.getInstance();
 
-				// var depthStart = dvc(2, "m");
-				// var depthInterval = dvc(3.5, "m");
-				// var width = dvc(10, "m") - dvc(2, "m");
-
 				var modelHeight = dvc(1.8, "m");
-
-				// mesh.position.x = 0.5 * width * Math.sin(i);
-				// mesh.position.z = -(depthStart + i * depthInterval);
 
 				var locations = [];
 				locations.push({
