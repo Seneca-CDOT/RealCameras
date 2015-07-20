@@ -68,7 +68,7 @@ Application.ShaderPassConfigurator = (function () {
 			},
 // mark -
 			showFocus: {
-				value: true,
+				value: false,
 				show: true
 			},
 			vignetting: {
