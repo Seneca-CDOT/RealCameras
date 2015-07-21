@@ -83,7 +83,6 @@ Application.RealCamerasDemonstrator = (function () {
 
 	privateMethods.initRenderer = function () {
 
-		//need to remove some on this and put an standard basic full screen size
 
 		this.renderer = new THREE.WebGLRenderer();
 		this.renderer.setSize(this.canvasWidth, this.canvasHeight);
@@ -113,7 +112,7 @@ Application.RealCamerasDemonstrator = (function () {
 	privateMethods.initCamera = function () {
 		var dvc = Application.DistanceValuesConvertor.getInstance();
 
-		// fov is calculated and set in setLens based on fame size and focal length
+		// fov is calculated and set in setLens based on frame size and focal length
 		var emptyFov = 0.;
 		var near = dvc(0.01, "m");
 		var far = dvc(1000.0, "m");
@@ -185,14 +184,14 @@ Application.RealCamerasDemonstrator = (function () {
 
 		//special values and values that need to be convereted
 		var params = {
-     		focaldep: 10.00
-    	};
+     			focaldep: 10.00
+    		};
 
 		this.gui = new dat.GUI();
-	    var dvc = Application.DistanceValuesConvertor.getInstance();
+		 var dvc = Application.DistanceValuesConvertor.getInstance();
 
-	    var privateStore = {};
-    	privateStore.near = dvc(0.01, "m");
+		 var privateStore = {};
+    		privateStore.near = dvc(0.01, "m");
 		privateStore.far = dvc(100.0, "m");
 		var beforeNear = privateStore.near + dvc(1.0, "m");
 		
@@ -207,13 +206,13 @@ Application.RealCamerasDemonstrator = (function () {
 		this.camfolder.open();
 
 		//lens
-	    var lensfolder = this.gui.addFolder("Lens");
-	    privateMethods.LensSelect.call(this);
+		 var lensfolder = this.gui.addFolder("Lens");
+		 privateMethods.LensSelect.call(this);
 	
 		this.lensfolder = lensfolder;
 		this.lensfolder.open();
 
-		//user 
+		//user values
 		this.Userfolder = this.gui.addFolder("User Inputs");
 		
 		var that = this;
@@ -235,19 +234,21 @@ Application.RealCamerasDemonstrator = (function () {
 		var params = {
  			camera: "Please select camera",
  			fov: 27.00
-    	};
-    	var settings = this.bokehPassConfiguration.shaderSettings;
-    	var dvc = Application.DistanceValuesConvertor.getInstance();
+    		};
+    		var settings = this.bokehPassConfiguration.shaderSettings;
+    		var dvc = Application.DistanceValuesConvertor.getInstance();
     	
 		$.getJSON("Resource/jsonfiles/CameraData.json").then(function(data){
  			var ind= [];	
- 			var listcams = ["please select camera"];	
+ 			var listcams = ["please select camera"];
+ 			//store camera names
  			$.each(data, function(name, value){
  				$.each(value, function(index, innervalue){
  					listcams.push(innervalue.namecam);
  			 	});
 			});
-		    that.camfolder.add(params, 'camera', listcams).onChange(function(value){
+			//folder with names
+		     	that.camfolder.add(params, 'camera', listcams).onChange(function(value){
   				var i = listcams.indexOf(value);
   				if (i>0){
   					i--;
@@ -258,7 +259,7 @@ Application.RealCamerasDemonstrator = (function () {
   		 			privateMethods.settingsUpdater.call(that);
   		 		}
   			});
-	    });
+	    	});
 	};
 
 	privateMethods.LensSelect = function(){
@@ -266,9 +267,9 @@ Application.RealCamerasDemonstrator = (function () {
 		var params = {
  			lens: "Please select lens",
  			lentype: "Please select type"
-    	};
-    	var settings = this.bokehPassConfiguration.shaderSettings;
-    	var dvc = Application.DistanceValuesConvertor.getInstance();
+    		};
+    		var settings = this.bokehPassConfiguration.shaderSettings;
+    		var dvc = Application.DistanceValuesConvertor.getInstance();
 
 		$.getJSON("Resource/jsonfiles/Lensdata.json").then(function(data){
  			var ind= [];	
@@ -277,15 +278,15 @@ Application.RealCamerasDemonstrator = (function () {
 
  			$.each(data, function(name, value){
  				listtype.push(name);
- 				//seclect the type before sotring the values, takes less memory
+ 				//select the type before storing the values, takes less memory
  			});
- 		
+ 			
  			var ltype = that.lensfolder.add(params, 'lentype', listtype);
  			var len = that.lensfolder.add(params, 'lens', listlens);
- 			
+ 			//find lens after user changes the lens type
  			ltype.onChange(function(value){
  				listlens = ["Please select lens"];
- 	
+ 				//find the list of lens for the type
  				$.each(data, function(name, value){
  					if (name == params.lentype){
  						$.each(value, function(index, innervalue){
@@ -295,8 +296,8 @@ Application.RealCamerasDemonstrator = (function () {
 				});
 
 				that.lensfolder.remove(len);
-
-			    len = that.lensfolder.add(params, 'lens', listlens).onChange(function(value){
+				//lens folder is updated with the list of lens
+			    	len = that.lensfolder.add(params, 'lens', listlens).onChange(function(value){
   					var i = listlens.indexOf(value);
   					if (i>0){ //"select lens" dosent change focal length
   						i--; //cause the first value on list is the "select list" option
