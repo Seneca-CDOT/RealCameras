@@ -239,7 +239,7 @@ Application.RealCamerasDemonstrator = (function () {
     	var settings = this.bokehPassConfiguration.shaderSettings;
     	var dvc = Application.DistanceValuesConvertor.getInstance();
     	
-		$.getJSON("../Resource/jsonfiles/CameraData.json").then(function(data){
+		$.getJSON("Resource/jsonfiles/CameraData.json").then(function(data){
  			var ind= [];	
  			var listcams = ["please select camera"];	
  			$.each(data, function(name, value){
@@ -270,7 +270,7 @@ Application.RealCamerasDemonstrator = (function () {
     	var settings = this.bokehPassConfiguration.shaderSettings;
     	var dvc = Application.DistanceValuesConvertor.getInstance();
 
-		$.getJSON("../Resource/jsonfiles/Lensdata.json").then(function(data){
+		$.getJSON("Resource/jsonfiles/Lensdata.json").then(function(data){
  			var ind= [];	
  			var listlens = ["Please select lens"];	
  			var listtype = ["Please select type"];
