@@ -380,7 +380,7 @@ THREE.BokehShader2 = {
 				"float a = (objectD * focalL) / (objectD - focalL);",
 				"float b = (focalD * focalL) / (focalD - focalL);",
 				
-				"float c = (focalD - focalL) / (focalD * fstop * CoC);",
+				"float c = (focalD - focalL) / (focalD * aperture * CoC);",
 				"blur = abs(a-b) * c;",
 
 				// h=(F*F)/(f*c);
