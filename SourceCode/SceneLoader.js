@@ -10,6 +10,7 @@ Application.SceneLoader = (function () {
 	};
 
 	SceneLoader.prototype.load = function () {
+
 		return new Promise(function (resolve, reject) {
 
 			var preloader = store.preloader;
@@ -78,7 +79,6 @@ Application.SceneLoader = (function () {
 			if (!rawHuman) {
 				resolve();
 			}
-
 			var loader = new THREE.ObjectLoader();
 
 			// // Danger! TODO:
@@ -262,8 +262,7 @@ Application.SceneLoader = (function () {
 		right.rotation.y = -0.5 * Math.PI;
 		right.position.set(0.5 * width, 0.5 * height, -depthShiftBackward);
 
-// mark -
-
+				
 		textureBack.needsUpdate = true;
 		textureBack.wrapS = THREE.RepeatWrapping;
 		textureBack.wrapT = THREE.RepeatWrapping;
@@ -310,6 +309,7 @@ Application.SceneLoader = (function () {
 			mesh.scale.set(scaleX, scaleY, scaleZ);
 		}
 	};
+
 
 // mark -
 

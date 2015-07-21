@@ -1,0 +1,6 @@
+{
+	"cameras":[
+		{"namecam":"Arri D-21 / Alexa (4:3)", "FoV": 29.7, "circleofconf": 0.0508, "aspect": 1.33},
+		{"namecam":"Arri D-21 / Alexa (16:9)","FoV": 27.3, "circleofconf": 0.0127, "aspect": 1.78}
+	]
+}

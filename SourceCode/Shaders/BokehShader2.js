@@ -19,7 +19,8 @@ THREE.BokehShader2 = {
 
 		"focalDepth":   { type: "f", value: 1.0 },
 		"focalLength":   { type: "f", value: 24.0 },
-		"fstop": { type: "f", value: 0.9 },
+		"aperture": { type: "f", value: 0.9 },
+		"coc": {type: "f", value: 0.03},
 
 		"tColor":   { type: "t", value: null },
 		"tDepth":   { type: "t", value: null },
@@ -44,7 +45,10 @@ THREE.BokehShader2 = {
 		"pentagon": { type: "i", value: 0 },
 
 		"shaderFocus":  { type: "i", value: 1 },
-		"focusCoords":  { type: "v2", value: new THREE.Vector2() }
+		"focusCoords":  { type: "v2", value: new THREE.Vector2() },
+
+		"framesize": {type: "f", value: 35.00},
+		"aspect": {type: "f", value: 1.33}
 
 	},
 
@@ -77,14 +81,12 @@ THREE.BokehShader2 = {
 
 		"vec2 texel = vec2(1.0/width,1.0/height);",
 
-		// focal distance value in 'm', but you may use autofocus option below
-		"uniform float focalDepth;",
-		// focal length in 'mm'
-		"uniform float focalLength;",
-		// f-stop value
-		"uniform float fstop;",
-		// show debug focus point and focal range (red = focal point, green = focal range)
-		"uniform bool showFocus;",
+
+		"uniform float focalDepth;  //focal distance value in meters, but you may use autofocus option below",
+		"uniform float focalLength; //focal length in mm",
+		"uniform float aperture; //f-stop value",
+		"uniform bool showFocus; //show debug focus point and focal range (red = focal point, green = focal range)",
+
 
 		/*
 		make sure that these two values are the same for your camera, otherwise distances will be wrong.
@@ -322,7 +324,7 @@ THREE.BokehShader2 = {
 
 		"float vignette() {",
 			"float dist = distance(vUv.xy, vec2(0.5,0.5));",
-			"dist = smoothstep(vignout+(fstop/vignfade), vignin+(fstop/vignfade), dist);",
+			"dist = smoothstep(vignout+(aperture/vignfade), vignin+(aperture/vignfade), dist);",
 			"return clamp(dist,0.0,1.0);",
 		"}",
 
@@ -369,6 +371,7 @@ THREE.BokehShader2 = {
 				"float c = (-a-ndofstart)/ndofdist;", // Near Dof
 				"blur = (a>0.0) ? b : c;",
 			"} else {",
+
 				"float focalL = focalLength;", // focal length in mm
 
 				"float focalD = fDepth * 1000.0;", // focal plane in mm
@@ -377,7 +380,7 @@ THREE.BokehShader2 = {
 				"float a = (objectD * focalL) / (objectD - focalL);",
 				"float b = (focalD * focalL) / (focalD - focalL);",
 				
-				"float c = (focalD - focalL) / (focalD * fstop * CoC);",
+				"float c = (focalD - focalL) / (focalD * aperture * CoC);",
 				"blur = abs(a-b) * c;",
 
 				// h=(F*F)/(f*c);
@@ -398,6 +401,7 @@ THREE.BokehShader2 = {
 				// "} else {",
 				// 	"blur = 1.0;",
 				// "}",
+
 			"}",
 
 			"blur = clamp(blur,0.0,1.0);",
