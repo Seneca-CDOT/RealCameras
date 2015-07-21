@@ -6,10 +6,6 @@ Application.ShaderPassConfigurator = (function () {
 	var privateStore = {};
 	function ShaderPassConfigurator () {
 		var dvc = Application.DistanceValuesConvertor.getInstance();
-// TODO:
-		// ACM p.13
-		privateStore.aspect = 2.35; // 1.85;
-
 		privateStore.near = dvc(0.01, "m");
 		privateStore.far = dvc(100.0, "m");
 	};
@@ -37,9 +33,11 @@ Application.ShaderPassConfigurator = (function () {
 	privateMethods.bokehPassConfigurationMain = function () {
 		var dvc = Application.DistanceValuesConvertor.getInstance();
 
+
 		var beforeNear = privateStore.near + dvc(1.0, "m");
 
-// mark -
+		var offset = dvc(0.1, "m");
+
 		var shaderSettings = {
 			textureWidth: {
 				value: 0.0
@@ -51,13 +49,16 @@ Application.ShaderPassConfigurator = (function () {
 // mark - 			
 			focalDepth: {
 
-				value: beforeNear
+				value: 0.5 * (privateStore.near + privateStore.far),
+				range: {begin: privateStore.near + offset, end: privateStore.far - offset, step: dvc(0.001, "m")} 
+
 			},
 			focalLength: {
 				value: 35.0
 			//	range: {begin: 35, end: 200, step: 10}
 			},
 			// Non-dimensional value (f-stop = focal-length/aperture)
+
 			aperture: {
 				value: 1,
 			//	range: {begin: 1, end: 10, step: 2}
@@ -65,10 +66,11 @@ Application.ShaderPassConfigurator = (function () {
 			coc: {
 				value: 0.03
 				// range: {begin: dvc(0.0, "mm"), end: dvc(1.0, "mm"), step: dvc(0.001, "mm")}
+
 			},
 		
 			maxblur: {
-				value: 1.0,
+				value: 1.5,
 				range: {begin: 0.0, end: 2.0, step: 0.025}
 			},
 // mark -
@@ -81,8 +83,8 @@ Application.ShaderPassConfigurator = (function () {
 			},
 // mark -
 			showFocus: {
-				value: true,
-				show: true
+				value: false,
+				show: false
 			},
 			vignetting: {
 				value: true,
@@ -202,6 +204,7 @@ Application.ShaderPassConfigurator = (function () {
 			},
 			framesize:{
 				value: 35.00
+
 			},
 			focalDepth: {
 				value: dvc(5.0, "feet")
@@ -238,6 +241,7 @@ Application.ShaderPassConfigurator = (function () {
 			depthMaterial: depthMaterial,
 			depthMapTarget: depthMapTarget,
 			updateFromConfiguration: function (camera) {
+
 			//	camera.aspect = this.shaderSettings.aspect.value;
 				camera.updateProjectionMatrix();
 			},

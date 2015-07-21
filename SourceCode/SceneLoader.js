@@ -20,6 +20,9 @@ Application.SceneLoader = (function () {
 			}, {
 				src: "Resource/checker.png",
 				id: "tPattern"
+			}, {
+				src: "Resource/sky.png",
+				id: "tSky"
 			}, { 
 				src: "Resource/human.object/" + "human.json",
 				// src: "Resource/human.scene/" + "human-scene.json",
@@ -36,17 +39,25 @@ Application.SceneLoader = (function () {
 			function cH() {
 				console.log("Completion from SceneLoader");
 				var that = this;
-				var meshesContainer = new THREE.Object3D();
 				
 				store.progressControl.stopProgress(callback);
 				function callback () {
+					var internals = new THREE.Object3D();
+					var externals = new THREE.Object3D();
+
 					// when parsing raw scene JSON, image assests get loaded asynchronously
-					privateMethods.setUpSceneContents.call(that, meshesContainer).then(function () {
-						privateMethods.setUpSceneModel.call(that, meshesContainer);
-						privateMethods.setUpSceneBox.call(that, meshesContainer);
+					privateMethods.setUpSceneContents.call(that, internals).then(function () {
+						privateMethods.setUpSceneModel.call(that, internals);
+						privateMethods.setUpSceneBox.call(that, internals);
+						privateMethods.setUpSceneSky.call(that, externals);
+
+						var meshesContainer = {
+							internals: internals,
+							externals: externals
+						};
 
 						// test
-						// var helper = new THREE.BoundingBoxHelper(meshesContainer, 0xff0000);
+						// var helper = new THREE.BoundingBoxHelper(internals, 0xff0000);
 						// helper.update();
 						// meshesContainer.add(helper);
 
@@ -86,14 +97,7 @@ Application.SceneLoader = (function () {
 			function setUpContents(model) {
 				var dvc = Application.DistanceValuesConvertor.getInstance();
 
-				// var depthStart = dvc(2, "m");
-				// var depthInterval = dvc(3.5, "m");
-				// var width = dvc(10, "m") - dvc(2, "m");
-
 				var modelHeight = dvc(1.8, "m");
-
-				// mesh.position.x = 0.5 * width * Math.sin(i);
-				// mesh.position.z = -(depthStart + i * depthInterval);
 
 				var locations = [];
 				locations.push({
@@ -171,6 +175,33 @@ Application.SceneLoader = (function () {
 
 			privateMethods.setUpModels(meshesContainer, model, modelHeight, locations)
 		};
+	};
+	privateMethods.setUpSceneSky = function (meshesContainer) {
+		var rawImage = store.preloader.getItemData("tSky");
+		if (!rawImage) {
+			return;
+		}
+
+		// http://mrdoob.github.io/three.js/examples/webgl_materials_lightmap.html
+		// http://mrdoob.github.io/three.js/examples/webgl_lights_hemisphere.html
+
+		var dvc = Application.DistanceValuesConvertor.getInstance();
+
+		var radius = dvc(60, "m");
+		var depthShiftBackward = dvc(20, "m");
+		var geometry = new THREE.SphereGeometry(radius, 32, 32);
+
+
+		var texture = new THREE.Texture(rawImage);
+		texture.needsUpdate = true;
+		var material = new THREE.MeshBasicMaterial({
+			map: texture,
+			side: THREE.BackSide
+		});
+
+		var sky = new THREE.Mesh(geometry, material);
+		sky.position.z = -depthShiftBackward;
+		meshesContainer.add(sky);
 	};
 	privateMethods.setUpSceneBox = function (meshesContainer) {
 		var rawPattern = store.preloader.getItemData("tPattern");

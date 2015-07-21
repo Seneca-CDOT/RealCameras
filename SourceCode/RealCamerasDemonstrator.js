@@ -44,9 +44,14 @@ Application.RealCamerasDemonstrator = (function () {
 	RealCamerasDemonstrator.prototype.setUpScene = function (meshesContainer) {
 		if (!this.isSceneSetUp) {
 			this.isSceneSetUp = true;
-			this.scene.add(meshesContainer);
 
-			var box = new THREE.Box3().setFromObject(meshesContainer);
+			var internals = meshesContainer.internals;
+			var externals = meshesContainer.externals;
+			
+			this.scene.add(internals);
+			this.scene.add(externals);
+
+			var box = new THREE.Box3().setFromObject(internals);
 			this.controls.setBox(box);
 			this.controls.setEnabled(true);
 			
@@ -114,7 +119,6 @@ Application.RealCamerasDemonstrator = (function () {
 		var far = dvc(1000.0, "m");
 		this.camera = new THREE.PerspectiveCamera(emptyFov, this.canvasWidth / this.canvasHeight, near, far);
 
-// TODO:
 		this.camera.focalLength = 35; // in "mm"
 		this.camera.frameSize = 43; // in "mm"
 		this.camera.setLens(this.camera.focalLength, this.camera.frameSize);
