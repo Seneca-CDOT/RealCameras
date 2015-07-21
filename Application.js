@@ -1,6 +1,7 @@
 
 var Application = (function () {
 
+
     var store = {};
     store.started = false;
 
@@ -39,6 +40,9 @@ var Application = (function () {
          "SourceCode/Shaders/shadertest.js",
 
         "SourceCode/Helpers/Debuger.js",
+        
+        "SourceCode/Controls/CameraControls.js",
+        "SourceCode/CircularProgressControl.js",
 
         "SourceCode/Controls/CameraControls.js",
         "SourceCode/CircularProgressControl.js",
@@ -46,12 +50,15 @@ var Application = (function () {
         "SourceCode/DistanceValuesConvertor.js",
         "SourceCode/RealCamerasDemonstrator.js",
         "SourceCode/ShaderPassConfigurator.js",
+
         "SourceCode/AssetsLoader.js",
         "SourceCode/SceneLoader.js"
+
     ];
     
     var privateMethods = {};
     privateMethods.setUpGui = function () {
+
         store.gui = new dat.GUI();   
 
         var select = store.gui.add(store.settings, 'bokehPassValue', store.bokehPassValues);
@@ -79,18 +86,19 @@ var Application = (function () {
         var that = this;
         require(store.files, function() {
 
+
             store.demonstrator = new Application.RealCamerasDemonstrator();
 
             var sl = Application.SceneLoader.getInstance();
             sl.load().then(function (meshesContainer) {
                 console.log("Completion from Application");
                 store.demonstrator.setUpScene(meshesContainer);
+
             });
 
             privateMethods.setUpGui.call(that);
         });        
     };
-
     return {
         main: privateMethods.main
     };

@@ -17,10 +17,13 @@ THREE.BokehShader = {
 		"znear": 	{ type: "f", value: 1.0 },
 		"zfar":		{ type: "f", value: 1000.0},
 
-		"focalDepth": { type: "f", value: 0.5 },
-		"aperture": { type: "f", value: 0.025 },
+		"focalDepth": { type: "f", value: .5 },
+		"aperture": { type: "f", value: 12.0 },
+		"focalLength": {type: "f", value: 100.0},
+		"coc": {type: "f", value: 0.03},
 		
-		"maxblur":  { type: "f", value: 1.0 }
+		"maxblur":  { type: "f", value: 1.0 },
+		"framesize": {type: "f", value: 35.00}
 	},
 
 	vertexShader: [
@@ -47,6 +50,7 @@ THREE.BokehShader = {
 		"uniform float zfar;",
 
 		"uniform float focalDepth;",
+		"uniform float focalLength;",
 		"uniform float aperture;",
 
 		"uniform float maxblur;",
@@ -60,7 +64,7 @@ THREE.BokehShader = {
 			// "float factor = depth1.x - (1.0 - focalDepth);",
 			"float factor = (mix(znear, zfar, 1.0 - depth1.x) - focalDepth) / (zfar - znear);",
 
-			"vec2 dofblur = vec2(clamp(factor * aperture, -maxblur, maxblur));",
+			"vec2 dofblur = vec2(clamp(factor * ((focalLength)/aperture), -maxblur, maxblur));",
 
 			"vec2 dofblur9 = dofblur * 0.9;",
 			"vec2 dofblur7 = dofblur * 0.7;",

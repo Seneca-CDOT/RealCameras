@@ -4,6 +4,7 @@ var Application = Application || {};
 Application.CameraControls = (function () {
 
 	function CameraControls (camera) {
+
 		var position = camera.position.clone();
 		this.controls = new THREE.PointerLockControls(camera);
 
@@ -18,6 +19,7 @@ Application.CameraControls = (function () {
 		this.setDelta(0.5);
 		this.setBox(null);
 
+
 		this.moveForward = false;
 		this.moveBackward = false;
 		this.moveLeft = false;
@@ -27,6 +29,7 @@ Application.CameraControls = (function () {
 		var onKeyDown = function (evt) {
 			switch (evt.keyCode) {
 				case 38: // up
+
 				// case 87: // w
 					that.moveForward = true;
 					break;
@@ -40,6 +43,7 @@ Application.CameraControls = (function () {
 					break;
 				case 39: // right
 				// case 68: // d
+
 					that.moveRight = true;
 					break;
 			}
@@ -47,6 +51,7 @@ Application.CameraControls = (function () {
 		var onKeyUp = function (evt) {
 			switch(evt.keyCode) {
 				case 38: // up
+
 				// case 87: // w
 					that.moveForward = false;
 					break;
@@ -60,6 +65,7 @@ Application.CameraControls = (function () {
 					break;
 				case 39: // right
 				// case 68: // d
+
 					that.moveRight = false;
 					break;
 			}
@@ -68,12 +74,15 @@ Application.CameraControls = (function () {
 		document.addEventListener('keyup', onKeyUp, false);
 	};
 
+
 	CameraControls.prototype.getObject = function () {
 		return this.positionObject;
+
 	};
 	CameraControls.prototype.getDirection = function () {
 		return this.controls.getDirection();
 	};
+
 
 	CameraControls.prototype.setBox = function (box) {
 		this.box = box;
@@ -136,6 +145,7 @@ Application.CameraControls = (function () {
 					object.translateZ(-displacement.z);
 				}
 			}
+
 		}
 	};
 

@@ -16,9 +16,9 @@ THREE.DoFShader = {
 		"znear":		{ type: "f", value: 1.0 },
 		"zfar":			{ type: "f", value: 1000.0 },
 		"showFocus":	{ type: "i", value: 0 },
-		"focalDepth":	{ type: "f", value: 200.0 },
-		"focalLength":	{ type: "f", value: 28.0 },
-		"fstop":		{ type: "f", value: 2.8 },	
+		"focalDepth":	{ type: "f", value: 60.0 },
+		"focalLength":	{ type: "f", value: 35.0 },
+		"aperture":		{ type: "f", value: 2.8 },	
 		"autofocus":	{ type: "i", value: 1 },
 		"focus":        { type: "v2", value: new THREE.Vector2(0.5, 0.5) },
 		"maxblur":		{ type: "f", value: 1.0 },
@@ -27,7 +27,7 @@ THREE.DoFShader = {
 		"ndofdist":		{ type: "f", value: 2.0 },
 		"fdofstart":	{ type: "f", value: 1.0 },
 		"fdofdist":		{ type: "f", value: 3.0 },
-		"CoC":			{ type: "f", value: 0.03 },
+		"coc":			{ type: "f", value: 0.03 },
 		"vignetting":	{ type: "i", value: 1 },
 		"vignout":		{ type: "f", value: 1.3 },
 		"vignin":		{ type: "f", value: 0.0 },
@@ -39,7 +39,9 @@ THREE.DoFShader = {
 		"noise":		{ type: "i", value: 1 },
 		"namount":		{ type: "f", value: 0.0001 },
 		"depthblur":	{ type: "i", value: 0 },
-		"dbsize":		{ type: "f", value: 1.25}
+		"dbsize":		{ type: "f", value: 1.25},
+		"framesize": {type: "f", value: 35.00},
+		"aspect": {type: "f", value: 1.33}
 	},
 
 	vertexShader: [
@@ -69,7 +71,7 @@ THREE.DoFShader = {
 		"uniform vec2 texel;", // textel size
 		"uniform float focalDepth;",  //focal distance value in meters, but you may use autofocus option below
 		"uniform float focalLength;", //focal length in mm
-		"uniform float fstop;", //f-stop value
+		"uniform float aperture;", //f-stop value
 		"uniform bool showFocus;", //show debug focus point and focal range (orange = focal point, blue = focal range)
 		//make sure that these two values are the same for your camera, otherwise distances will be wrong.
 		"uniform float znear;", //camera clipping start
@@ -80,7 +82,7 @@ THREE.DoFShader = {
 		"uniform float ndofdist;", // near dof blur falloff distance
 		"uniform float fdofstart;", // far dof blur start
 		"uniform float fdofdist;", // far dof blur falloff distance
-		"uniform float CoC;", // circle of confusion size in mm (35mm film = 0.03mm)
+		"uniform float coc;", // circle of confusion size in mm (35mm film = 0.03mm)
 		"uniform bool vignetting;", // use optical lens vignetting
 		"uniform float vignout;", // vignetting outer border
 		"uniform float vignin;", // vignetting inner border
@@ -287,7 +289,7 @@ THREE.DoFShader = {
 				// "blur = abs(a - b) * c;",
 
 				"float a = abs(o - d);",
-				"float c =  f * f / (fstop * (d - f));",
+				"float c =  f * f / (aperture * (d - f));",
 				"blur = c * a / o;",
 			// "}",
 			"blur = clamp(blur, 0.0, 1.0);",
@@ -347,7 +349,7 @@ THREE.DoFShader = {
 
 
 			"if (showFocus) {",
-				"col = debugFocus(col, blur, depth);",
+			//	"col = debugFocus(col, blur, depth);",
 			"}",
 
 
