@@ -20,7 +20,7 @@ THREE.BokehShader2 = {
 		"focalDepth":   { type: "f", value: 1.0 },
 		"focalLength":   { type: "f", value: 24.0 },
 		"aperture": { type: "f", value: 0.9 },
-		"coc": {type: "f", value: 0.03},
+		"CoC": {type: "f", value: 0.03},
 
 		"tColor":   { type: "t", value: null },
 		"tDepth":   { type: "t", value: null },
@@ -119,7 +119,7 @@ THREE.BokehShader2 = {
 		"float fdofdist = 3.0;",
 
 		// circle of confusion size in mm (35mm film = 0.03mm)
-		"float CoC = 0.03;",
+		"uniform float CoC;",
 
 		// use optical lens vignetting
 		"uniform bool vignetting;",

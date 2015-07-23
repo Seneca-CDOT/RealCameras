@@ -5,13 +5,9 @@ Application.RealCamerasDemonstrator = (function () {
 
 	function RealCamerasDemonstrator () {
 // TODO:
-		// ACM p.13
-	
 		this.canvasWidth = window.innerWidth;
-
 		this.canvasHeight = window.innerHeight;
 	
-
 		// this.devicePixelRatio = window.devicePixelRatio || 1,
 		this.container = null;
         this.renderer = null;
@@ -31,7 +27,6 @@ Application.RealCamerasDemonstrator = (function () {
 	
 	RealCamerasDemonstrator.prototype.destroy = function () {
 		if (this.requestedAnimationFrameId) {
-
             window.cancelAnimationFrame(this.requestedAnimationFrameId);
             this.requestedAnimationFrameId = null;
         }
@@ -82,8 +77,6 @@ Application.RealCamerasDemonstrator = (function () {
 	};
 
 	privateMethods.initRenderer = function () {
-
-
 		this.renderer = new THREE.WebGLRenderer();
 		this.renderer.setSize(this.canvasWidth, this.canvasHeight);
 
@@ -114,9 +107,9 @@ Application.RealCamerasDemonstrator = (function () {
 
 		// fov is calculated and set in setLens based on frame size and focal length
 		var emptyFov = 0.;
-		var near = dvc(0.01, "m");
-		var far = dvc(1000.0, "m");
-		this.camera = new THREE.PerspectiveCamera(emptyFov, this.canvasWidth / this.canvasHeight, near, far);
+		var emptyNear = dvc(0.1, "m");
+		var emptyFar = dvc(0.1, "m");
+		this.camera = new THREE.PerspectiveCamera(emptyFov, this.canvasWidth / this.canvasHeight, emptyNear, emptyFar);
 
 		this.camera.focalLength = 35; // in "mm"
 		this.camera.frameSize = 43; // in "mm"
@@ -139,7 +132,6 @@ Application.RealCamerasDemonstrator = (function () {
 	    this.scene.add(this.light);
 	};
 	privateMethods.initControls = function () {
-
 		var dvc = Application.DistanceValuesConvertor.getInstance();
 
 		// var direction = new THREE.Vector3(-1.0, 0.0, -1.0);
@@ -179,100 +171,86 @@ Application.RealCamerasDemonstrator = (function () {
 		this.bokehPassConfiguration.bokehPass = bokehPass;
 	};
 
-
 	privateMethods.setUpGui = function () {
-
-		//special values and values that need to be convereted
-		var params = {
-     			focaldep: 10.00
-    		};
+		var dvc = Application.DistanceValuesConvertor.getInstance();
 
 		this.gui = new dat.GUI();
-		 var dvc = Application.DistanceValuesConvertor.getInstance();
-
-		 var privateStore = {};
-    		privateStore.near = dvc(0.01, "m");
-		privateStore.far = dvc(100.0, "m");
-		var beforeNear = privateStore.near + dvc(1.0, "m");
-		
-		var settings = this.bokehPassConfiguration.shaderSettings;
-		var that = this;	
 
 		//camera
 		var camfolder = this.gui.addFolder("Camera");
-		privateMethods.CameraSelect.call(this);
-
-	 	this.camfolder = camfolder;
-		this.camfolder.open();
+		privateMethods.CameraSelect.call(this, camfolder);
+		camfolder.open();
+	 	
 
 		//lens
-		 var lensfolder = this.gui.addFolder("Lens");
-		 privateMethods.LensSelect.call(this);
-	
-		this.lensfolder = lensfolder;
-		this.lensfolder.open();
+		var lensfolder = this.gui.addFolder("Lens");
+		privateMethods.LensSelect.call(this, lensfolder);
+		lensfolder.open();
+			
+		var settings = this.bokehPassConfiguration.shaderSettings;
 
 		//user values
-		this.Userfolder = this.gui.addFolder("User Inputs");
-		
-		var that = this;
-		this.Userfolder.add(params, "focaldep", beforeNear, 0.5*privateStore.far, dvc(0.01, "m")).name("Distance to subject")
-		.onChange(function(value){
-			settings["focalDepth"].value = params.focaldep;
-			privateMethods.settingsUpdater.call(that);
-		});
-		
-		this.Userfolder.add(settings["aperture"], "value", 1.0, 22.0, 1.0).name("f-stop")
+		var userfolder = this.gui.addFolder("User Inputs");
+
+		var focalDepthRange = settings["focalDepth"].range;	
+		userfolder.add(settings["focalDepth"], "value", focalDepthRange.begin, focalDepthRange.end, focalDepthRange.step)
+		.name("Distance to subject")
+		.onChange(privateMethods.settingsUpdater.bind(this));
+			
+		var apertureRange = settings["aperture"].range;	
+		userfolder.add(settings["aperture"], "value", apertureRange.begin, apertureRange.end, apertureRange.step)
+		.name("f-stop")
 		.onChange(privateMethods.settingsUpdater.bind(this));
 
-		this.Userfolder.open();
-
+		userfolder.open();
+		this.userfolder = userfolder;
 	};
 
-	privateMethods.CameraSelect = function(){
-		var that= this;
-		var params = {
- 			camera: "Please select camera",
- 			fov: 27.00
-    		};
-    		var settings = this.bokehPassConfiguration.shaderSettings;
-    		var dvc = Application.DistanceValuesConvertor.getInstance();
+	privateMethods.CameraSelect = function (camfolder) {
+		var settings = this.bokehPassConfiguration.shaderSettings;
+		var dvc = Application.DistanceValuesConvertor.getInstance();
     	
-		$.getJSON("Resource/jsonfiles/CameraData.json").then(function(data){
- 			var ind= [];	
- 			var listcams = ["please select camera"];
+    	var that = this;
+		$.getJSON("Resource/jsonfiles/CameraData.json").then(function (data) {
+ 			
  			//store camera names
- 			$.each(data, function(name, value){
- 				$.each(value, function(index, innervalue){
+ 			var listcams = ["please select camera"];
+ 			$.each(data, function (name, value) {
+ 				$.each(value, function (index, innervalue) {
  					listcams.push(innervalue.namecam);
  			 	});
 			});
+
+			var params = {
+				camera: "Please select camera",
+				fov: 27.00
+			};
+
 			//folder with names
-		     	that.camfolder.add(params, 'camera', listcams).onChange(function(value){
+		    camfolder.add(params, 'camera', listcams).onChange(function (value) {
   				var i = listcams.indexOf(value);
-  				if (i>0){
+  				if (i>0) {
   					i--;
   		 			params.fov = data.cameras[i].FoV;
-  		 			settings["coc"].value = data.cameras[i].circleofconf;
+  		 			settings["CoC"].value = data.cameras[i].circleofconf;
   		 			settings["aspect"].value = data.cameras[i].aspect;
   		 			settings["framesize"].value = data.cameras[i].FoV;
   		 			privateMethods.settingsUpdater.call(that);
   		 		}
   			});
-	    	});
+	    });
 	};
 
-	privateMethods.LensSelect = function(){
+	privateMethods.LensSelect = function (lensfolder) {
 		var that = this;
 		var params = {
  			lens: "Please select lens",
  			lentype: "Please select type"
-    		};
-    		var settings = this.bokehPassConfiguration.shaderSettings;
-    		var dvc = Application.DistanceValuesConvertor.getInstance();
+		};
+		var settings = this.bokehPassConfiguration.shaderSettings;
+		var dvc = Application.DistanceValuesConvertor.getInstance();
 
 		$.getJSON("Resource/jsonfiles/Lensdata.json").then(function(data){
- 			var ind= [];	
  			var listlens = ["Please select lens"];	
  			var listtype = ["Please select type"];
 
@@ -281,8 +259,8 @@ Application.RealCamerasDemonstrator = (function () {
  				//select the type before storing the values, takes less memory
  			});
  			
- 			var ltype = that.lensfolder.add(params, 'lentype', listtype);
- 			var len = that.lensfolder.add(params, 'lens', listlens);
+ 			var ltype = lensfolder.add(params, 'lentype', listtype);
+ 			var len = lensfolder.add(params, 'lens', listlens);
  			//find lens after user changes the lens type
  			ltype.onChange(function(value){
  				listlens = ["Please select lens"];
@@ -295,13 +273,13 @@ Application.RealCamerasDemonstrator = (function () {
  			 		}
 				});
 
-				that.lensfolder.remove(len);
+				lensfolder.remove(len);
 				//lens folder is updated with the list of lens
-			    	len = that.lensfolder.add(params, 'lens', listlens).onChange(function(value){
+			    	len = lensfolder.add(params, 'lens', listlens).onChange(function(value){
   					var i = listlens.indexOf(value);
   					if (i>0){ //"select lens" dosent change focal length
   						i--; //cause the first value on list is the "select list" option
-  			 			settings["focalLength"].value = data[params.lentype][i].FocalLength;
+  			 			settings["focalLength"].value = data[params.lentype][i].FocalLength;  			 			
   			 			privateMethods.settingsUpdater.call(that);
 					}  			
   				});
@@ -322,9 +300,7 @@ Application.RealCamerasDemonstrator = (function () {
 		var settings = this.bokehPassConfiguration.shaderSettings;	
 		for (var param in settings) {
 			if (settings.hasOwnProperty(param)) {
-
 				this.bokehPassConfiguration.bokehPass.uniforms[param].value = settings[param].value;
-	
 		 	}
 		}
 	};
