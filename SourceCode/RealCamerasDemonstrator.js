@@ -241,7 +241,6 @@ Application.RealCamerasDemonstrator = (function () {
 	};
 
 	privateMethods.LensSelect = function (lensfolder) {
-		var that = this;
 		var params = {
  			lens: "Please select lens",
  			lentype: "Please select type"
@@ -249,38 +248,43 @@ Application.RealCamerasDemonstrator = (function () {
 		var settings = this.bokehPassConfiguration.shaderSettings;
 		var dvc = Application.DistanceValuesConvertor.getInstance();
 
-		$.getJSON("Resource/jsonfiles/Lensdata.json").then(function(data){
- 			var listlens = ["Please select lens"];	
+		var that = this;
+		$.getJSON("Resource/jsonfiles/Lensdata.json").then(function (data) {
+ 			
  			var listtype = ["Please select type"];
-
  			$.each(data, function(name, value){
  				listtype.push(name);
  				//select the type before storing the values, takes less memory
  			});
  			
  			var ltype = lensfolder.add(params, 'lentype', listtype);
+
+ 			var listlens = ["Please select lens"];	
  			var len = lensfolder.add(params, 'lens', listlens);
+
  			//find lens after user changes the lens type
- 			ltype.onChange(function(value){
- 				listlens = ["Please select lens"];
+ 			ltype.onChange(function (value) {
+ 				
  				//find the list of lens for the type
- 				$.each(data, function(name, value){
- 					if (name == params.lentype){
- 						$.each(value, function(index, innervalue){
- 							listlens.push(innervalue.nameof);
- 			 			});
+ 				listlens = ["Please select lens"];
+ 				$.each(data, function(name, value) {
+ 					if (name == params.lentype) {
+						$.each(value, function(index, innervalue){
+							listlens.push(innervalue.nameof);
+			 			});
  			 		}
 				});
 
 				lensfolder.remove(len);
-				//lens folder is updated with the list of lens
-			    	len = lensfolder.add(params, 'lens', listlens).onChange(function(value){
-  					var i = listlens.indexOf(value);
-  					if (i>0){ //"select lens" dosent change focal length
-  						i--; //cause the first value on list is the "select list" option
-  			 			settings["focalLength"].value = data[params.lentype][i].FocalLength;  			 			
 
-  			 			privateMethods.settingsUpdater.call(that);
+				//lens folder is updated with the list of lens
+		    	len = lensfolder.add(params, 'lens', listlens).onChange(function (value) {
+					var i = listlens.indexOf(value);
+					if (i>0) { //"select lens" dosent change focal length
+						i--; //cause the first value on list is the "select list" option
+			 			settings["focalLength"].value = data[params.lentype][i].FocalLength;  			 			
+
+			 			privateMethods.settingsUpdater.call(that);
 					}  			
   				});
 			});
