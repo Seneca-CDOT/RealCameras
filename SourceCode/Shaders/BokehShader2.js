@@ -47,7 +47,7 @@ THREE.BokehShader2 = {
 		"shaderFocus":  { type: "i", value: 1 },
 		"focusCoords":  { type: "v2", value: new THREE.Vector2() },
 
-		"framesize": {type: "f", value: 35.00},
+		"frameSize": {type: "f", value: 35.00},
 		"aspect": {type: "f", value: 1.33}
 
 	},

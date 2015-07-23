@@ -3,11 +3,11 @@ var Application = Application || {};
 
 Application.ShaderPassConfigurator = (function () {
 
-	var privateStore = {};
+	var store = {};
 	function ShaderPassConfigurator () {
 		var dvc = Application.DistanceValuesConvertor.getInstance();
-		privateStore.near = dvc(0.01, "m");
-		privateStore.far = dvc(100.0, "m");
+		store.near = dvc(0.01, "m");
+		store.far = dvc(100.0, "m");
 	};
 	
 	ShaderPassConfigurator.prototype.configuration = function (passId) {
@@ -33,9 +33,7 @@ Application.ShaderPassConfigurator = (function () {
 	privateMethods.bokehPassConfigurationMain = function () {
 		var dvc = Application.DistanceValuesConvertor.getInstance();
 
-		var beforeNear = privateStore.near + dvc(1.0, "m");
 		var offset = dvc(0.1, "m");
-
 		var shaderSettings = {
 			textureWidth: {
 				value: 0.0
@@ -43,10 +41,13 @@ Application.ShaderPassConfigurator = (function () {
 			textureHeight: {
 				value: 0.0
 			},
+			aspect: {
+				value: 1.33
+			},
 // mark - 			
 			focalDepth: {
-				value: 0.5 * (privateStore.near + privateStore.far),
-				range: {begin: privateStore.near + offset, end: privateStore.far - offset, step: dvc(0.001, "m")} 
+				value: 0.5 * (store.near + store.far),
+				range: {begin: store.near + offset, end: store.far - offset, step: dvc(0.001, "m")} 
 			},
 			aperture: {
 				value: 1.5,
@@ -54,6 +55,9 @@ Application.ShaderPassConfigurator = (function () {
 			},
 			focalLength: {
 				value: 35.0
+			},
+			frameSize:{
+				value: 35.00
 			},
 			CoC: {
 				value: 0.03
@@ -100,17 +104,12 @@ Application.ShaderPassConfigurator = (function () {
 			},
 // mark -
 			znear: {
-				value: privateStore.near 
+				value: store.near 
 			},
 			zfar: {
-				value: privateStore.far
+				value: store.far
 			},
-			aspect: {
-				value: 1.33
-			},
-			framesize:{
-				value: 35.00
-			},
+			
 // mark - 			
 			noise: {
 				value: false
@@ -135,8 +134,8 @@ Application.ShaderPassConfigurator = (function () {
 				camera.near = this.shaderSettings.znear.value;
 				camera.far = this.shaderSettings.zfar.value;
 
-				camera.focalLength = dvc(this.shaderSettings.focalLength.value, "mm");
-				camera.frameSize = dvc(this.shaderSettings.framesize.value, "mm");
+				camera.focalLength = this.shaderSettings.focalLength.value;
+				camera.frameSize = this.shaderSettings.frameSize.value;
 				camera.setLens(camera.focalLength, camera.frameSize);
 				camera.updateProjectionMatrix();
 			},
@@ -145,30 +144,29 @@ Application.ShaderPassConfigurator = (function () {
 				this.shaderSettings.textureWidth.value = width;
 				this.shaderSettings.textureHeight.value = height;
 			}
-			
 		};	
 	};
 	privateMethods.bokehPassConfiguration_1 = function () {
 		var dvc = Application.DistanceValuesConvertor.getInstance();
 
-		var beforeNear = privateStore.near + dvc(1.0, "m");
+		var beforeNear = store.near + dvc(1.0, "m");
 		var shaderSettings = {
 			znear: {
-				value: privateStore.near 
+				value: store.near 
 			},
 			zfar: {
-				value: privateStore.far
+				value: store.far
 			},
 			aspect: {
 				value: 1.33
 			},
-			framesize:{
+			frameSize:{
 				value: 35.00
 
 			},
 			focalDepth: {
 				value: dvc(5.0, "feet")
-			//	range: {begin: beforeNear, end: privateStore.far, step: dvc(0.001, "m")}
+			//	range: {begin: beforeNear, end: store.far, step: dvc(0.001, "m")}
 			},
 			focalLength: {
 				value: dvc(100.0, "mm")
@@ -207,13 +205,10 @@ Application.ShaderPassConfigurator = (function () {
 			},
 			updateToConfiguration: function (width, height) {
 				this.depthMapTarget.setSize(width, height);
-
 			}
-			
 		};
 	};
 	privateMethods.bokehPassConfiguration_2 = function () {
-
 
 		var canvasWidth = window.innerWidth;
 		var aspect = 1.33;
@@ -259,7 +254,7 @@ Application.ShaderPassConfigurator = (function () {
 			aspect: {
 				value: 1.33
 			},
-			framesize:{
+			frameSize:{
 				value: 27.00
 			}
 
@@ -291,11 +286,11 @@ Application.ShaderPassConfigurator = (function () {
 			depthMaterial: depthMaterial,
 			depthMapTarget: depthMapTarget,
 			updateFromConfiguration: function (camera) {
-			 	// camera.near = this.shaderSettings.znear.value;
-				// camera.far = this.shaderSettings.zfar.value;
+			 	camera.near = this.shaderSettings.znear.value;
+				camera.far = this.shaderSettings.zfar.value;
 
 				camera.focalLength = this.shaderSettings.focalLength.value;
-				camera.frameSize = dvc(this.shaderSettings.framesize.value, "mm");
+				camera.frameSize = this.shaderSettings.frameSize.value;
 				camera.setLens(camera.focalLength, camera.frameSize);
 				
 				camera.updateProjectionMatrix();

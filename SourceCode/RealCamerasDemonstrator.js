@@ -180,7 +180,6 @@ Application.RealCamerasDemonstrator = (function () {
 		var camfolder = this.gui.addFolder("Camera");
 		privateMethods.CameraSelect.call(this, camfolder);
 		camfolder.open();
-	 	
 
 		//lens
 		var lensfolder = this.gui.addFolder("Lens");
@@ -203,7 +202,6 @@ Application.RealCamerasDemonstrator = (function () {
 		.onChange(privateMethods.settingsUpdater.bind(this));
 
 		userfolder.open();
-		this.userfolder = userfolder;
 	};
 
 	privateMethods.CameraSelect = function (camfolder) {
@@ -217,13 +215,12 @@ Application.RealCamerasDemonstrator = (function () {
  			var listcams = ["please select camera"];
  			$.each(data, function (name, value) {
  				$.each(value, function (index, innervalue) {
- 					listcams.push(innervalue.namecam);
+ 					listcams.push(innervalue.nameCam);
  			 	});
 			});
 
 			var params = {
 				camera: "Please select camera",
-				fov: 27.00
 			};
 
 			//folder with names
@@ -231,10 +228,12 @@ Application.RealCamerasDemonstrator = (function () {
   				var i = listcams.indexOf(value);
   				if (i>0) {
   					i--;
-  		 			params.fov = data.cameras[i].FoV;
-  		 			settings["CoC"].value = data.cameras[i].circleofconf;
-  		 			settings["aspect"].value = data.cameras[i].aspect;
-  		 			settings["framesize"].value = data.cameras[i].FoV;
+  					settings["frameSize"].value = data.cameras[i].frameSize;
+  		 			settings["CoC"].value = data.cameras[i].CoC;
+
+// TODO: 
+  		 			// settings["aspect"].value = data.cameras[i].aspect;
+
   		 			privateMethods.settingsUpdater.call(that);
   		 		}
   			});
@@ -280,6 +279,7 @@ Application.RealCamerasDemonstrator = (function () {
   					if (i>0){ //"select lens" dosent change focal length
   						i--; //cause the first value on list is the "select list" option
   			 			settings["focalLength"].value = data[params.lentype][i].FocalLength;  			 			
+
   			 			privateMethods.settingsUpdater.call(that);
 					}  			
   				});
@@ -290,12 +290,6 @@ Application.RealCamerasDemonstrator = (function () {
 	privateMethods.settingsUpdater = function () {
 		this.bokehPassConfiguration.updateFromConfiguration(this.camera);
 		this.bokehPassConfiguration.updateToConfiguration(this.canvasWidth, this.canvasHeight);
-
-	//	 this.bokehPassConfiguration.updateCamera(this.camera);
-
-		 //add other things other than this.renderer, like container 
-	//	 this.bokehPassConfiguration.updateRender(this.renderer, this.container);
-
 	
 		var settings = this.bokehPassConfiguration.shaderSettings;	
 		for (var param in settings) {

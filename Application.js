@@ -4,8 +4,9 @@ var Application = (function () {
 
     var store = {};
     store.started = false;
-
     store.gui = null;
+    store.demonstrator = null;
+    
     store.bokehPassValues = ["-","Bokeh Style Main", "Bokeh Style 1", "Depth Shader 1"];
     store.bokehPassIds = ["-","bokeh_main", "bokeh_1", "depth_1"];
     store.settings = {
@@ -34,6 +35,7 @@ var Application = (function () {
         // "SourceCode/Three/shaders/DOFMipMapShader.js",
 
 // mark -
+
         "SourceCode/Shaders/DoFShader.js",
         "SourceCode/Shaders/BokehShader.js",
         "SourceCode/Shaders/BokehShader2.js",
@@ -53,12 +55,10 @@ var Application = (function () {
 
         "SourceCode/AssetsLoader.js",
         "SourceCode/SceneLoader.js"
-
     ];
     
     var privateMethods = {};
     privateMethods.setUpGui = function () {
-
         store.gui = new dat.GUI();   
 
         var select = store.gui.add(store.settings, 'bokehPassValue', store.bokehPassValues);
@@ -77,26 +77,24 @@ var Application = (function () {
         }
     };
     privateMethods.main = function() {
-
-        if (store.started) {
+        if (store.started)
             return;
-        }
-        store.isStarted = true;
+        store.started = true;
 
         var that = this;
         require(store.files, function() {
-
-
             store.demonstrator = new Application.RealCamerasDemonstrator();
 
             var sl = Application.SceneLoader.getInstance();
             sl.load().then(function (meshesContainer) {
                 console.log("Completion from Application");
-                store.demonstrator.setUpScene(meshesContainer);
 
+                store.demonstrator.setUpScene(meshesContainer);
+                var passId = store.bokehPassIds[1];
+                store.demonstrator.setUpBokehPass(passId);
             });
 
-            privateMethods.setUpGui.call(that);
+            // privateMethods.setUpGui.call(that);
         });        
     };
     return {
