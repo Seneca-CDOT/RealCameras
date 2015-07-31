@@ -3,10 +3,10 @@ var Application = Application || {};
 
 Application.CameraControls = (function () {
 
-	function CameraControls (camera) {
+	function CameraControls (renderer, camera) {
 
 		var position = camera.position.clone();
-		this.controls = new THREE.PointerLockControls(camera);
+		this.controls = new THREE.PointerLockControls(renderer, camera);
 
 		var positionObject = new THREE.Object3D();
 		positionObject.add(this.controls.getObject());
