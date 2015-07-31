@@ -1,18 +1,9 @@
 
 var Application = (function () {
 
-
     var store = {};
     store.started = false;
-    store.gui = null;
     store.demonstrator = null;
-    
-    store.bokehPassValues = ["-","Bokeh Style Main", "Bokeh Style 1", "Depth Shader 1"];
-    store.bokehPassIds = ["-","bokeh_main", "bokeh_1", "depth_1"];
-    store.settings = {
-        bokehPassValue: store.bokehPassValues[0],
-        bokehPassId: store.bokehPassIds[0],
-    };
 
     store.files = [
         "SourceCode/Controls/PointerLockControls.js",
@@ -58,14 +49,6 @@ var Application = (function () {
     ];
     
     var privateMethods = {};
-    privateMethods.setUpGui = function () {
-        store.gui = new dat.GUI();   
-
-        var select = store.gui.add(store.settings, 'bokehPassValue', store.bokehPassValues);
-        select.name("Bokeh Styles");
-        select.onChange(privateMethods.onBokehPassSelected.bind(this));
-        store.gui.open();
-    };  
     privateMethods.onBokehPassSelected = function () {
         var value = store.settings.bokehPassValue;
 
@@ -76,6 +59,7 @@ var Application = (function () {
             store.demonstrator.setUpBokehPass(passId);
         }
     };
+
     privateMethods.main = function() {
         if (store.started)
             return;
@@ -90,11 +74,9 @@ var Application = (function () {
                 console.log("Completion from Application");
 
                 store.demonstrator.setUpScene(meshesContainer);
-                var passId = store.bokehPassIds[1];
+                var passId = "bokeh_main";
                 store.demonstrator.setUpBokehPass(passId);
             });
-
-            // privateMethods.setUpGui.call(that);
         });        
     };
     return {

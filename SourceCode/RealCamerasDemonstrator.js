@@ -171,6 +171,13 @@ Application.RealCamerasDemonstrator = (function () {
 		this.bokehPassConfiguration.bokehPass = bokehPass;
 	};
 
+
+
+
+
+
+
+
 	privateMethods.setUpGui = function () {
 		var dvc = Application.DistanceValuesConvertor.getInstance();
 
@@ -203,7 +210,6 @@ Application.RealCamerasDemonstrator = (function () {
 
 		userfolder.open();
 	};
-
 	privateMethods.CameraSelect = function (camfolder) {
 		var settings = this.bokehPassConfiguration.shaderSettings;
 		var dvc = Application.DistanceValuesConvertor.getInstance();
@@ -239,7 +245,6 @@ Application.RealCamerasDemonstrator = (function () {
   			});
 	    });
 	};
-
 	privateMethods.LensSelect = function (lensfolder) {
 		var params = {
  			lens: "Please select lens",
@@ -290,7 +295,6 @@ Application.RealCamerasDemonstrator = (function () {
 			});
 		});
 	};
-
 	privateMethods.settingsUpdater = function () {
 		this.bokehPassConfiguration.updateFromConfiguration(this.camera);
 		this.bokehPassConfiguration.updateToConfiguration(this.canvasWidth, this.canvasHeight);
@@ -302,6 +306,11 @@ Application.RealCamerasDemonstrator = (function () {
 		 	}
 		}
 	};
+
+
+
+
+
 
 
 	privateMethods.destroyGraphics = function () {
@@ -362,19 +371,6 @@ Application.RealCamerasDemonstrator = (function () {
 			this.renderer.render(this.scene, this.camera);
 		}
 	};
-	privateMethods.transitionIn = function (callback) {
-		TweenLite.to(this.container, 1.5, {
-			opacity: 1.0,
-			// delay: 3.0,
-			onComplete: onComplete
-		});
-		function onComplete() {
-			if (callback !== undefined) {
-				callback();
-			}
-		};
-	};
-
 
 // mark -
 

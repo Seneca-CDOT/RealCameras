@@ -76,16 +76,14 @@ THREE.BokehShader2 = {
 
 		"const float PI = 3.14159265;",
 
-		"float width = textureWidth;",
-		"float height = textureHeight;",
-
-		"vec2 texel = vec2(1.0/width,1.0/height);",
-
-
-		"uniform float focalDepth;  //focal distance value in meters, but you may use autofocus option below",
-		"uniform float focalLength; //focal length in mm",
-		"uniform float aperture; //f-stop value",
-		"uniform bool showFocus; //show debug focus point and focal range (red = focal point, green = focal range)",
+		//focal distance value in meters, but you may use autofocus option below
+		"uniform float focalDepth;",
+		//focal length in mm
+		"uniform float focalLength;",
+		//f-stop value
+		"uniform float aperture;",
+		//show debug focus point and focal range (red = focal point, green = focal range)
+		"uniform bool showFocus;",
 
 
 		/*
@@ -119,7 +117,7 @@ THREE.BokehShader2 = {
 		"float fdofdist = 3.0;",
 
 		// circle of confusion size in mm (35mm film = 0.03mm)
-		"uniform float CoC;",
+		"float CoC = 0.03;",
 
 		// use optical lens vignetting
 		"uniform bool vignetting;",
@@ -133,10 +131,8 @@ THREE.BokehShader2 = {
 
 		"uniform bool shaderFocus;",
 
-		"bool autofocus = shaderFocus;",
 		// use autofocus in shader - use with focusCoords
 		// disable if you use external focalDepth value
-
 		"uniform vec2 focusCoords;",
 		// autofocus point on screen (0.0,0.0 - left lower corner, 1.0,1.0 - upper right)
 		// if center of screen use vec2(0.5, 0.5)
@@ -159,8 +155,6 @@ THREE.BokehShader2 = {
 		"uniform bool noise;",
 
 		"uniform float dithering;",
-		//dither amount
-		"float namount = dithering;",
 
 		// blur the depth buffer
 		"uniform bool depthblur;",
@@ -220,6 +214,7 @@ THREE.BokehShader2 = {
 			"float d = 0.0;",
 			"float kernel[9];",
 			"vec2 offset[9];",
+			"vec2 texel = vec2(1.0/textureWidth, 1.0/textureHeight);",
 
 			"vec2 wh = vec2(texel.x, texel.y) * dbsize;",
 
@@ -251,8 +246,8 @@ THREE.BokehShader2 = {
 
 		"vec3 color(vec2 coords,float blur) {",
 			//processing the sample
-
 			"vec3 col = vec3(0.0);",
+			"vec2 texel = vec2(1.0/textureWidth, 1.0/textureHeight);",
 
 			"col.r = texture2D(tColor,coords + vec2(0.0,1.0)*texel*fringe*blur).r;",
 			"col.g = texture2D(tColor,coords + vec2(-0.866,-0.5)*texel*fringe*blur).g;",
@@ -266,6 +261,9 @@ THREE.BokehShader2 = {
 
 		"vec2 rand(vec2 coord) {",
 			// generating noise / pattern texture for dithering
+
+			"float width = textureWidth;",
+			"float height = textureHeight;",
 
 			"float noiseX = ((fract(1.0-coord.s*(width/2.0))*0.25)+(fract(coord.t*(height/2.0))*0.75))*2.0-1.0;",
 			"float noiseY = ((fract(1.0-coord.s*(width/2.0))*0.75)+(fract(coord.t*(height/2.0))*0.25))*2.0-1.0;",
@@ -358,7 +356,7 @@ THREE.BokehShader2 = {
 			// "float fDepth = focalDepth;",
 			// "float fDepth = linearize(1.0 - smoothstep(znear, zfar, focalDepth));",
 			"float fDepth = rSmoothstep(1.0 - smoothstep(znear, zfar, focalDepth));",
-			// "if (autofocus) {",
+			// "if (shaderFocus) {",
 			// 	"fDepth = linearize(texture2D(tDepth,focusCoords).x);",
 			// "}",
 
@@ -407,11 +405,13 @@ THREE.BokehShader2 = {
 			"blur = clamp(blur,0.0,1.0);",
 
 			// calculation of pattern for dithering"
-			"vec2 noise = rand(vUv.xy) * namount * blur;",
+			"vec2 noise = rand(vUv.xy) * dithering * blur;",
+
+			"vec2 texel = vec2(1.0/textureWidth, 1.0/textureHeight);",
 
 			// getting blur x and y step factor"
-			"float w = (1.0/width) * blur * maxblur + noise.x;",
-			"float h = (1.0/height) * blur * maxblur + noise.y;",
+			"float w = texel.x * blur * maxblur + noise.x;",
+			"float h = texel.y * blur * maxblur + noise.y;",
 
 			// calculation of final color"
 			"vec3 col = vec3(0.0);",
