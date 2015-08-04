@@ -28,10 +28,7 @@ var Application = (function () {
 
 // mark -
 
-        // "SourceCode/Shaders/DoFShader.js",
-        // "SourceCode/Shaders/BokehShader.js",
         "SourceCode/Shaders/BokehShader2.js",
-         // "SourceCode/Shaders/shadertest.js",
 
         "SourceCode/Helpers/Debuger.js",
         

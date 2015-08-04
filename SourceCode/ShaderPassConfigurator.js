@@ -17,14 +17,6 @@ Application.ShaderPassConfigurator = (function () {
 				configuration = privateMethods.bokehPassConfigurationMain.call(this);
 				break;
 			} 
-			case "bokeh_1": {
-				configuration = privateMethods.bokehPassConfiguration_1.call(this);
-				break;
-			} 
-			case "depth_1": {
-				configuration = privateMethods.bokehPassConfiguration_2.call(this);
-				break;
-			}	
 		}
 		return configuration
 	};
@@ -46,8 +38,8 @@ Application.ShaderPassConfigurator = (function () {
 			},
 // mark - 			
 			focalDepth: {
-				value: 0.5 * (store.near + store.far),
-				range: {begin: store.near + offset, end: store.far - offset, step: dvc(0.001, "m")} 
+				value: 0.25 * (store.near + store.far),
+				range: {begin: store.near + offset, end: 0.5 * (store.near + store.far) - offset, step: dvc(0.001, "m")} 
 			},
 			aperture: {
 				value: 1.5,
@@ -56,8 +48,8 @@ Application.ShaderPassConfigurator = (function () {
 			focalLength: {
 				value: 35.0
 			},
-			frameSize:{
-				value: 35.00
+			frameSize: {
+				value: 29.7
 			},
 			CoC: {
 				value: 0.03
@@ -77,11 +69,9 @@ Application.ShaderPassConfigurator = (function () {
 // mark -
 			showFocus: {
 				value: false,
-				show: false
 			},
 			vignetting: {
 				value: true,
-				show: true
 			},
 			manualdof: {
 				value: false
@@ -131,12 +121,18 @@ Application.ShaderPassConfigurator = (function () {
 			depthMaterial: depthMaterial,
 			depthMapTarget: depthMapTarget,
 			updateFromConfiguration: function (camera) {
+				camera.aspect = this.shaderSettings.aspect.value;
 				camera.near = this.shaderSettings.znear.value;
 				camera.far = this.shaderSettings.zfar.value;
 
 				camera.focalLength = this.shaderSettings.focalLength.value;
 				camera.frameSize = this.shaderSettings.frameSize.value;
 				camera.setLens(camera.focalLength, camera.frameSize);
+
+				// for the small focal length values the fov gets calculated
+				// to wide angles (> 90 degrees), which causes the 'fish eye' effect
+				// console.log(camera.fov);
+
 				camera.updateProjectionMatrix();
 			},
 			updateToConfiguration: function (width, height) {
@@ -145,163 +141,6 @@ Application.ShaderPassConfigurator = (function () {
 				this.shaderSettings.textureHeight.value = height;
 			}
 		};	
-	};
-	privateMethods.bokehPassConfiguration_1 = function () {
-		var dvc = Application.DistanceValuesConvertor.getInstance();
-
-		var beforeNear = store.near + dvc(1.0, "m");
-		var shaderSettings = {
-			znear: {
-				value: store.near 
-			},
-			zfar: {
-				value: store.far
-			},
-			aspect: {
-				value: 1.33
-			},
-			frameSize:{
-				value: 35.00
-
-			},
-			focalDepth: {
-				value: dvc(5.0, "feet")
-			//	range: {begin: beforeNear, end: store.far, step: dvc(0.001, "m")}
-			},
-			focalLength: {
-				value: dvc(100.0, "mm")
-			},
-			aperture: {
-				value: 12
-			//	range: {begin: 5, end: 22, step: 1} 	
-			},
-			coc: {
-				value: .001
-			},
-			maxblur: {
-				value: 0.01,
-				range: {begin: 0.0, end: 0.5, step: 0.001}
-			}
-		};
-		var depthMaterial = new THREE.MeshDepthMaterial();
-
-		var params = { 
-			minFilter: THREE.LinearFilter, 
-			magFilter: THREE.LinearFilter, 
-			format: THREE.RGBFormat 
-		};
-		var depthMapTarget = new THREE.WebGLRenderTarget(0.0, 0.0, params);
-
-		return {
-			shader: THREE.BokehShader,
-			textureId: "tColor",
-			shaderSettings: shaderSettings,
-			depthMaterial: depthMaterial,
-			depthMapTarget: depthMapTarget,
-			updateFromConfiguration: function (camera) {
-
-			//	camera.aspect = this.shaderSettings.aspect.value;
-				camera.updateProjectionMatrix();
-			},
-			updateToConfiguration: function (width, height) {
-				this.depthMapTarget.setSize(width, height);
-			}
-		};
-	};
-	privateMethods.bokehPassConfiguration_2 = function () {
-
-		var canvasWidth = window.innerWidth;
-		var aspect = 1.33;
-		var canvasHeight = canvasWidth / aspect;
-		var near = 0.01;
-		var far = 1000.0;
-		var dvc = Application.DistanceValuesConvertor.getInstance();
-		
-		var shaderSettings = {
-			size: {
-				value: new THREE.Vector2(10.0, 10.0) 
-			},
-			textel: {
-				value: new THREE.Vector2(0.1, 0.1) 
-			},
-			znear: {
-				value: near 
-			},
-			zfar: {
-				value: far
-			},
-			noise: {
-				value: true
-			},
-			namount: {
-				value: 0.0001
-			},
-			focalDepth: {
-				value: dvc(5.0, "feet")
-			//	range: {begin: 1.00, end: 200.0, step: 5.00}
-			},
-			focalLength: {
-				value: dvc(35.0, "mm")
-			//	range: {begin: 35.0, end: 200.0, step: 20.0}
-			},
-			aperture: {
-				value: 1.0
-			//	range: {begin: 1.0, end: 12.0, step: 1.0}
-			},
-			coc: {
-				value: dvc(0.03, "mm")
-			},
-			aspect: {
-				value: 1.33
-			},
-			frameSize:{
-				value: 27.00
-			}
-
-		};
-		
-		// var shader = THREE.ShaderLib["depthRGBA"];
-		// var uniforms = THREE.UniformsUtils.clone(shader.uniforms);
-		// var depthMaterial = new THREE.ShaderMaterial({ 
-
-		// 	fragmentShader: shader.fragmentShader,
-		// 	vertexShader: shader.vertexShader,
-		// 	uniforms: uniforms
-		// });
-		var depthMaterial = new THREE.MeshDepthMaterial();
-		//depthMaterial.blending = THREE.NoBlending;
-
-		var params = {
-			minFilter: THREE.NearestFilter,
-			magFilter: THREE.NearestFilter,
-			format: THREE.RGBAFormat
-		};
-		var depthMapTarget = new THREE.WebGLRenderTarget(0.0, 0.0, params);
-
-		return {
-			shader: THREE.TestShader,
-			textureId: "tColor",
-
-			shaderSettings: shaderSettings,
-			depthMaterial: depthMaterial,
-			depthMapTarget: depthMapTarget,
-			updateFromConfiguration: function (camera) {
-			 	camera.near = this.shaderSettings.znear.value;
-				camera.far = this.shaderSettings.zfar.value;
-
-				camera.focalLength = this.shaderSettings.focalLength.value;
-				camera.frameSize = this.shaderSettings.frameSize.value;
-				camera.setLens(camera.focalLength, camera.frameSize);
-				
-				camera.updateProjectionMatrix();
-			},
-			updateToConfiguration: function (width, height) {
-				this.depthMapTarget.setSize(width, height);
-				this.shaderSettings.size.value = new THREE.Vector2(width, height);
-				this.shaderSettings.textel.value = new THREE.Vector2(1.0 / width, 1.0 / height);
-			}
-			
-		};
 	};
 		
 	var instance = null;

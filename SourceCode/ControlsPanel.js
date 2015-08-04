@@ -43,13 +43,13 @@ Application.ControlsPanel = (function () {
 		//user values
 		var userfolder = this.gui.addFolder("User Inputs");
 
-		var focalDepthRange = settings["focalDepth"].range;
-		userfolder.add(settings["focalDepth"], "value", focalDepthRange.begin, focalDepthRange.end, focalDepthRange.step)
+		var focalDepthRange = settings.focalDepth.range;
+		userfolder.add(settings.focalDepth, "value", focalDepthRange.begin, focalDepthRange.end, focalDepthRange.step)
 		.name("Distance to subject")
 		.onChange(onSettingsChanged);
 			
-		var apertureRange = settings["aperture"].range;	
-		userfolder.add(settings["aperture"], "value", apertureRange.begin, apertureRange.end, apertureRange.step)
+		var apertureRange = settings.aperture.range;	
+		userfolder.add(settings.aperture, "value", apertureRange.begin, apertureRange.end, apertureRange.step)
 		.name("f-stop")
 		.onChange(onSettingsChanged);
 
@@ -80,11 +80,9 @@ Application.ControlsPanel = (function () {
   				var i = listcams.indexOf(value);
   				if (i>0) {
   					i--;
-  					settings["frameSize"].value = data.cameras[i].frameSize;
-  		 			settings["CoC"].value = data.cameras[i].CoC;
-
-// TODO: 
-  		 			// settings["aspect"].value = data.cameras[i].aspect;
+  					settings.frameSize.value = data.cameras[i].frameSize;
+  		 			settings.CoC.value = data.cameras[i].CoC;
+  		 			settings.aspect.value = data.cameras[i].aspect;
 
   		 			onSettingsChanged();
   		 		}
@@ -133,7 +131,7 @@ Application.ControlsPanel = (function () {
 					var i = listlens.indexOf(value);
 					if (i>0) { //"select lens" dosent change focal length
 						i--; //cause the first value on list is the "select list" option
-			 			settings["focalLength"].value = data[params.lentype][i].FocalLength;  			 			
+			 			settings.focalLength.value = data[params.lentype][i].FocalLength;  			 			
 
 			 			onSettingsChanged();
 					}  			

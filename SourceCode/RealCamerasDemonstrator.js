@@ -4,8 +4,8 @@ var Application = Application || {};
 Application.RealCamerasDemonstrator = (function () {
 
 	function RealCamerasDemonstrator (location) {
-		this.canvasWidth = 1.0;
-		this.canvasHeight = 1.0;
+		this.containerWidth = 1.0;
+		this.containerHeight = 1.0;
 
 		this.container = null;
         this.renderer = null;
@@ -64,10 +64,16 @@ Application.RealCamerasDemonstrator = (function () {
 		if (!this.bokehPassConfiguration)
 			return;
 
-		this.bokehPassConfiguration.updateFromConfiguration(this.camera);
-		this.bokehPassConfiguration.updateToConfiguration(this.canvasWidth, this.canvasHeight);
-	
 		var settings = this.bokehPassConfiguration.shaderSettings;
+
+		var canvasWidth = this.containerWidth;
+		// var canvasHeight = this.containerHeight;
+		var canvasHeight = this.containerWidth / settings.aspect.value;
+		this.renderer.setSize(canvasWidth, canvasHeight);
+
+		this.bokehPassConfiguration.updateFromConfiguration(this.camera);
+		this.bokehPassConfiguration.updateToConfiguration(canvasWidth, canvasHeight);
+
 		var bokehPass = this.bokehPassConfiguration.bokehPass;
 		for (var param in settings) {
 			if (settings.hasOwnProperty(param)) {
@@ -95,11 +101,11 @@ Application.RealCamerasDemonstrator = (function () {
 		container.style.width = location.width + "px";
 		container.style.height = location.height + "px";
 
-		this.canvasWidth = location.width;
-		this.canvasHeight = location.height;
+		this.containerWidth = location.width;
+		this.containerHeight = location.height;
 
 		this.renderer = new THREE.WebGLRenderer();
-		this.renderer.setSize(this.canvasWidth, this.canvasHeight);
+		this.renderer.setSize(this.containerWidth, this.containerHeight);
 
 		this.renderer.domElement.style.position = "absolute";
 		this.renderer.domElement.style.left = 0.0 + "px";
@@ -118,10 +124,13 @@ Application.RealCamerasDemonstrator = (function () {
 		var emptyFov = 0.;
 		var emptyNear = dvc(0.1, "m");
 		var emptyFar = dvc(0.1, "m");
-		this.camera = new THREE.PerspectiveCamera(emptyFov, this.canvasWidth / this.canvasHeight, emptyNear, emptyFar);
+		var emptyAspect = 1;
+		this.camera = new THREE.PerspectiveCamera(emptyFov, emptyAspect, emptyNear, emptyFar);
 
-		this.camera.focalLength = 35; // in "mm"
-		this.camera.frameSize = 43; // in "mm"
+		var emptyFocalLength = 1.; // in "mm"
+		var emptyFrameSize = 1; // in "mm"
+		this.camera.focalLength = emptyFocalLength; // in "mm"
+		this.camera.frameSize = emptyFrameSize; // in "mm"
 		this.camera.setLens(this.camera.focalLength, this.camera.frameSize);
 
 		var aboveTheGround = dvc(1.5, "m");
@@ -174,7 +183,7 @@ Application.RealCamerasDemonstrator = (function () {
 		// bokeh pass
 		var bokehPass = new THREE.ShaderPass(shader, textureId);
 
-		bokehPass.uniforms["tDepth"].value = this.bokehPassConfiguration.depthMapTarget;
+		bokehPass.uniforms.tDepth.value = this.bokehPassConfiguration.depthMapTarget;
 		bokehPass.renderToScreen = true;
 		
 		this.postprocessing.composer.addPass(bokehPass);
