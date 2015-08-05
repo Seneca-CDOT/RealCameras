@@ -4,6 +4,7 @@ var Application = (function () {
     var store = {};
     store.started = false;
     store.demonstrator = null;
+    store.controlPanel = null;
 
     store.files = [
         "SourceCode/Controls/PointerLockControls.js",
@@ -27,10 +28,10 @@ var Application = (function () {
 
 // mark -
 
-        "SourceCode/Shaders/DoFShader.js",
-        "SourceCode/Shaders/BokehShader.js",
+        // "SourceCode/Shaders/DoFShader.js",
+        // "SourceCode/Shaders/BokehShader.js",
         "SourceCode/Shaders/BokehShader2.js",
-         "SourceCode/Shaders/shadertest.js",
+         // "SourceCode/Shaders/shadertest.js",
 
         "SourceCode/Helpers/Debuger.js",
         
@@ -43,23 +44,13 @@ var Application = (function () {
         "SourceCode/DistanceValuesConvertor.js",
         "SourceCode/RealCamerasDemonstrator.js",
         "SourceCode/ShaderPassConfigurator.js",
+        "SourceCode/ControlsPanel.js",
 
         "SourceCode/AssetsLoader.js",
         "SourceCode/SceneLoader.js"
     ];
     
     var privateMethods = {};
-    privateMethods.onBokehPassSelected = function () {
-        var value = store.settings.bokehPassValue;
-
-        var idIndex = store.bokehPassValues.indexOf(value);
-        store.settings.bokehPassId = store.bokehPassIds[idIndex];
-        if (idIndex > 0) {
-            var passId = store.settings.bokehPassId;
-            store.demonstrator.setUpBokehPass(passId);
-        }
-    };
-
     privateMethods.main = function() {
         if (store.started)
             return;
@@ -67,15 +58,42 @@ var Application = (function () {
 
         var that = this;
         require(store.files, function() {
-            store.demonstrator = new Application.RealCamerasDemonstrator();
+            var root = document.getElementById("root");
+
+            var dLocation = {
+                left: 0.0,
+                top: 0.0,
+                width: window.innerWidth * 0.8,
+                height: window.innerHeight
+            };
+            store.demonstrator = new Application.RealCamerasDemonstrator(dLocation);
+            root.appendChild(store.demonstrator.container);
+
+            var cpLocation = {
+                left: window.innerWidth * 0.8,
+                top: 0.0,
+                width: window.innerWidth * 0.2,
+                height: window.innerHeight 
+            };
+            store.controlPanel = new Application.ControlsPanel(cpLocation);
+            root.appendChild(store.controlPanel.container);
 
             var sl = Application.SceneLoader.getInstance();
             sl.load().then(function (meshesContainer) {
-                console.log("Completion from Application");
-
                 store.demonstrator.setUpScene(meshesContainer);
-                var passId = "bokeh_main";
-                store.demonstrator.setUpBokehPass(passId);
+                
+                var spc = Application.ShaderPassConfigurator.getInstance();
+                var configuration = spc.configuration("bokeh_main");
+
+// TODO: create a deep copy of 'configuration' inside demonstrator
+                store.demonstrator.setUpBokehPassConfiguration(configuration);
+
+// TODO: create a deep copy of 'settings' inside controls panel
+                var settings = store.demonstrator.bokehPassConfiguration.shaderSettings;
+                var onSettingsChanged = function () {
+                    store.demonstrator.onSettingsChanged();
+                };
+                store.controlPanel.setUpGui(settings, onSettingsChanged);
             });
         });        
     };

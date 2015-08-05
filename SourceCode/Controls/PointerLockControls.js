@@ -2,12 +2,12 @@
  * @author mrdoob / http://mrdoob.com/
  */
 
-THREE.PointerLockControls = function ( camera ) {
+THREE.PointerLockControls = function (renderer, camera) {
 
 	var scope = this;
 
-	camera.rotation.set( 0, 0, 0 );	
-	camera.position.set( 0, 0, 0 );
+	camera.rotation.set(0, 0, 0);	
+	camera.position.set(0, 0, 0);
 
 	var pitchObject = new THREE.Object3D();
 	pitchObject.add( camera );
@@ -17,9 +17,9 @@ THREE.PointerLockControls = function ( camera ) {
 
 	var PI_2 = Math.PI / 2;
 
-	var onMouseMove = function ( event ) {
+	var onMouseMove = function (event) {
 
-		if ( scope.enabled === false ) return;
+		if (scope.enabled === false) return;
 
 		var movementX = event.movementX || event.mozMovementX || event.webkitMovementX || 0;
 		var movementY = event.movementY || event.mozMovementY || event.webkitMovementY || 0;
@@ -27,22 +27,21 @@ THREE.PointerLockControls = function ( camera ) {
 		yawObject.rotation.y -= movementX * 0.002;
 		pitchObject.rotation.x -= movementY * 0.002;
 
-		pitchObject.rotation.x = Math.max( - PI_2, Math.min( PI_2, pitchObject.rotation.x ) );
+		pitchObject.rotation.x = Math.max(-PI_2, Math.min(PI_2, pitchObject.rotation.x));
 
 	};
 
+	var domElement = renderer.domElement;
 	var onMouseUp = function () {
 
-		document.removeEventListener('mousemove', onMouseMove, false);
+		domElement.removeEventListener('mousemove', onMouseMove, false);
 	};
-
 	var onMouseDown = function () {
 		
-		document.addEventListener('mousemove', onMouseMove, false);
+		domElement.addEventListener('mousemove', onMouseMove, false);
 	};
-
-	document.addEventListener('mouseup', onMouseUp, false);
-	document.addEventListener('mousedown', onMouseDown, false);
+	domElement.addEventListener('mouseup', onMouseUp, false);
+	domElement.addEventListener('mousedown', onMouseDown, false);
 
 
 	this.enabled = false;
@@ -52,7 +51,6 @@ THREE.PointerLockControls = function ( camera ) {
 		return yawObject;
 
 	};
-
 	this.getDirection = function() {
 
 		// assumes the camera itself is not rotated
