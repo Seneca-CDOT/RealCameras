@@ -24,6 +24,7 @@ Application.ControlsPanel = (function () {
          this.container = null;
 	};
 
+//TODO: Move some logic out
 	ControlsPanel.prototype.setUpGui = function (settings, onSettingsChanged) {
         privateMethods.destroyGui.call(this);
 
@@ -33,23 +34,43 @@ Application.ControlsPanel = (function () {
 		this.gui= document.createElement('div');
 		this.gui.setAttribute("id", "ui");
 
+		var title = document.createElement("p");
+		title.innerHTML = "Real Cameras Control Panel";
+		this.gui.appendChild(title);
+
 		//add divs to gui that will be where the widgets go
 		//camera
 		var cam = document.createElement('div');
 		cam.setAttribute("id","cam");
 		this.gui.appendChild(cam);
 
+		var camTitle = document.createElement("p");
+		camTitle.innerHTML = "Camera Selection";
+		cam.appendChild(camTitle);
+
 		//lens
 		var len = document.createElement('div');
 		len.setAttribute("id","len");
 		this.gui.appendChild(len);
 
+		var lenTitle = document.createElement("p");
+		lenTitle.innerHTML = "Lens Selection";
+		len.appendChild(lenTitle);
+
 		//focal depth
+		var focTitle = document.createElement("p");
+		focTitle.innerHTML = "Please select distance to subject (Focal Depth)";
+		this.gui.appendChild(focTitle);
+		
 		var fd = document.createElement('div');
 		fd.setAttribute("id", "fd");
 		this.gui.appendChild(fd);
 
 		//aperture
+		var aptTitle = document.createElement("p");
+		aptTitle.innerHTML = "Please select aperture";
+		this.gui.appendChild(aptTitle);
+	
 		var ap = document.createElement('div');
 		ap.setAttribute("id","ap");
 		this.gui.appendChild(ap);
@@ -69,13 +90,16 @@ Application.ControlsPanel = (function () {
 		var focalDepthRange = settings["focalDepth"].range;
 		$(function(){
 			$("#fd").slider({
-				min: focalDepthRange.begin, 
-				max: focalDepthRange.end,
-				value: 1,
+				min: 0.0, 
+				max: 55.0,
+				value: 1.0,
 				slide: function(event, ui){
 					settings["focalDepth"].value = ui.value;
 					onSettingsChanged();
 				}
+			}).slider("pips", {
+				step: 5,
+				rest: "label"
 			});
 		});
 
@@ -90,6 +114,9 @@ Application.ControlsPanel = (function () {
 					settings["aperture"].value = apvalues[ui.value];
 					onSettingsChanged();
 				}
+			}).slider("pips", {
+				rest: "label",
+				labels: apvalues
 			});
 		});
 
