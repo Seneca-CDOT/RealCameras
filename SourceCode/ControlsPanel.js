@@ -1,4 +1,5 @@
 
+
 var Application = Application || {};
 
 Application.ControlsPanel = (function () {
@@ -14,6 +15,8 @@ Application.ControlsPanel = (function () {
 		container.style.top = location.top + "px";
 		container.style.width = location.width + "px";
 		container.style.height = location.height + "px";
+		container.style.background = '#D3D3D3';
+	//	container.style.overflow = 'auto';
 	};
 
 	ControlsPanel.prototype.destroy = function () {
@@ -22,125 +25,181 @@ Application.ControlsPanel = (function () {
 // TODO:        
         // this.container = null;
 	};
+
 	ControlsPanel.prototype.setUpGui = function (settings, onSettingsChanged) {
         privateMethods.destroyGui.call(this);
 
 		var dvc = Application.DistanceValuesConvertor.getInstance();
 
 // TODO: append UI to 'this.container'
-		this.gui = new dat.GUI();
+		//create the gui div
+		this.gui= document.createElement('div');
+		this.gui.setAttribute("id", "ui");
 
+		//add divs to gui that will be where the widgets go
 		//camera
-		var camfolder = this.gui.addFolder("Camera");
-		privateMethods.CameraSelect.call(this, camfolder, settings, onSettingsChanged);
-		camfolder.open();
+		var cam = document.createElement('div');
+		cam.setAttribute("id","cam");
+		this.gui.appendChild(cam);
 
 		//lens
-		var lensfolder = this.gui.addFolder("Lens");
-		privateMethods.LensSelect.call(this, lensfolder, settings, onSettingsChanged);
-		lensfolder.open();
+		var len = document.createElement('div');
+		len.setAttribute("id","len");
+		this.gui.appendChild(len);
 
-		//user values
-		var userfolder = this.gui.addFolder("User Inputs");
+		//focal depth
+		var fd = document.createElement('div');
+		fd.setAttribute("id", "fd");
+		this.gui.appendChild(fd);
 
+		//aperture
+		var ap = document.createElement('div');
+		ap.setAttribute("id","ap");
+		this.gui.appendChild(ap);
+
+		//append the gui div to the this.containter
+		$(this.container).append(this.gui);
+		
+		//create each widget 
 		var focalDepthRange = settings["focalDepth"].range;
-		userfolder.add(settings["focalDepth"], "value", focalDepthRange.begin, focalDepthRange.end, focalDepthRange.step)
-		.name("Distance to subject")
-		.onChange(onSettingsChanged);
-			
-		var apertureRange = settings["aperture"].range;	
-		userfolder.add(settings["aperture"], "value", apertureRange.begin, apertureRange.end, apertureRange.step)
-		.name("f-stop")
-		.onChange(onSettingsChanged);
 
-		userfolder.open();
+		$(function(){
+			$("#fd").slider({
+				min: focalDepthRange.begin, 
+				max: focalDepthRange.end,
+				value: 15,
+				slide: function(event, ui){
+					settings["focalDepth"].value = ui.value;
+					onSettingsChanged();
+				}
+			});
+		});
+		$(function(){
+			$("#ap").slider({
+				min: focalDepthRange.begin, 
+				max: focalDepthRange.end,
+				value: 15,
+				slide: function(event, ui){
+					settings["focalDepth"].value = ui.value;
+					onSettingsChanged();
+				}
+			});
+		});
+
+		//camera
+		// var camfolder = this.gui.addFolder("Camera");
+		// privateMethods.CameraSelect.call(this, camfolder, settings, onSettingsChanged);
+		// camfolder.open();
+
+		// //lens
+		// var lensfolder = this.gui.addFolder("Lens");
+		// privateMethods.LensSelect.call(this, lensfolder, settings, onSettingsChanged);
+		// lensfolder.open();
+
+		// //user values
+		// var userfolder = this.gui.addFolder("User Inputs");
+
+		// var focalDepthRange = settings["focalDepth"].range;
+
+		// userfolder.add(settings["focalDepth"], "value", focalDepthRange.begin, focalDepthRange.end, focalDepthRange.step)
+		// .name("Distance to subject")
+		// .onChange(onSettingsChanged);
+			
+		// var apertureRange = settings["aperture"].range;	
+		// userfolder.add(settings["aperture"], "value", apertureRange.begin, apertureRange.end, apertureRange.step)
+		// .name("f-stop")
+		// .onChange(onSettingsChanged);
+
+		// userfolder.open();
 	};
 
 	var privateMethods = Object.create(ControlsPanel.prototype);
-	privateMethods.CameraSelect = function (camfolder, settings, onSettingsChanged) {
-		var dvc = Application.DistanceValuesConvertor.getInstance();
+
+// 	privateMethods.CameraSelect = function (camfolder, settings, onSettingsChanged) {
+// 		var dvc = Application.DistanceValuesConvertor.getInstance();
     	
-    	var that = this;
-		$.getJSON("Resource/jsonfiles/CameraData.json").then(function (data) {
+//     	var that = this;
+// 		$.getJSON("Resource/jsonfiles/CameraData.json").then(function (data) {
  			
- 			//store camera names
- 			var listcams = ["please select camera"];
- 			$.each(data, function (name, value) {
- 				$.each(value, function (index, innervalue) {
- 					listcams.push(innervalue.nameCam);
- 			 	});
-			});
+//  			//store camera names
+//  			var listcams = ["please select camera"];
+//  			$.each(data, function (name, value) {
+//  				$.each(value, function (index, innervalue) {
+//  					listcams.push(innervalue.nameCam);
+//  			 	});
+// 			});
 
-			var params = {
-				camera: "Please select camera",
-			};
+// 			var params = {
+// 				camera: "Please select camera",
+// 			};
 
-			//folder with names
-		    camfolder.add(params, 'camera', listcams).onChange(function (value) {
-  				var i = listcams.indexOf(value);
-  				if (i>0) {
-  					i--;
-  					settings["frameSize"].value = data.cameras[i].frameSize;
-  		 			settings["CoC"].value = data.cameras[i].CoC;
+// 			//folder with names
+// 		    camfolder.add(params, 'camera', listcams).onChange(function (value) {
+//   				var i = listcams.indexOf(value);
+//   				if (i>0) {
+//   					i--;
+//   					settings["frameSize"].value = data.cameras[i].frameSize;
+//   		 			settings["CoC"].value = data.cameras[i].CoC;
 
-// TODO: 
-  		 			// settings["aspect"].value = data.cameras[i].aspect;
+// // TODO: 
+//   		 			// settings["aspect"].value = data.cameras[i].aspect;
 
-  		 			onSettingsChanged();
-  		 		}
-  			});
-	    });
-	};
-	privateMethods.LensSelect = function (lensfolder, settings, onSettingsChanged) {
-		var dvc = Application.DistanceValuesConvertor.getInstance();
+//   		 			onSettingsChanged();
+//   		 		}
+//   			});
+// 	    });
+// 	};
 
-		var params = {
- 			lens: "Please select lens",
- 			lentype: "Please select type"
-		};
+// 	privateMethods.LensSelect = function (lensfolder, settings, onSettingsChanged) {
+// 		var dvc = Application.DistanceValuesConvertor.getInstance();
 
-		var that = this;
-		$.getJSON("Resource/jsonfiles/Lensdata.json").then(function (data) {
+// 		var params = {
+//  			lens: "Please select lens",
+//  			lentype: "Please select type"
+// 		};
+
+// 		var that = this;
+// 		$.getJSON("Resource/jsonfiles/Lensdata.json").then(function (data) {
  			
- 			var listtype = ["Please select type"];
- 			$.each(data, function(name, value){
- 				listtype.push(name);
- 				//select the type before storing the values, takes less memory
- 			});
+//  			var listtype = ["Please select type"];
+//  			$.each(data, function(name, value){
+//  				listtype.push(name);
+//  				//select the type before storing the values, takes less memory
+//  			});
  			
- 			var ltype = lensfolder.add(params, 'lentype', listtype);
+//  			var ltype = lensfolder.add(params, 'lentype', listtype);
 
- 			var listlens = ["Please select lens"];	
- 			var len = lensfolder.add(params, 'lens', listlens);
+//  			var listlens = ["Please select lens"];	
+//  			var len = lensfolder.add(params, 'lens', listlens);
 
- 			//find lens after user changes the lens type
- 			ltype.onChange(function (value) {
+//  			//find lens after user changes the lens type
+//  			ltype.onChange(function (value) {
  				
- 				//find the list of lens for the type
- 				listlens = ["Please select lens"];
- 				$.each(data, function(name, value) {
- 					if (name == params.lentype) {
-						$.each(value, function(index, innervalue){
-							listlens.push(innervalue.nameof);
-			 			});
- 			 		}
-				});
+//  				//find the list of lens for the type
+//  				listlens = ["Please select lens"];
+//  				$.each(data, function(name, value) {
+//  					if (name == params.lentype) {
+// 						$.each(value, function(index, innervalue){
+// 							listlens.push(innervalue.nameof);
+// 			 			});
+//  			 		}
+// 				});
 
-				lensfolder.remove(len);
+// 				lensfolder.remove(len);
 
-				//lens folder is updated with the list of lens
-		    	len = lensfolder.add(params, 'lens', listlens).onChange(function (value) {
-					var i = listlens.indexOf(value);
-					if (i>0) { //"select lens" dosent change focal length
-						i--; //cause the first value on list is the "select list" option
-			 			settings["focalLength"].value = data[params.lentype][i].FocalLength;  			 			
+// 				//lens folder is updated with the list of lens
+// 		    	len = lensfolder.add(params, 'lens', listlens).onChange(function (value) {
+// 					var i = listlens.indexOf(value);
+// 					if (i>0) { //"select lens" dosent change focal length
+// 						i--; //cause the first value on list is the "select list" option
+// 			 			settings["focalLength"].value = data[params.lentype][i].FocalLength;  			 			
 
-			 			onSettingsChanged();
-					}  			
-  				});
-			});
-		});
-	};
+// 			 			onSettingsChanged();
+// 					}  			
+//   				});
+// 			});
+// 		});
+// 	};
 
 	privateMethods.destroyGui = function () {
     	if (this.gui) {
