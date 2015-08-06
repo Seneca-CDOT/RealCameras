@@ -60,16 +60,16 @@ var Application = (function () {
             var dLocation = {
                 left: 0.0,
                 top: 0.0,
-                width: window.innerWidth * 0.9,
+                width: window.innerWidth * 0.8,
                 height: window.innerHeight
             };
             store.demonstrator = new Application.RealCamerasDemonstrator(dLocation);
             root.appendChild(store.demonstrator.container);
 
             var cpLocation = {
-                left: window.innerWidth * 0.9,
+                left: window.innerWidth * 0.8,
                 top: 0.0,
-                width: window.innerWidth * 0.1,
+                width: window.innerWidth * 0.2,
                 height: window.innerHeight 
             };
             store.controlPanel = new Application.ControlsPanel(cpLocation);
