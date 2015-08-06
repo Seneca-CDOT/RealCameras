@@ -27,6 +27,9 @@ Application.ShaderPassConfigurator = (function () {
 
 		var offset = dvc(0.1, "m");
 		var shaderSettings = {
+			tDepth: {
+				value: null
+			},
 			textureWidth: {
 				value: 0.0
 			},
@@ -37,6 +40,7 @@ Application.ShaderPassConfigurator = (function () {
 				value: 1.33
 			},
 // mark - 			
+
 			focalDepth: {
 				value: 0.25 * (store.near + store.far),
 				range: {begin: store.near + offset, end: 0.5 * (store.near + store.far) - offset, step: dvc(0.001, "m")} 
@@ -111,15 +115,13 @@ Application.ShaderPassConfigurator = (function () {
 			minFilter: THREE.LinearFilter, 
 			magFilter: THREE.LinearFilter, 
 			format: THREE.RGBFormat 
-		};
-		var depthMapTarget = new THREE.WebGLRenderTarget(0.0, 0.0, params);
+		};		
 
 		return {
 			shader: THREE.BokehShader2,
 			textureId: "tColor",
 			shaderSettings: shaderSettings,
 			depthMaterial: depthMaterial,
-			depthMapTarget: depthMapTarget,
 			updateFromConfiguration: function (camera) {
 				camera.aspect = this.shaderSettings.aspect.value;
 				camera.near = this.shaderSettings.znear.value;
@@ -136,9 +138,16 @@ Application.ShaderPassConfigurator = (function () {
 				camera.updateProjectionMatrix();
 			},
 			updateToConfiguration: function (width, height) {
-				this.depthMapTarget.setSize(width, height);
-				this.shaderSettings.textureWidth.value = width;
-				this.shaderSettings.textureHeight.value = height;
+				var curDepthMapTarget = this.shaderSettings.tDepth.value;
+				var curWidth = curDepthMapTarget ? curDepthMapTarget.width : 0.0;
+				var curHeight = curDepthMapTarget ? curDepthMapTarget.height : 0.0;
+				if (Math.abs(curWidth - width) > 0.01 || Math.abs(curHeight - height)) {
+					var depthMapTarget = new THREE.WebGLRenderTarget(width, height, params);
+					this.shaderSettings.tDepth.value = depthMapTarget;
+
+					this.shaderSettings.textureWidth.value = width;
+					this.shaderSettings.textureHeight.value = height;
+				}				
 			}
 		};	
 	};
