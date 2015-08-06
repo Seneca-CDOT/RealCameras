@@ -46,7 +46,7 @@ Application.ShaderPassConfigurator = (function () {
 				range: {begin: store.near + offset, end: 0.5 * (store.near + store.far) - offset, step: dvc(0.001, "m")} 
 			},
 			aperture: {
-				value: 1.5,
+				value: 1.4,
 				range: {begin: 0.2, end: 20.0, step: 0.2}
 			},
 			focalLength: {
