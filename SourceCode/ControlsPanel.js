@@ -15,7 +15,7 @@ Application.ControlsPanel = (function () {
 		container.style.top = location.top + "px";
 		container.style.width = location.width + "px";
 		container.style.height = location.height + "px";
-		container.style.background = '#D3D3D3';
+		container.style.background = '#d3d3d3';
 	//	container.style.overflow = 'auto';
 	};
 
