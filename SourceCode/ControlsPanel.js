@@ -87,14 +87,14 @@ Application.ControlsPanel = (function () {
 		privateMethods.LensSelect.call(this, len, settings, onSettingsChanged);
 
 		//focal depth
-		var focalDepthRange = settings["focalDepth"].range;
+		var focalDepthRange = settings.focalDepth.range;
 		$(function(){
 			$("#fd").slider({
 				min: 0.0, 
 				max: 55.0,
 				value: 1.0,
 				slide: function(event, ui){
-					settings["focalDepth"].value = ui.value;
+					settings.focalDepth.value = ui.value;
 					onSettingsChanged();
 				}
 			}).slider("pips", {
@@ -111,7 +111,7 @@ Application.ControlsPanel = (function () {
 				max: apvalues.length -1,
 				value: 0,
 				slide: function(event, ui){
-					settings["aperture"].value = apvalues[ui.value];
+					settings.aperture.value = apvalues[ui.value];
 					onSettingsChanged();
 				}
 			}).slider("pips", {
@@ -119,7 +119,6 @@ Application.ControlsPanel = (function () {
 				labels: apvalues
 			});
 		});
-
 	};
 
 	var privateMethods = Object.create(ControlsPanel.prototype);
@@ -156,10 +155,10 @@ Application.ControlsPanel = (function () {
 			$("#cameradiv").change(function(){
 				if($("#cameradiv").val()>0){
 					var i = $("#cameradiv").val() - 1;
-					settings["frameSize"].value = data.cameras[i].frameSize;
-	  		 		settings["CoC"].value = data.cameras[i].CoC;
-	// // TODO: 
-	  		 		// settings["aspect"].value = data.cameras[i].aspect;
+					settings.frameSize.value = data.cameras[i].frameSize;
+	  		 		settings.CoC.value = data.cameras[i].CoC;
+	//TODO:
+	  		 		settings.aspect.value = data.cameras[i].aspect;
 	  		 		onSettingsChanged();
 				}
 			});
@@ -179,7 +178,6 @@ Application.ControlsPanel = (function () {
  			$.each(data, function(name, value){
  				listtype.push(name);
  			});
-
  			//select for type
  			var selectListType = document.createElement("select");
  			selectListType.id = "lenstype";
@@ -221,9 +219,10 @@ Application.ControlsPanel = (function () {
 			$("#lens").change(function(){
 				if($("#lens").val()>0){
 					var i = $("#lens").val() - 1;
-					settings["focalLength"].value = data[temptype][i].FocalLength;  
+					settings.focalLength.value = data[temptype][i].FocalLength;  
 	  		 		onSettingsChanged();
 				}
+
 			});
 		});
  	};

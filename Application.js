@@ -28,10 +28,7 @@ var Application = (function () {
 
 // mark -
 
-        // "SourceCode/Shaders/DoFShader.js",
-        // "SourceCode/Shaders/BokehShader.js",
         "SourceCode/Shaders/BokehShader2.js",
-         // "SourceCode/Shaders/shadertest.js",
 
         "SourceCode/Helpers/Debuger.js",
         
@@ -63,16 +60,16 @@ var Application = (function () {
             var dLocation = {
                 left: 0.0,
                 top: 0.0,
-                width: window.innerWidth * 0.8,
+                width: window.innerWidth * 0.9,
                 height: window.innerHeight
             };
             store.demonstrator = new Application.RealCamerasDemonstrator(dLocation);
             root.appendChild(store.demonstrator.container);
 
             var cpLocation = {
-                left: window.innerWidth * 0.8,
+                left: window.innerWidth * 0.9,
                 top: 0.0,
-                width: window.innerWidth * 0.2,
+                width: window.innerWidth * 0.1,
                 height: window.innerHeight 
             };
             store.controlPanel = new Application.ControlsPanel(cpLocation);

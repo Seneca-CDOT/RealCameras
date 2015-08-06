@@ -4,8 +4,8 @@ var Application = Application || {};
 Application.RealCamerasDemonstrator = (function () {
 
 	function RealCamerasDemonstrator (location) {
-		this.canvasWidth = 1.0;
-		this.canvasHeight = 1.0;
+		this.containerWidth = 1.0;
+		this.containerHeight = 1.0;
 
 		this.container = null;
         this.renderer = null;
@@ -64,10 +64,27 @@ Application.RealCamerasDemonstrator = (function () {
 		if (!this.bokehPassConfiguration)
 			return;
 
-		this.bokehPassConfiguration.updateFromConfiguration(this.camera);
-		this.bokehPassConfiguration.updateToConfiguration(this.canvasWidth, this.canvasHeight);
-	
 		var settings = this.bokehPassConfiguration.shaderSettings;
+
+		var canvasWidth = this.containerWidth;
+		var canvasHeight = this.containerWidth / settings.aspect.value;
+		if (this.containerHeight < canvasHeight) {
+			canvasHeight = this.containerHeight;
+			canvasWidth = this.containerHeight * settings.aspect.value;
+		}
+		var canvasTopOffset = 0.5 * (this.containerHeight - canvasHeight);
+		var canvasLeftOffset = 0.5 * (this.containerWidth - canvasWidth);
+
+		var canvas = this.renderer.domElement;
+		canvas.style.top = canvasTopOffset + "px";
+		canvas.style.left = canvasLeftOffset + "px";
+		this.renderer.setSize(canvasWidth, canvasHeight);
+
+		this.postprocessing.composer.setSize(canvasWidth, canvasHeight);
+
+		this.bokehPassConfiguration.updateFromConfiguration(this.camera);
+		this.bokehPassConfiguration.updateToConfiguration(canvasWidth, canvasHeight);
+
 		var bokehPass = this.bokehPassConfiguration.bokehPass;
 		for (var param in settings) {
 			if (settings.hasOwnProperty(param)) {
@@ -75,6 +92,8 @@ Application.RealCamerasDemonstrator = (function () {
 		 	}
 		}
 	};
+
+// mark - 	
 
 	var privateMethods = Object.create(RealCamerasDemonstrator.prototype);
 	privateMethods.initGraphics = function (location) {
@@ -95,11 +114,16 @@ Application.RealCamerasDemonstrator = (function () {
 		container.style.width = location.width + "px";
 		container.style.height = location.height + "px";
 
-		this.canvasWidth = location.width;
-		this.canvasHeight = location.height;
+		this.containerWidth = location.width;
+		this.containerHeight = location.height;
 
 		this.renderer = new THREE.WebGLRenderer();
-		this.renderer.setSize(this.canvasWidth, this.canvasHeight);
+
+		var canvas = this.renderer.domElement;
+		canvas.style.position = "absolute";
+		canvas.style.top = 0.0 + "px";
+		canvas.style.left = 0.0 + "px";
+		this.renderer.setSize(this.containerWidth, this.containerHeight);
 
 		this.renderer.domElement.style.position = "absolute";
 		this.renderer.domElement.style.left = 0.0 + "px";
@@ -118,10 +142,13 @@ Application.RealCamerasDemonstrator = (function () {
 		var emptyFov = 0.;
 		var emptyNear = dvc(0.1, "m");
 		var emptyFar = dvc(0.1, "m");
-		this.camera = new THREE.PerspectiveCamera(emptyFov, this.canvasWidth / this.canvasHeight, emptyNear, emptyFar);
+		var emptyAspect = 1;
+		this.camera = new THREE.PerspectiveCamera(emptyFov, emptyAspect, emptyNear, emptyFar);
 
-		this.camera.focalLength = 35; // in "mm"
-		this.camera.frameSize = 43; // in "mm"
+		var emptyFocalLength = 1.; // in "mm"
+		var emptyFrameSize = 1; // in "mm"
+		this.camera.focalLength = emptyFocalLength; // in "mm"
+		this.camera.frameSize = emptyFrameSize; // in "mm"
 		this.camera.setLens(this.camera.focalLength, this.camera.frameSize);
 
 		var aboveTheGround = dvc(1.5, "m");
@@ -173,8 +200,6 @@ Application.RealCamerasDemonstrator = (function () {
 
 		// bokeh pass
 		var bokehPass = new THREE.ShaderPass(shader, textureId);
-
-		bokehPass.uniforms["tDepth"].value = this.bokehPassConfiguration.depthMapTarget;
 		bokehPass.renderToScreen = true;
 		
 		this.postprocessing.composer.addPass(bokehPass);
@@ -195,7 +220,7 @@ Application.RealCamerasDemonstrator = (function () {
    	privateMethods.destroyBokehPass = function () {
 		if (this.postprocessing.composer.passes.length > 1) {
 			this.postprocessing.composer.popPass();
-			this.postprocessing.composer.reset();	
+			this.postprocessing.composer.reset();
 		}
 		this.bokehPassConfiguration = null;;
    	};
@@ -221,7 +246,9 @@ Application.RealCamerasDemonstrator = (function () {
 
 			// depth into texture rendering
 			this.scene.overrideMaterial = this.bokehPassConfiguration.depthMaterial;
-			this.renderer.render(this.scene, this.camera, this.bokehPassConfiguration.depthMapTarget);
+			var settings = this.bokehPassConfiguration.shaderSettings;
+			var depthMapTarget = settings.tDepth.value;
+			this.renderer.render(this.scene, this.camera, depthMapTarget);
 			this.scene.overrideMaterial = null;
 
 			// on screen rendering
