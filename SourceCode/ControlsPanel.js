@@ -7,7 +7,8 @@ Application.ControlsPanel = (function () {
 	var ControlsPanel = function (location) {
 		this.gui = null;
 
-		var container = document.createElement("div");	
+		var container = document.createElement("div");
+		container.classList.add("container")
 		this.container = container;
 
 		container.style.position = "absolute";
@@ -15,7 +16,7 @@ Application.ControlsPanel = (function () {
 		container.style.top = location.top + "px";
 		container.style.width = location.width + "px";
 		container.style.height = location.height + "px";
-		container.style.background = '#d3d3d3';
+		container.style.background = '#D7DBE1';
 	//	container.style.overflow = 'auto';
 	};
 
@@ -34,7 +35,7 @@ Application.ControlsPanel = (function () {
 		this.gui= document.createElement('div');
 		this.gui.setAttribute("id", "ui");
 
-		var title = document.createElement("p");
+		var title = document.createElement("h1");
 		title.innerHTML = "Real Cameras Control Panel";
 		this.gui.appendChild(title);
 
@@ -44,7 +45,7 @@ Application.ControlsPanel = (function () {
 		cam.setAttribute("id","cam");
 		this.gui.appendChild(cam);
 
-		var camTitle = document.createElement("p");
+		var camTitle = document.createElement("h4");
 		camTitle.innerHTML = "Camera Selection";
 		cam.appendChild(camTitle);
 
@@ -53,13 +54,13 @@ Application.ControlsPanel = (function () {
 		len.setAttribute("id","len");
 		this.gui.appendChild(len);
 
-		var lenTitle = document.createElement("p");
+		var lenTitle = document.createElement("h4");
 		lenTitle.innerHTML = "Lens Selection";
 		len.appendChild(lenTitle);
 
 		//focal depth
-		var focTitle = document.createElement("p");
-		focTitle.innerHTML = "Please select distance to subject (Focal Depth)";
+		var focTitle = document.createElement("h4");
+		focTitle.innerHTML = "Focal Depth(Distance to subject)";
 		this.gui.appendChild(focTitle);
 		
 		var fd = document.createElement('div');
@@ -67,8 +68,8 @@ Application.ControlsPanel = (function () {
 		this.gui.appendChild(fd);
 
 		//aperture
-		var aptTitle = document.createElement("p");
-		aptTitle.innerHTML = "Please select aperture";
+		var aptTitle = document.createElement("h4");
+		aptTitle.innerHTML = "Aperture";
 		this.gui.appendChild(aptTitle);
 	
 		var ap = document.createElement('div');
@@ -138,6 +139,7 @@ Application.ControlsPanel = (function () {
 			//create select list and append to div 
  			var selectListCam = document.createElement("select");
  			selectListCam.id = "cameradiv";
+ 			selectListCam.classList.add("form-control")
  			cameradiv.appendChild(selectListCam);
 			for (var i=0; i<listcams.length; i++){
 				var option = document.createElement("option");
@@ -185,6 +187,7 @@ Application.ControlsPanel = (function () {
  			//select for type
  			var selectListType = document.createElement("select");
  			selectListType.id = "lenstype";
+ 			selectListType.classList.add("form-control")
  			lendiv.appendChild(selectListType);
 
 			for (var i=0; i<listtype.length; i++){
@@ -202,6 +205,7 @@ Application.ControlsPanel = (function () {
  			//select for lens
  			var selectListLen = document.createElement("select");
  			selectListLen.id = "lens";
+ 			selectListLen.classList.add("form-control")
  			lendiv.appendChild(selectListLen);
  			$("#lenstype").change(function(){
 				if($("#lenstype").val()>0){
