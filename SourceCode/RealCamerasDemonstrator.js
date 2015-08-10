@@ -45,6 +45,19 @@ Application.RealCamerasDemonstrator = (function () {
 			this.scene.add(externals);
 
 			var box = new THREE.Box3().setFromObject(internals);
+
+			var min = box.min;
+			var max = box.max;
+			var delta = max.x - min.x;
+			delta = Math.min(delta, max.y - min.y);
+			delta = Math.min(delta, max.z - min.z);
+
+			var fraction = 0.1;
+			delta *= fraction;
+
+			var vector = new THREE.Vector3(-delta, -delta, -delta);
+			box.expandByVector(vector);
+
 			this.controls.setBox(box);
 			this.controls.setEnabled(true);
 			
@@ -114,6 +127,7 @@ Application.RealCamerasDemonstrator = (function () {
 		container.style.top = location.top + "px";
 		container.style.width = location.width + "px";
 		container.style.height = location.height + "px";
+		container.style.background = '#333333';
 
 		this.containerWidth = location.width;
 		this.containerHeight = location.height;
