@@ -143,6 +143,9 @@ Application.ControlsPanel = (function () {
 				var option = document.createElement("option");
 				option.value = i;
 				option.text = listcams[i];
+				if (option.text == "Arri D-21 / Alexa (4:3)"){
+					option.selected = true;
+				}
 				selectListCam.appendChild(option);
 			}
 			// $(function(){
@@ -163,6 +166,7 @@ Application.ControlsPanel = (function () {
 				}
 			});
 	    });
+
 	};
 
  	privateMethods.LensSelect = function (lendiv, settings, onSettingsChanged) {
@@ -187,6 +191,10 @@ Application.ControlsPanel = (function () {
 				var option = document.createElement("option");
 				option.value = i;
 				option.text = listtype[i];
+				//  if (option.text == "Arri/Zeiss Master Prime"){
+				//  	option.selected = true;
+				// 	$("#lenstype").val = option.value;
+				// }
 				selectListType.appendChild(option);
 			}
 //TODO: Move some of this logic out
@@ -195,7 +203,6 @@ Application.ControlsPanel = (function () {
  			var selectListLen = document.createElement("select");
  			selectListLen.id = "lens";
  			lendiv.appendChild(selectListLen);
-	
  			$("#lenstype").change(function(){
 				if($("#lenstype").val()>0){
 					 $.each(data, function(name, value) {
