@@ -42,6 +42,7 @@ var Application = (function () {
         "SourceCode/RealCamerasDemonstrator.js",
         "SourceCode/ShaderPassConfigurator.js",
         "SourceCode/ControlsPanel.js",
+        "SourceCode/CameraDescription.js",
 
         "SourceCode/AssetsLoader.js",
         "SourceCode/SceneLoader.js"
@@ -61,7 +62,7 @@ var Application = (function () {
                 left: 0.0,
                 top: 0.0,
                 width: window.innerWidth * 0.8,
-                height: window.innerHeight
+                height: window.innerHeight *0.8
             };
             store.demonstrator = new Application.RealCamerasDemonstrator(dLocation);
             root.appendChild(store.demonstrator.container);
@@ -74,6 +75,16 @@ var Application = (function () {
             };
             store.controlPanel = new Application.ControlsPanel(cpLocation);
             root.appendChild(store.controlPanel.container);
+
+            var desLocation = {
+                left: 0.0,
+                top: window.innerHeight * 0.8,
+                width: window.innerWidth * 0.8,
+                height:window.innerHeight * 0.2
+            };
+
+            store.camDescription = new Application.CameraDescription(desLocation);
+            root.appendChild(store.camDescription.container);
 
             var sl = Application.SceneLoader.getInstance();
             sl.load().then(function (meshesContainer) {
@@ -91,6 +102,7 @@ var Application = (function () {
                     store.demonstrator.onSettingsChanged();
                 };
                 store.controlPanel.setUpGui(settings, onSettingsChanged);
+                store.camDescription.createDescriptionBox();
             });
         });        
     };
