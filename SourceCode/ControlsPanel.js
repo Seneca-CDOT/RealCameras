@@ -248,7 +248,7 @@ Application.ControlsPanel = (function () {
  				e.preventDefault();
  			} 
  		});
- 	}
+ 	};
 
 	privateMethods.destroyGui = function () {
     	if (this.gui) {
