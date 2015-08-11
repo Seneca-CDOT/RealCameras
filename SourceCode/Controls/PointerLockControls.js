@@ -40,6 +40,7 @@ THREE.PointerLockControls = function (renderer, camera) {
 		
 		domElement.addEventListener('mousemove', onMouseMove, false);
 	};
+	domElement.addEventListener('mouseout', onMouseUp, false);
 	domElement.addEventListener('mouseup', onMouseUp, false);
 	domElement.addEventListener('mousedown', onMouseDown, false);
 
