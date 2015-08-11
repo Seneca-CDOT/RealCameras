@@ -1,0 +1,36 @@
+  h1 {
+    margin-bottom: 40px !important;
+    margin-top: 40px !important;
+  }
+  h4 {
+    margin-bottom:10px;
+  }
+  #cameradiv, #lens{
+    margin-bottom: 20px;
+  }
+
+  #fd{
+    margin-bottom: 40px;
+  }
+
+  .ui-slider-horizontal.ui-slider-pips { 
+    margin-bottom: 1.4em; }   
+
+  .ui-slider-pip.ui-slider-pip-selected,
+  .ui-slider-pip.ui-slider-pip-selected-initial {
+    color: #434d5a; }      
+
+  #ap .ui-slider-pip {
+    top: 5px; }
+
+  #ap .ui-slider-pip .ui-slider-line {
+    width: 4px;
+    height: 4px;
+    border-radius: 4px;
+    margin-left: -2px;
+    background: #fffaf7; }
+
+  #ap .ui-slider-label {
+    margin-top: 5px; }
+                    
+ 

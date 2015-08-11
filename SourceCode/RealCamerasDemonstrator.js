@@ -79,6 +79,7 @@ Application.RealCamerasDemonstrator = (function () {
 
 		var settings = this.bokehPassConfiguration.shaderSettings;
 
+		//for aspect ratio (black bars)
 		var canvasWidth = this.containerWidth;
 		var canvasHeight = this.containerWidth / settings.aspect.value;
 		if (this.containerHeight < canvasHeight) {
