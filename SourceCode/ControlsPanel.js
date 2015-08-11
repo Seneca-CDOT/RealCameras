@@ -1,5 +1,6 @@
 
 
+
 var Application = Application || {};
 
 Application.ControlsPanel = (function () {
@@ -156,7 +157,6 @@ Application.ControlsPanel = (function () {
 			// 		appendTo:cameradiv
 			// 	});
 			// });
-
 			$("#cameradiv").change(function(){
 				if($("#cameradiv").val()>0){
 					var i = $("#cameradiv").val() - 1;
@@ -167,6 +167,7 @@ Application.ControlsPanel = (function () {
 	  		 		onSettingsChanged();
 				}
 			});
+			privateMethods.preventkeys.call(this);
 	    });
 
 	};
@@ -235,7 +236,18 @@ Application.ControlsPanel = (function () {
 				}
 
 			});
+			privateMethods.preventkeys.call(this);
 		});
+ 	};
+
+ 	privateMethods.preventkeys = function(){
+ 		$('select').bind('keydown', function(e){
+ 		
+ 			if (e.keyCode === 38 || e.keyCode === 40 ){
+ 				//return false;
+ 				e.preventDefault();
+ 			} 
+ 		});
  	};
 
 	privateMethods.destroyGui = function () {
