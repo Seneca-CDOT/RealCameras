@@ -87,6 +87,7 @@ var Application = (function () {
             root.appendChild(store.camDescription.container);
 
             var sl = Application.SceneLoader.getInstance();
+            sl.setProgressControlContainer(store.demonstrator.container);
             sl.load().then(function (meshesContainer) {
                 store.demonstrator.setUpScene(meshesContainer);
                 
