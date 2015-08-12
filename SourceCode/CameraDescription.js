@@ -16,7 +16,6 @@ Application.CameraDescription = (function () {
 		container.style.width = location.width + "px";
 		container.style.height = location.height + "px";
 		container.style.background = '#D7DBE1';
-	//	container.style.overflow = 'auto';
 	};
 
 	CameraDescription.prototype.destroy = function () {
@@ -24,7 +23,6 @@ Application.CameraDescription = (function () {
         this.container = null;
 	};
 
-//TODO: Move some logic out
 	 CameraDescription.prototype.createDescriptionBox = function () {
      
      	privateMethods.destroyDesBox.call(this);
@@ -65,8 +63,7 @@ Application.CameraDescription = (function () {
 	var privateMethods = Object.create(CameraDescription.prototype);
 
 	privateMethods.destroyDesBox = function () {
-    	if (this.desbox) {
-// TODO: remove UI from 'this.container'    		
+    	if (this.desbox) {   		
 			this.desbox.domElement.parentNode.removeChild(this.desbox.domElement);
 			this.container.removeChild(this.desbox);
 			this.desbox = null;

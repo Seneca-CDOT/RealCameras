@@ -42,3 +42,35 @@
     right: 30px;
 
   }
+  #splash {
+    position:absolute;
+    top:0;
+    left:0;
+    bottom:0;
+    width:100%;
+    background-color:#2D2F31;
+  }
+  #splashscreen {
+    margin: auto;
+    margin-top: 90px;
+    width: 70%;
+  }
+  #splashscreen .splash-text {
+    color: #DCD8D6 ;
+  }
+  #splashscreen .splash-title {
+    color: #DCD8D6 ;
+    margin-bottom: 30px;
+  }
+  #splashscreen a {
+    text-decoration: none;
+    position:fixed;
+    left: 40%;
+    margin-top: 10px;
+  }
+  #splashscreen a:link, #splashscreen a:active, #splashscreen a:visited{
+    color: #349B89
+  }
+  #splashscreen a:hover{
+    color: #D58C70
+  }
