@@ -9,6 +9,10 @@ Application.SceneLoader = (function () {
 		store.progressControl = new Application.CircularProgressControl();
 	};
 
+	SceneLoader.prototype.setProgressControlContainer = function (progressControlContainer) {
+		store.progressControl.setContainer(progressControlContainer);
+	};
+
 	SceneLoader.prototype.load = function () {
 
 		return new Promise(function (resolve, reject) {
@@ -100,6 +104,16 @@ Application.SceneLoader = (function () {
 				var modelHeight = dvc(1.8, "m");
 
 				var locations = [];
+				locations.push({
+					rotation: {
+						y: 0.0 * Math.PI
+					},
+					position: {
+						x: dvc(1.5, "m"),
+						y: dvc(0.0, "m"),
+						z: -dvc(1, "m")
+					}
+				});
 				locations.push({
 					rotation: {
 						y: 0.0 * Math.PI

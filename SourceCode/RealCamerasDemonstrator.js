@@ -120,7 +120,7 @@ Application.RealCamerasDemonstrator = (function () {
 		var container = document.createElement("div");	
 		this.container = container;
 
-		container.style.opacity = "0.0";
+		// container.style.opacity = "0.0";
 
 		container.style.position = "absolute";
 		container.style.left = location.left + "px";
@@ -135,6 +135,7 @@ Application.RealCamerasDemonstrator = (function () {
 		this.renderer = new THREE.WebGLRenderer();
 
 		var canvas = this.renderer.domElement;
+		canvas.style.opacity = "0.0";
 		canvas.style.position = "absolute";
 		canvas.style.top = 0.0 + "px";
 		canvas.style.left = 0.0 + "px";
@@ -280,7 +281,8 @@ Application.RealCamerasDemonstrator = (function () {
 
 // TODO: move this logic out
 	privateMethods.transitionIn = function (callback) {
-		TweenLite.to(this.container, 1.5, {
+		var canvas = this.renderer.domElement;
+		TweenLite.to(canvas, 1.5, {
 			opacity: 1.0,
 			// delay: 3.0,
 			onComplete: onComplete
