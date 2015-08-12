@@ -40,18 +40,26 @@ Application.CameraDescription = (function () {
 	 	var stepone = document.createElement("p");
 	 	stepone.innerHTML = " Choose the camera and lens combination, set the focal depth and aperture.";
 	 	this.desbox.appendChild(stepone);
+	 	stepone.classList.add("instlist");
 
 	 	var steptwo = document.createElement("p");
 	 	steptwo.innerHTML = "To dolly the camera, use the arrow keys.";
 	 	this.desbox.appendChild(steptwo);
+	 	steptwo.classList.add("instlist");
 
 	 	var stepthree = document.createElement("p");
 	 	stepthree.innerHTML = "To tilt the camera, hold the left mouse button and and drag in the direction of the tilt.";
 	 	this.desbox.appendChild(stepthree);
+	 	stepthree.classList.add("instlist");
+
+	 	var scale = document.createElement("p");
+	 	scale.innerHTML = "1 Checker sq = 1 foot"
+	 	this.desbox.appendChild(scale);
+	 	scale.classList.add("scale");
 
  		//append the description div to the this.containter
   		$(this.container).append(this.desbox);
-	
+
 	 };	
 
 	var privateMethods = Object.create(CameraDescription.prototype);

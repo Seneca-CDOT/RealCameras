@@ -5,6 +5,7 @@ var Application = (function () {
     store.started = false;
     store.demonstrator = null;
     store.controlPanel = null;
+    store.camDescription = null;
 
     store.files = [
         "SourceCode/Controls/PointerLockControls.js",
