@@ -131,7 +131,7 @@ Application.ControlsPanel = (function () {
 		$.getJSON("Resource/jsonfiles/CameraData.json").then(function (data) {
  			
  			//store camera names
- 			var listcams = ["please select camera"];
+ 			var listcams = [];
  			$.each(data, function (name, value) {
  				$.each(value, function (index, innervalue) {
  					listcams.push(innervalue.nameCam);
@@ -177,8 +177,8 @@ Application.ControlsPanel = (function () {
 
 		$.getJSON("Resource/jsonfiles/Lensdata.json").then(function (data) {
  			
- 			var listtype = ["Please select type"];
- 			var listlens = ["Please select lens"];	
+ 			var listtype = ["Please Select Lens Type"];
+ 			var listlens = ["Please Select Lens"];	
  			var temptype= "";
 
  			//grab the list of types
@@ -213,7 +213,7 @@ Application.ControlsPanel = (function () {
 					 $.each(data, function(name, value) {
  			 			if (name == $("#lenstype")[0].options[$("#lenstype").val()].text) {
  			 				temptype=$("#lenstype")[0].options[$("#lenstype").val()].text;
- 			 				listlens = ["Please select lens"];
+ 			 				listlens = ["Please Select Lens"];
 							$.each(value, function(index, innervalue){
 				 				listlens.push(innervalue.nameof);
 			  				});
