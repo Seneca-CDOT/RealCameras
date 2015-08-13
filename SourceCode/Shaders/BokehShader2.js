@@ -314,6 +314,7 @@ THREE.BokehShader2 = {
 			"float yx = x * x * (3.0 - 2.0 * x);",
 			// abs(yx - y) > 0.001
 			"for (int i = 0; i < 3; i++) {",
+				"if (x <= 0.0) break;",
 				"x = x - (yx - y) / (6.0 * x - 6.0 * x * x);",
 				"yx = x * x * (3.0 - 2.0 * x);",
 			"}",
