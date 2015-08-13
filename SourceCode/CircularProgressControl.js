@@ -26,19 +26,31 @@ Application.CircularProgressControl = (function(){
 
 		this.canvas.width = this.size;
 		this.canvas.height = this.size;
-		this.canvas.style.position = "fixed";
-		// this.canvas.style.marginLeft = this.position + "px";
-		// this.canvas.style.marginTop = this.position + "px";
+		this.canvas.style.position = "absolute";
 		this.canvas.style.top = "50%";
 		this.canvas.style.left = "50%";
 		this.canvas.style.zIndex = "9999";
 		this.canvas.style.opacity = "0.0";
+
+		this.container = null;
+	};
+
+	CircularProgressControl.prototype.getElement = function (container) {
+		return this.canvas;
+	};
+
+	CircularProgressControl.prototype.setContainer = function (container) {
+		this.container = container;
 	};
 
 	CircularProgressControl.prototype.setProgress = function (progress) {
 		if (!this.isVisible) {
-			document.body.appendChild(this.canvas);
-			this.canvas.style.opacity = "1.0";
+			if (this.container) {
+				this.container.appendChild(this.getElement());
+			} else {
+				document.body.appendChild(this.getElement());
+			}
+			this.getElement().style.opacity = "1.0";
 			this.isVisible = true;
 		}
 
@@ -120,8 +132,12 @@ Application.CircularProgressControl = (function(){
 		this.timer = setTimeout(privateMethods.fakeProgress.bind(this), 10.0);
 	};	
 	privateMethods.transitionIn = function (callback) {
-		document.body.appendChild(this.canvas);
-		TweenLite.to(this.canvas, 1.0, {
+		if (this.container) {
+			this.container.appendChild(this.getElement());
+		} else {
+			document.body.appendChild(this.getElement());
+		}
+		TweenLite.to(this.getElement(), 1.0, {
 			opacity: 1.0,
 			onComplete: onComplete
 		});
@@ -135,7 +151,7 @@ Application.CircularProgressControl = (function(){
 		};
 	};
 	privateMethods.transitionOut = function (callback) {
-		TweenLite.to(this.canvas, 1.0, {
+		TweenLite.to(this.getElement(), 1.0, {
 			opacity: 0.0,
 			onComplete: onComplete
 		});
