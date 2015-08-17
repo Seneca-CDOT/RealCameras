@@ -94,7 +94,7 @@ Application.ControlsPanel = (function () {
 			$("#fd").slider({
 				min: 0.0, 
 				max: 55.0,
-				value: 1.0,
+				value: 10.0,
 				slide: function(event, ui){
 					settings.focalDepth.value = ui.value;
 					onSettingsChanged();
@@ -111,7 +111,7 @@ Application.ControlsPanel = (function () {
 			$("#ap").slider({
 				min: 0, 
 				max: apvalues.length -1,
-				value: 0,
+				value: 2,
 				slide: function(event, ui){
 					settings.aperture.value = apvalues[ui.value];
 					onSettingsChanged();
@@ -151,20 +151,14 @@ Application.ControlsPanel = (function () {
 				}
 				selectListCam.appendChild(option);
 			}
-			// $(function(){
-			// 	$("select#cameradiv").selectmenu({
-			// 		style: "dropdown",
-			// 		appendTo:cameradiv
-			// 	});
-			// });
+	
 			$("#cameradiv").change(function(){
-					var i = $("#cameradiv").val();
-					settings.frameSize.value = data.cameras[i].frameSize;
-	  		 		settings.CoC.value = data.cameras[i].CoC;
+				var i = $("#cameradiv").val();
+				settings.frameSize.value = data.cameras[i].frameSize;
+	  		 	settings.CoC.value = data.cameras[i].CoC;
 	//TODO:
-	  		 		settings.aspect.value = data.cameras[i].aspect;
-	  		 		console.log(settings.aspect.value);
-	  		 		onSettingsChanged();
+		 		settings.aspect.value = data.cameras[i].aspect;
+	  	 		onSettingsChanged();
 			});
 			privateMethods.preventkeys.call(this);
 	    });
@@ -175,15 +169,46 @@ Application.ControlsPanel = (function () {
 		var dvc = Application.DistanceValuesConvertor.getInstance();
 
 		$.getJSON("Resource/jsonfiles/Lensdata.json").then(function (data) {
- 			
- 			var listtype = ["Please Select Lens Type"];
- 			var listlens = ["Please Select Lens"];	
+			
+			//Function for lens list since using twice
+ 			function findLensList(lenscase){
+ 				$.each(data, function(name, value) {
+ 					if (name == $("#lenstype")[0].options[$("#lenstype").val()].text) {
+ 			 			temptype=$("#lenstype")[0].options[$("#lenstype").val()].text;
+ 			 			listlens = [];
+						$.each(value, function(index, innervalue){
+						 	listlens.push(innervalue.nameof);
+			  			});
+					}
+ 				});
+				$("#lens > option").remove();
+				for (var i=0; i<listlens.length; i++){
+					var option = document.createElement("option");
+					option.value = i;
+					option.text = listlens[i];
+					switch (lenscase){
+						case "inital" :{
+							if (option.text == "Ultra Prime 28mm"){
+								option.selected = true;
+								$("#lens").val = option.value;
+							}
+							break;	
+						}
+					}
+					selectListLen.appendChild(option);
+				}	
+			};
+			//
+
+ 			var listtype = [];
+ 			var listlens = [];	
  			var temptype= "";
 
  			//grab the list of types
  			$.each(data, function(name, value){
  				listtype.push(name);
  			});
+
  			//select for type
  			var selectListType = document.createElement("select");
  			selectListType.id = "lenstype";
@@ -194,45 +219,32 @@ Application.ControlsPanel = (function () {
 				var option = document.createElement("option");
 				option.value = i;
 				option.text = listtype[i];
-				//  if (option.text == "Arri/Zeiss Master Prime"){
-				//  	option.selected = true;
-				// 	$("#lenstype").val = option.value;
-				// }
+				  if (option.text == "Arri/Zeiss Ultra Prime"){
+				   	 option.selected = true;
+				 	$("#lenstype").val = option.value;
+				 }
 				selectListType.appendChild(option);
 			}
-//TODO: Move some of this logic out
 
  			//select for lens
  			var selectListLen = document.createElement("select");
  			selectListLen.id = "lens";
  			selectListLen.classList.add("form-control")
  			lendiv.appendChild(selectListLen);
+
+ 			//inital lens choice
+ 			findLensList("inital");
+			
+			//lens type changed 
  			$("#lenstype").change(function(){
-				if($("#lenstype").val()>0){
-					 $.each(data, function(name, value) {
- 			 			if (name == $("#lenstype")[0].options[$("#lenstype").val()].text) {
- 			 				temptype=$("#lenstype")[0].options[$("#lenstype").val()].text;
- 			 				listlens = ["Please Select Lens"];
-							$.each(value, function(index, innervalue){
-				 				listlens.push(innervalue.nameof);
-			  				});
-			  			}
- 			  		});
-					$("#lens > option").remove();
-					for (var i=0; i<listlens.length; i++){
-						var option = document.createElement("option");
-						option.value = i;
-						option.text = listlens[i];
-						selectListLen.appendChild(option);
-					}	
-				}
+					findLensList("lenstypechanged");	
 			});
+
+			//lens changed
 			$("#lens").change(function(){
-				if($("#lens").val()>0){
-					var i = $("#lens").val() - 1;
-					settings.focalLength.value = data[temptype][i].FocalLength;  
-	  		 		onSettingsChanged();
-				}
+				var i = $("#lens").val();
+				settings.focalLength.value = data[temptype][i].FocalLength;  
+	  		 	onSettingsChanged();
 
 			});
 			privateMethods.preventkeys.call(this);
