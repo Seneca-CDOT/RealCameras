@@ -64,19 +64,19 @@
     color: #DCD8D6 ;
     margin-bottom: 30px;
   }
-  #splashscreen img {
-    margin-left: 40%;
+  #splashscreen img.splash-image {
+    display:block;
+    margin:auto;
   }
-  #splashscreen  a {
+  #splashscreen a.splash-link {
+    display: block;
     text-decoration: none;
     text-align: center;
-    /*margin-top: 10px;*/
-    /*margin-left: 35%;*/
-    /*margin: auto*/
+    margin-top: 20px;
   }
-  #splashscreen  a:link, #splashscreen  a:active, #splashscreen  a:visited{
+  #splashscreen a:link, #splashscreen a:active, #splashscreen a:visited{
     color: #349B89
   }
-  #splashscreen  a:hover{
+  #splashscreen a:hover{
     color: #D58C70
   }
