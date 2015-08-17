@@ -80,3 +80,15 @@
   #splashscreen a:hover{
     color: #D58C70
   }
+  button {
+    position: absolute;
+    top:50px;
+    right:-150px;
+    background-color: #D7DBE1!important;
+    border-radius: 10px !important;
+    color: #2D2F31!important;
+  }
+  button a {
+    text-decoration: none !important;
+    color: #2D2F31!important;
+  }
