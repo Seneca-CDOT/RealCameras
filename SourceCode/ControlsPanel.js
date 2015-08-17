@@ -100,7 +100,7 @@ Application.ControlsPanel = (function () {
 					onSettingsChanged();
 				}
 			}).slider("pips", {
-				step: 5,
+				step: 5.0,
 				rest: "label"
 			});
 		});
@@ -158,14 +158,13 @@ Application.ControlsPanel = (function () {
 			// 	});
 			// });
 			$("#cameradiv").change(function(){
-				if($("#cameradiv").val()>0){
-					var i = $("#cameradiv").val() - 1;
+					var i = $("#cameradiv").val();
 					settings.frameSize.value = data.cameras[i].frameSize;
 	  		 		settings.CoC.value = data.cameras[i].CoC;
 	//TODO:
 	  		 		settings.aspect.value = data.cameras[i].aspect;
+	  		 		console.log(settings.aspect.value);
 	  		 		onSettingsChanged();
-				}
 			});
 			privateMethods.preventkeys.call(this);
 	    });

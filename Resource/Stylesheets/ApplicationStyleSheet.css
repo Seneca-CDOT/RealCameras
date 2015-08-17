@@ -1,3 +1,5 @@
+/*Application style sheet, 
+  css styles not in other sheets*/
   h1 {
     margin-bottom: 30px ;
     margin-top: 30px ;
@@ -62,11 +64,15 @@
     color: #DCD8D6 ;
     margin-bottom: 30px;
   }
-  #splashscreen a {
+  #splashscreen img.splash-image {
+    display:block;
+    margin:auto;
+  }
+  #splashscreen a.splash-link {
+    display: block;
     text-decoration: none;
-    position:fixed;
-    left: 40%;
-    margin-top: 10px;
+    text-align: center;
+    margin-top: 20px;
   }
   #splashscreen a:link, #splashscreen a:active, #splashscreen a:visited{
     color: #349B89
