@@ -46,7 +46,7 @@ Application.CameraDescription = (function () {
 	 	steptwo.classList.add("instlist");
 
 	 	var stepthree = document.createElement("p");
-	 	stepthree.innerHTML = "To tilt the camera, hold the left mouse button and and drag in the direction of the tilt.";
+	 	stepthree.innerHTML = "To tilt and pan the camera, hold the left mouse button and and drag in the direction of the tilt.";
 	 	this.desbox.appendChild(stepthree);
 	 	stepthree.classList.add("instlist");
 
