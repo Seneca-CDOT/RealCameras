@@ -55,27 +55,6 @@ Application.CameraDescription = (function () {
 	 	this.desbox.appendChild(scale);
 	 	scale.classList.add("scale");
 
-	 	var survey = document.createElement("button");
-	 	var buttonspan = document.createElement("span");
-	 	var link = document.createElement("a");
-	 	link.href= "google.com";
-	 	link.innerHTML=" Survey";
-
-
-	 	buttonspan.classList.add("glyphicon");
-	 	buttonspan.classList.add("glyphicon-comment");
-	 	survey.classList.add("btn");
-	 	survey.classList.add("btn-default");
-
-	 	survey.setAttribute('type', 'button');
-	 	buttonspan.setAttribute('aria-hidden',"true");
-
-	 	buttonspan.appendChild(link);
-	 	survey.appendChild(buttonspan);
-	 	this.desbox.appendChild(survey);
-
-
-
  		//append the description div to the this.containter
   		$(this.container).append(this.desbox);
 
