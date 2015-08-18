@@ -77,6 +77,23 @@ Application.ControlsPanel = (function () {
 		ap.setAttribute("id","ap");
 		this.gui.appendChild(ap);
 
+
+		//survey button at bottom
+		var survey = document.createElement("a");
+	 	var buttonspan = document.createElement("span");
+	 	survey.href= "https://docs.google.com/forms/d/12FuTnvtBRmchVZssIwHbEsWUHRGK1-y0_oOeE0fjdzI/viewform";
+	 	survey.target="_blank";
+	 	//link.innerHTML=" Survey";
+
+	 	buttonspan.classList.add("glyphicon");
+	 	buttonspan.classList.add("glyphicon-comment");
+	 	survey.classList.add("Survey-link");
+
+	 	buttonspan.setAttribute('aria-hidden',"true");
+
+	 	survey.appendChild(buttonspan);
+	 	this.gui.appendChild(survey);
+
 		//append the gui div to the this.containter
 		$(this.container).append(this.gui);
 		
