@@ -61,12 +61,20 @@ Application.ControlsPanel = (function () {
 
 		//focal depth
 		var focTitle = document.createElement("h4");
-		focTitle.innerHTML = "Focal Depth(Distance to subject)";
+		focTitle.innerHTML = "Focal Depth (Distance to subject)";
 		this.gui.appendChild(focTitle);
 		
 		var fd = document.createElement('div');
 		fd.setAttribute("id", "fd");
 		this.gui.appendChild(fd);
+
+		var focGearsTitle = document.createElement("h4");
+		focGearsTitle.innerHTML = "Focal Depth Gears";
+		this.gui.appendChild(focGearsTitle);
+
+		var fdGears = document.createElement('div');
+		fdGears.setAttribute("id", "fdGears");
+		this.gui.appendChild(fdGears);
 
 		//aperture
 		var aptTitle = document.createElement("h4");
@@ -106,25 +114,122 @@ Application.ControlsPanel = (function () {
 		privateMethods.LensSelect.call(this, len, settings, onSettingsChanged);
 
 		//focal depth
-		var focalDepthRange = settings.focalDepth.range;
+
+		var range = settings.focalDepth.range;
+		var fdSlider = $("#fd");
+
+		var fdSliderValuesCount = 5000;
+		var fdSliderValues = [];
 		$(function(){
-			$("#fd").slider({
-				min: 0.0, 
-				max: 55.0,
-				value: 10.0,
+			var newRange = range.end - range.begin;
+			var newMin = range.begin;
+			var newMax = range.end;
+			
+			var step = newRange / (fdSliderValuesCount - 1);
+
+			var minIdx = 0;
+			var maxIdx = fdSliderValuesCount - 1;
+			var valueIdx = 0;
+
+			fdSliderValues.push(newMin);
+			var value = settings.focalDepth.value;
+			for (var i = 1; i < fdSliderValuesCount; ++i) {
+				fdSliderValues.push(newMin + i * step);
+				if (fdSliderValues[i - 1] < value && value <= fdSliderValues[i]) {
+					valueIdx = i;
+				}
+			}
+			settings.focalDepth.value = fdSliderValues[valueIdx];
+			value = settings.focalDepth.value;
+
+			fdSlider.slider({
+				min: minIdx,
+				max: maxIdx,
+				value: valueIdx,
 				slide: function(event, ui){
-					settings.focalDepth.value = ui.value;
+					settings.focalDepth.value = fdSliderValues[ui.value];
 					onSettingsChanged();
 				}
 			}).slider("pips", {
-				step: 5.0,
-				rest: "label"
+				labels: {
+					first: "" + Math.round(newMin),
+					last: "" + Math.round(newMax)
+				},
+				// formatLabel: function (value) {
+				// 		return value;
+				// },
+				rest: false
+			});
+		});
+
+		var gears = [0.2, 0.4, 0.6, 0.8, 1.0];
+		$(function(){
+			$("#fdGears").slider({
+				min: 0, 
+				max: gears.length - 1,
+				value: gears.length - 1,
+				slide: function(event, ui){
+					var gear = gears[ui.value];
+
+					var value = fdSliderValues[fdSlider.slider("value")];
+					var newRange = (range.end - range.begin) * gear;
+
+					var min = fdSliderValues[fdSlider.slider("option", "min")];
+					var max = fdSliderValues[fdSlider.slider("option", "max")];
+
+					var newMin = 0.0;
+					var newMax = 0.0;
+					if (max - min > newRange) {
+						var alpha = Math.min(1.0, Math.max(0.0, (value - min) / (max - min)));
+
+						newMin = value - alpha * newRange;
+						newMax = newMin + newRange;
+					} else {
+						if (range.begin + newRange < value) {
+							newMax = value;
+							newMin = newMax - newRange;
+						} else {
+							newMin = range.begin;
+							newMax = newMin + newRange;
+						}
+					}
+
+					// mark - 
+
+					var valueIdx = 0;
+					var step = newRange / (fdSliderValuesCount - 1);
+					fdSliderValues[0] = newMin;
+					for (var i = 1; i < fdSliderValuesCount; ++i) {
+						fdSliderValues[i] = newMin + i * step;
+						if (fdSliderValues[i - 1] < value && value <= fdSliderValues[i]) {
+							valueIdx = i;
+						}
+					}
+					settings.focalDepth.value = fdSliderValues[valueIdx];
+					value = settings.focalDepth.value;
+
+  					// update reset and lables
+  					fdSlider.slider("value", valueIdx);
+  					fdSlider.slider("pips", {
+						labels: {
+							first: "" + Math.round(newMin),
+							last: "" + Math.round(newMax)
+						},
+						// formatLabel: function (value) {
+						// 		return value;
+						// },
+						rest: false
+					});
+				}	
+			}).slider("pips", {
+				rest: "label",
+				labels: gears
 			});
 		});
 
 		//apeture
+		var apvalues = [1.4, 2.0, 2.8, 4.0, 5.6, 8.0, 11.0, 16.0, 22.0, 32.0];
 		$(function(){
-			var apvalues = [1.4,2.0,2.8,4.0,5.6,8.0,11.0,16.0,22.0,32.0];
 			$("#ap").slider({
 				min: 0, 
 				max: apvalues.length -1,
