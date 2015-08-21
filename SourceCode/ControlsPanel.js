@@ -35,6 +35,8 @@ Application.ControlsPanel = (function () {
 		//create the gui div
 		this.gui= document.createElement('div');
 		this.gui.setAttribute("id", "ui");
+		this.gui.style.paddingRight = 15 + "px";
+		this.gui.style.paddingLeft = 15 + "px";
 
 		var title = document.createElement("h1");
 		title.innerHTML = "Real Cameras Control Panel";
@@ -69,7 +71,7 @@ Application.ControlsPanel = (function () {
 		this.gui.appendChild(fd);
 
 		var focGearsTitle = document.createElement("h4");
-		focGearsTitle.innerHTML = "Focal Depth Gears";
+		focGearsTitle.innerHTML = "Focal Depth Range";
 		this.gui.appendChild(focGearsTitle);
 
 		var fdGears = document.createElement('div');
@@ -118,7 +120,7 @@ Application.ControlsPanel = (function () {
 		var range = settings.focalDepth.range;
 		var fdSlider = $("#fd");
 
-		var fdSliderValuesCount = 5000;
+		var fdSliderValuesCount = 100;
 		var fdSliderValues = [];
 		$(function(){
 			var newRange = range.end - range.begin;
@@ -152,17 +154,14 @@ Application.ControlsPanel = (function () {
 				}
 			}).slider("pips", {
 				labels: {
-					first: "" + Math.round(newMin),
-					last: "" + Math.round(newMax)
+					first: "" + Math.round(newMin) + "m",
+					last: "" + Math.round(newMax) + "m"
 				},
-				// formatLabel: function (value) {
-				// 		return value;
-				// },
 				rest: false
 			});
 		});
 
-		var gears = [0.2, 0.4, 0.6, 0.8, 1.0];
+		var gears = [0.1, 0.2, 0.3, 0.4, 0.5, 0.6, 0.7, 0.8, 0.9, 1.0];
 		$(function(){
 			$("#fdGears").slider({
 				min: 0, 
@@ -185,13 +184,16 @@ Application.ControlsPanel = (function () {
 						newMin = value - alpha * newRange;
 						newMax = newMin + newRange;
 					} else {
-						if (range.begin + newRange < value) {
-							newMax = value;
-							newMin = newMax - newRange;
-						} else {
-							newMin = range.begin;
-							newMax = newMin + newRange;
-						}
+						// if (range.begin + newRange < value) {
+						// 	newMax = value;
+						// 	newMin = newMax - newRange;
+						// } else {
+						// 	newMin = range.begin;
+						// 	newMax = newMin + newRange;
+						// }
+						newMin = range.begin + 0.5 * ((range.end - range.begin) - newRange);
+						newMax = newMin + newRange;
+						value = newMin + 0.5 * newRange;
 					}
 
 					// mark - 
@@ -206,24 +208,25 @@ Application.ControlsPanel = (function () {
 						}
 					}
 					settings.focalDepth.value = fdSliderValues[valueIdx];
+					onSettingsChanged();
 					value = settings.focalDepth.value;
 
   					// update reset and lables
   					fdSlider.slider("value", valueIdx);
   					fdSlider.slider("pips", {
 						labels: {
-							first: "" + Math.round(newMin),
-							last: "" + Math.round(newMax)
+							first: "" + Math.round(newMin) + "m",
+							last: "" + Math.round(newMax) + "m"
 						},
-						// formatLabel: function (value) {
-						// 		return value;
-						// },
 						rest: false
 					});
 				}	
 			}).slider("pips", {
 				rest: "label",
-				labels: gears
+				labels: gears,
+				formatLabel: function (value) {
+					return (value * 100) + "%";
+				}
 			});
 		});
 
