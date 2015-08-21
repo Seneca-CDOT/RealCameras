@@ -63,7 +63,7 @@ var Application = (function () {
                 left: 0.0,
                 top: 0.0,
                 width: window.innerWidth * 0.8,
-                height: window.innerHeight *0.8
+                height: window.innerHeight * 0.8
             };
             store.demonstrator = new Application.RealCamerasDemonstrator(dLocation);
             root.appendChild(store.demonstrator.container);
