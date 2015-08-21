@@ -120,7 +120,7 @@ Application.ControlsPanel = (function () {
 		var range = settings.focalDepth.range;
 		var fdSlider = $("#fd");
 
-		var fdSliderValuesCount = 100;
+		var fdSliderValuesCount = 1000;
 		var fdSliderValues = [];
 		$(function(){
 			var newRange = range.end - range.begin;
