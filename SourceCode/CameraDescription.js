@@ -41,7 +41,7 @@ Application.CameraDescription = (function () {
 	 	stepone.classList.add("instlist");
 
 	 	var steptwo = document.createElement("p");
-	 	steptwo.innerHTML = "To dolly the camera, use the arrow keys.";
+	 	steptwo.innerHTML = "To dolly the camera, use the wasd keys.";
 	 	this.desbox.appendChild(steptwo);
 	 	steptwo.classList.add("instlist");
 
