@@ -73,9 +73,9 @@ var Application = (function () {
                 // width: window.innerWidth * 0.2,
                 // height: window.innerHeight 
 
-                left: window.innerWidth - 250.0,
+                left: window.innerWidth - 280.0,
                 top: 0.0,
-                width: 250.0,
+                width: 280.0,
                 height: window.innerHeight 
             };
             store.controlPanel = new Application.ControlsPanel(cpLocation);
@@ -88,7 +88,7 @@ var Application = (function () {
                 
                 left: 0.0,
                 top: window.innerHeight -140.0,
-                width: window.innerWidth -250.0,
+                width: window.innerWidth -280.0,
                 height: 140.0
             };
 
@@ -100,7 +100,7 @@ var Application = (function () {
                 top: 0.0,
                 // width: window.innerWidth * 0.8,
                 // height: window.innerHeight * 0.8
-                width: window.innerWidth -250.0,
+                width: window.innerWidth -280.0,
                 height: window.innerHeight -140.0
             };
             store.demonstrator = new Application.RealCamerasDemonstrator(dLocation);
