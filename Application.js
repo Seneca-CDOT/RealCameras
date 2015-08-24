@@ -58,20 +58,17 @@ var Application = (function () {
         var that = this;
         require(store.files, function() {
             var root = document.getElementById("root");
+            
+    //can use percentages or fixed values. 
+    //for precentagles the widths for 0.8 for the camera section and
+    //for the height is was 0.2 for the camera section 
 
-            var dLocation = {
-                left: 0.0,
-                top: 0.0,
-                width: window.innerWidth * 0.8,
-                height: window.innerHeight *0.8
-            };
-            store.demonstrator = new Application.RealCamerasDemonstrator(dLocation);
-            root.appendChild(store.demonstrator.container);
-
+    //using fixed values here means that the UI looks the same on all screen sizes
+    //(phones need to be changed differently)
             var cpLocation = {
-                left: window.innerWidth * 0.8,
+                left: window.innerWidth - 250.0,
                 top: 0.0,
-                width: window.innerWidth * 0.2,
+                width: 250.0,
                 height: window.innerHeight 
             };
             store.controlPanel = new Application.ControlsPanel(cpLocation);
@@ -79,14 +76,24 @@ var Application = (function () {
 
             var desLocation = {
                 left: 0.0,
-                top: window.innerHeight * 0.8,
-                width: window.innerWidth * 0.8,
-                height:window.innerHeight * 0.2
+                top: window.innerHeight -140.0,
+                width: window.innerWidth -250.0,
+                height: 140.0
             };
 
             store.camDescription = new Application.CameraDescription(desLocation);
             root.appendChild(store.camDescription.container);
 
+            var dLocation = {
+                left: 0.0,
+                top: 0.0,
+                width: window.innerWidth -250.0,
+                height: window.innerHeight -140.0
+            };
+            store.demonstrator = new Application.RealCamerasDemonstrator(dLocation);
+            root.appendChild(store.demonstrator.container);
+
+            
             var sl = Application.SceneLoader.getInstance();
             sl.setProgressControlContainer(store.demonstrator.container);
             sl.load().then(function (meshesContainer) {
