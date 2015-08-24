@@ -63,8 +63,10 @@ var Application = (function () {
     //for precentagles the widths for 0.8 for the camera section and
     //for the height is was 0.2 for the camera section 
 
+
     //using fixed values here means that the UI looks the same on all screen sizes
     //(phones need to be changed differently)
+
             var cpLocation = {
                 // left: window.innerWidth * 0.8,
                 // top: 0.0,

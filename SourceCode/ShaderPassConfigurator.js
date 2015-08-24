@@ -42,8 +42,7 @@ Application.ShaderPassConfigurator = (function () {
 // mark - 			
 
 			focalDepth: {
-				//value: 0.25 * (store.near + store.far),
-				value: 5.0,
+				value: 0.25 * (store.near + store.far),
 				range: {begin: store.near + offset, end: 0.5 * (store.near + store.far) - offset, step: dvc(0.001, "m")} 
 			},
 			aperture: {
