@@ -66,6 +66,11 @@ var Application = (function () {
     //using fixed values here means that the UI looks the same on all screen sizes
     //(phones need to be changed differently)
             var cpLocation = {
+                // left: window.innerWidth * 0.8,
+                // top: 0.0,
+                // width: window.innerWidth * 0.2,
+                // height: window.innerHeight 
+
                 left: window.innerWidth - 250.0,
                 top: 0.0,
                 width: 250.0,
@@ -75,6 +80,10 @@ var Application = (function () {
             root.appendChild(store.controlPanel.container);
 
             var desLocation = {
+                // top: window.innerHeight * 0.8,
+                // width: window.innerWidth * 0.8,
+                // height:window.innerHeight * 0.2
+                
                 left: 0.0,
                 top: window.innerHeight -140.0,
                 width: window.innerWidth -250.0,
@@ -87,6 +96,8 @@ var Application = (function () {
             var dLocation = {
                 left: 0.0,
                 top: 0.0,
+                // width: window.innerWidth * 0.8,
+                // height: window.innerHeight * 0.8
                 width: window.innerWidth -250.0,
                 height: window.innerHeight -140.0
             };
