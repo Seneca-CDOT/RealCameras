@@ -71,7 +71,7 @@ Application.ControlsPanel = (function () {
 		this.gui.appendChild(fd);
 
 		var focGearsTitle = document.createElement("h4");
-		focGearsTitle.innerHTML = "Focal Depth Range";
+		focGearsTitle.innerHTML = "Focus Sensitivity";
 		this.gui.appendChild(focGearsTitle);
 
 		var fdGears = document.createElement('div');
@@ -161,12 +161,13 @@ Application.ControlsPanel = (function () {
 			});
 		});
 
-		var gears = [0.1, 0.2, 0.3, 0.4, 0.5, 0.6, 0.7, 0.8, 0.9, 1.0];
+		// var gears = [0.1, 0.2, 0.3, 0.4, 0.5, 0.6, 0.7, 0.8, 0.9, 1.0];
+		var gears = [1.0, 0.5, 0.1, 0.05, 0.01];
 		$(function(){
 			$("#fdGears").slider({
 				min: 0, 
 				max: gears.length - 1,
-				value: gears.length - 1,
+				value: 0,
 				slide: function(event, ui){
 					var gear = gears[ui.value];
 
@@ -222,11 +223,16 @@ Application.ControlsPanel = (function () {
 					});
 				}	
 			}).slider("pips", {
-				rest: "label",
-				labels: gears,
-				formatLabel: function (value) {
-					return (value * 100) + "%";
+				//rest: "label",
+				labels:{
+					first: "Course",
+					last: "Fine"
 				}
+				// gears,
+				// formatLabel: function (value) {
+				// 	first: "Course",
+				// 	last: "Finer"
+				// }
 			});
 			
 		});
