@@ -228,6 +228,7 @@ Application.ControlsPanel = (function () {
 					return (value * 100) + "%";
 				}
 			});
+			
 		});
 
 		//apeture
@@ -245,6 +246,7 @@ Application.ControlsPanel = (function () {
 				rest: "label",
 				labels: apvalues
 			});
+		
 		});
 	};
 
@@ -379,10 +381,11 @@ Application.ControlsPanel = (function () {
  	privateMethods.preventkeys = function(){
  		$('select').bind('keydown', function(e){
  		
- 			if (e.keyCode === 38 || e.keyCode === 40 ){
+ 			if (e.keyCode >= 65 && e.keyCode <= 90){
  				//return false;
  				e.preventDefault();
  			} 
+
  		});
  	};
 
