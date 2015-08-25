@@ -23,7 +23,8 @@ THREE.PointerLockControls = function (renderer, camera) {
 
 		var movementX = event.movementX || event.mozMovementX || event.webkitMovementX || 0;
 		var movementY = event.movementY || event.mozMovementY || event.webkitMovementY || 0;
-
+		//safari dosent work with event.movementX or webkitMovementX
+		
 		yawObject.rotation.y -= movementX * 0.002;
 		pitchObject.rotation.x -= movementY * 0.002;
 
