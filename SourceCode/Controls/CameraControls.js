@@ -28,21 +28,21 @@ Application.CameraControls = (function () {
 		var that = this;
 		var onKeyDown = function (evt) {
 			switch (evt.keyCode) {
-				case 38: // up
+				//case 38: // up
 
-				// case 87: // w
+				 case 87: // w
 					that.moveForward = true;
 					break;
-				case 37: // left
-				// case 65: // a
+				//case 37: // left
+				 case 65: // a
 					that.moveLeft = true; 
 					break;
-				case 40: // down
-				// case 83: // s
+				//case 40: // down
+				 case 83: // s
 					that.moveBackward = true;
 					break;
-				case 39: // right
-				// case 68: // d
+				//case 39: // right
+				 case 68: // d
 
 					that.moveRight = true;
 					break;
@@ -50,21 +50,21 @@ Application.CameraControls = (function () {
 		};
 		var onKeyUp = function (evt) {
 			switch(evt.keyCode) {
-				case 38: // up
+				//case 38: // up
 
-				// case 87: // w
+				 case 87: // w
 					that.moveForward = false;
 					break;
-				case 37: // left
-				// case 65: // a
+				//case 37: // left
+				 case 65: // a
 					that.moveLeft = false;
 					break;
-				case 40: // down
-				// case 83: // s
+				//case 40: // down
+				 case 83: // s
 					that.moveBackward = false;
 					break;
-				case 39: // right
-				// case 68: // d
+				//case 39: // right
+				 case 68: // d
 
 					that.moveRight = false;
 					break;
