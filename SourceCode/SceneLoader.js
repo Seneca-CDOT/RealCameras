@@ -109,7 +109,8 @@ Application.SceneLoader = (function () {
 						y: 0.0 * Math.PI
 					},
 					position: {
-						x: dvc(1.5, "m"),
+						//x value to change based on cilent wishes
+						x: dvc(1.25, "m"),
 						y: dvc(0.0, "m"),
 						z: -dvc(1, "m")
 					}

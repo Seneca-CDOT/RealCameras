@@ -212,12 +212,14 @@ Application.ControlsPanel = (function () {
 					onSettingsChanged();
 					value = settings.focalDepth.value;
 
+					//should this be reset?
+
   					// update reset and lables
   					fdSlider.slider("value", valueIdx);
   					fdSlider.slider("pips", {
 						labels: {
-							first: "" + Math.round(newMin) + "m",
-							last: "" + Math.round(newMax) + "m"
+							first: "" + Math.floor(newMin) + "m",
+							last: "" + Math.ceil(newMax) + "m"
 						},
 						rest: false
 					});
