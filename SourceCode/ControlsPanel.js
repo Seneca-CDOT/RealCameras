@@ -171,7 +171,7 @@ Application.ControlsPanel = (function () {
 				slide: function(event, ui){
 					var gear = gears[ui.value];
 
-					var value = fdSliderValues[fdSlider.slider("value")];
+					var value = fdSliderValues[fdSlider.slider("value")];  
 					var newRange = (range.end - range.begin) * gear;
 
 					var min = fdSliderValues[fdSlider.slider("option", "min")];
@@ -179,23 +179,28 @@ Application.ControlsPanel = (function () {
 
 					var newMin = 0.0;
 					var newMax = 0.0;
-					if (max - min > newRange) {
+					// if (max - min > newRange) {
 						var alpha = Math.min(1.0, Math.max(0.0, (value - min) / (max - min)));
 
 						newMin = value - alpha * newRange;
+						if (newMin < 0 )
+							newMin =0;
 						newMax = newMin + newRange;
-					} else {
-						// if (range.begin + newRange < value) {
-						// 	newMax = value;
-						// 	newMin = newMax - newRange;
-						// } else {
-						// 	newMin = range.begin;
-						// 	newMax = newMin + newRange;
-						// }
-						newMin = range.begin + 0.5 * ((range.end - range.begin) - newRange);
-						newMax = newMin + newRange;
-						value = newMin + 0.5 * newRange;
-					}
+						if (newMax >50)
+							newMax =50;
+					// } else {
+					// 	// if (range.begin + newRange < value) {
+					// 	// 	newMax = value;
+					// 	// 	newMin = newMax - newRange;
+					// 	// } else {
+					// 	// 	newMin = range.begin;
+					// 	// 	newMax = newMin + newRange;
+					// 	// }
+					// 	newMin = range.begin + 0.5 * ((range.end - range.begin) - newRange);
+					// 	newMax = newMin + newRange;
+					// 	value = newMin + 0.5 * newRange;
+			
+					// }
 
 					// mark - 
 
@@ -205,14 +210,12 @@ Application.ControlsPanel = (function () {
 					for (var i = 1; i < fdSliderValuesCount; ++i) {
 						fdSliderValues[i] = newMin + i * step;
 						if (fdSliderValues[i - 1] < value && value <= fdSliderValues[i]) {
-							valueIdx = i;
+							 valueIdx = i;
 						}
 					}
 					settings.focalDepth.value = fdSliderValues[valueIdx];
 					onSettingsChanged();
 					value = settings.focalDepth.value;
-
-					//should this be reset?
 
   					// update reset and lables
   					fdSlider.slider("value", valueIdx);
