@@ -349,7 +349,7 @@ THREE.DoFShader = {
 
 
 			"if (showFocus) {",
-			//	"col = debugFocus(col, blur, depth);",
+				"col = debugFocus(col, blur, depth);",
 			"}",
 
 

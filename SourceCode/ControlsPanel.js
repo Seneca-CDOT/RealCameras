@@ -87,6 +87,14 @@ Application.ControlsPanel = (function () {
 		ap.setAttribute("id","ap");
 		this.gui.appendChild(ap);
 
+		//focus checkbox
+		// var focCheckTitle = document.createElement("p");
+		// focCheckTitle.innerHTML = "Focus Checkbox";
+		// this.gui.appendChild(focCheckTitle);
+
+		var focCheckbox = document.createElement("div");
+		focCheckbox.setAttribute("id", "foccheck");
+		this.gui.appendChild(focCheckbox);
 
 		//survey button at bottom
 		var survey = document.createElement("a");
@@ -179,28 +187,25 @@ Application.ControlsPanel = (function () {
 
 					var newMin = 0.0;
 					var newMax = 0.0;
-					// if (max - min > newRange) {
+					if (max - min > newRange) {
 						var alpha = Math.min(1.0, Math.max(0.0, (value - min) / (max - min)));
-
 						newMin = value - alpha * newRange;
-						if (newMin < 0 )
-							newMin =0;
 						newMax = newMin + newRange;
-						if (newMax >50)
-							newMax =50;
-					// } else {
-					// 	// if (range.begin + newRange < value) {
-					// 	// 	newMax = value;
-					// 	// 	newMin = newMax - newRange;
-					// 	// } else {
-					// 	// 	newMin = range.begin;
-					// 	// 	newMax = newMin + newRange;
-					// 	// }
-					// 	newMin = range.begin + 0.5 * ((range.end - range.begin) - newRange);
-					// 	newMax = newMin + newRange;
-					// 	value = newMin + 0.5 * newRange;
+						
+					} else {
+						if (range.begin + newRange < value) {
+							var alpha = Math.min(1.0, Math.max(0.0, (max - value) / (max - min)));
+							newMax = value + alpha * newRange;
+							newMin = newMax - newRange;
+						} else {
+							newMin = range.begin;
+							newMax = newMin + newRange;
+						}
+					//	newMin = range.begin + 0.5 * ((range.end - range.begin) - newRange);
+					//	newMax = newMin + newRange;
+					//	value = newMin + 0.5 * newRange;
 			
-					// }
+					}
 
 					// mark - 
 
@@ -259,6 +264,33 @@ Application.ControlsPanel = (function () {
 			});
 		
 		});
+
+		//focus checkbox
+		var checkboxfocus = document.createElement('input');
+		checkboxfocus.type= "checkbox";
+		checkboxfocus.name = "Show Focus";
+		checkboxfocus.value = "Show";
+		checkboxfocus.id = "checkboxfoc";
+
+		var label = document.createElement('label');
+		label.htmlFor = "Show Focus";
+		label.appendChild(document.createTextNode(" Show focus"));
+
+		focCheckbox.appendChild(checkboxfocus);
+		focCheckbox.appendChild(label);
+		
+		$("#checkboxfoc").change(function(){
+			if ($("#checkboxfoc").is(":checked")){
+				settings.showFocus.value = true;		
+	  	 	}
+	  	 	else {
+	  	 		settings.showFocus.value = false;
+	  	 	}
+	  	 	onSettingsChanged();
+		});
+
+
+
 	};
 
 	var privateMethods = Object.create(ControlsPanel.prototype);
