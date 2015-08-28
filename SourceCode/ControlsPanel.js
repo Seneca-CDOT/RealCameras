@@ -179,28 +179,25 @@ Application.ControlsPanel = (function () {
 
 					var newMin = 0.0;
 					var newMax = 0.0;
-					// if (max - min > newRange) {
+					if (max - min > newRange) {
 						var alpha = Math.min(1.0, Math.max(0.0, (value - min) / (max - min)));
-
 						newMin = value - alpha * newRange;
-						if (newMin < 0 || newMin> value || newMin>50 )
-							newMin =0;
 						newMax = newMin + newRange;
-						if (newMax >50 || newMax < value || newMax<0)
-							newMax =50;
-					// } else {
-					// 	// if (range.begin + newRange < value) {
-					// 	// 	newMax = value;
-					// 	// 	newMin = newMax - newRange;
-					// 	// } else {
-					// 	// 	newMin = range.begin;
-					// 	// 	newMax = newMin + newRange;
-					// 	// }
-					// 	newMin = range.begin + 0.5 * ((range.end - range.begin) - newRange);
-					// 	newMax = newMin + newRange;
-					// 	value = newMin + 0.5 * newRange;
+						
+					} else {
+						if (range.begin + newRange < value) {
+							var alpha = Math.min(1.0, Math.max(0.0, (max - value) / (max - min)));
+							newMax = value + alpha * newRange;
+							newMin = newMax - newRange;
+						} else {
+							newMin = range.begin;
+							newMax = newMin + newRange;
+						}
+					//	newMin = range.begin + 0.5 * ((range.end - range.begin) - newRange);
+					//	newMax = newMin + newRange;
+					//	value = newMin + 0.5 * newRange;
 			
-					// }
+					}
 
 					// mark - 
 
