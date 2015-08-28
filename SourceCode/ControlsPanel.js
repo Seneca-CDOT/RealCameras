@@ -183,10 +183,10 @@ Application.ControlsPanel = (function () {
 						var alpha = Math.min(1.0, Math.max(0.0, (value - min) / (max - min)));
 
 						newMin = value - alpha * newRange;
-						if (newMin < 0 )
+						if (newMin < 0 || newMin> value || newMin>50 )
 							newMin =0;
 						newMax = newMin + newRange;
-						if (newMax >50)
+						if (newMax >50 || newMax < value || newMax<0)
 							newMax =50;
 					// } else {
 					// 	// if (range.begin + newRange < value) {
