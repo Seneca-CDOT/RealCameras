@@ -110,7 +110,7 @@ Application.SceneLoader = (function () {
 					},
 					position: {
 						//x value to change based on cilent wishes
-						x: dvc(1.25, "m"),
+						x: -dvc(0.75, "m"),
 						y: dvc(0.0, "m"),
 						z: -dvc(1, "m")
 					}
@@ -301,13 +301,18 @@ Application.SceneLoader = (function () {
 	};
 	privateMethods.setUpModels = function (meshesContainer, model, modelHeight, locations) {
 		var template = model;
+		var colours = [0x0033ff, 0xff0000];
+		var newmaterial = new THREE.MeshLambertMaterial({color: 0xff0000, side:THREE.DoubleSide});
 		for (var i = 0; i < locations.length; ++i) {
 			var clone = template.clone();
-
 			var mesh = new THREE.Object3D();
+			
 			mesh.add(clone);
+			
 			meshesContainer.add(mesh);
 
+			mesh.material = newmaterial;
+			mesh.material.needsUpdate = true;
 			var location = locations[i];
 
 			mesh.position.x = location.position.x;
