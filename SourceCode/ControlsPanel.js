@@ -71,7 +71,7 @@ Application.ControlsPanel = (function () {
 		this.gui.appendChild(fd);
 
 		var focGearsTitle = document.createElement("h4");
-		focGearsTitle.innerHTML = "Focal Depth Range";
+		focGearsTitle.innerHTML = "Focus Sensitivity";
 		this.gui.appendChild(focGearsTitle);
 
 		var fdGears = document.createElement('div');
@@ -87,6 +87,14 @@ Application.ControlsPanel = (function () {
 		ap.setAttribute("id","ap");
 		this.gui.appendChild(ap);
 
+		//focus checkbox
+		// var focCheckTitle = document.createElement("p");
+		// focCheckTitle.innerHTML = "Focus Checkbox";
+		// this.gui.appendChild(focCheckTitle);
+
+		var focCheckbox = document.createElement("div");
+		focCheckbox.setAttribute("id", "foccheck");
+		this.gui.appendChild(focCheckbox);
 
 		//survey button at bottom
 		var survey = document.createElement("a");
@@ -161,16 +169,17 @@ Application.ControlsPanel = (function () {
 			});
 		});
 
-		var gears = [0.1, 0.2, 0.3, 0.4, 0.5, 0.6, 0.7, 0.8, 0.9, 1.0];
+		// var gears = [0.1, 0.2, 0.3, 0.4, 0.5, 0.6, 0.7, 0.8, 0.9, 1.0];
+		var gears = [1.0, 0.5, 0.1, 0.05, 0.01];
 		$(function(){
 			$("#fdGears").slider({
 				min: 0, 
 				max: gears.length - 1,
-				value: gears.length - 1,
+				value: 0,
 				slide: function(event, ui){
 					var gear = gears[ui.value];
 
-					var value = fdSliderValues[fdSlider.slider("value")];
+					var value = fdSliderValues[fdSlider.slider("value")];  
 					var newRange = (range.end - range.begin) * gear;
 
 					var min = fdSliderValues[fdSlider.slider("option", "min")];
@@ -180,20 +189,22 @@ Application.ControlsPanel = (function () {
 					var newMax = 0.0;
 					if (max - min > newRange) {
 						var alpha = Math.min(1.0, Math.max(0.0, (value - min) / (max - min)));
-
 						newMin = value - alpha * newRange;
 						newMax = newMin + newRange;
+						
 					} else {
-						// if (range.begin + newRange < value) {
-						// 	newMax = value;
-						// 	newMin = newMax - newRange;
-						// } else {
-						// 	newMin = range.begin;
-						// 	newMax = newMin + newRange;
-						// }
-						newMin = range.begin + 0.5 * ((range.end - range.begin) - newRange);
-						newMax = newMin + newRange;
-						value = newMin + 0.5 * newRange;
+						if (range.begin + newRange < value) {
+							var alpha = Math.min(1.0, Math.max(0.0, (max - value) / (max - min)));
+							newMax = value + alpha * newRange;
+							newMin = newMax - newRange;
+						} else {
+							newMin = range.begin;
+							newMax = newMin + newRange;
+						}
+					//	newMin = range.begin + 0.5 * ((range.end - range.begin) - newRange);
+					//	newMax = newMin + newRange;
+					//	value = newMin + 0.5 * newRange;
+			
 					}
 
 					// mark - 
@@ -204,7 +215,7 @@ Application.ControlsPanel = (function () {
 					for (var i = 1; i < fdSliderValuesCount; ++i) {
 						fdSliderValues[i] = newMin + i * step;
 						if (fdSliderValues[i - 1] < value && value <= fdSliderValues[i]) {
-							valueIdx = i;
+							 valueIdx = i;
 						}
 					}
 					settings.focalDepth.value = fdSliderValues[valueIdx];
@@ -215,19 +226,25 @@ Application.ControlsPanel = (function () {
   					fdSlider.slider("value", valueIdx);
   					fdSlider.slider("pips", {
 						labels: {
-							first: "" + Math.round(newMin) + "m",
-							last: "" + Math.round(newMax) + "m"
+							first: "" + Math.floor(newMin) + "m",
+							last: "" + Math.ceil(newMax) + "m"
 						},
 						rest: false
 					});
 				}	
 			}).slider("pips", {
-				rest: "label",
-				labels: gears,
-				formatLabel: function (value) {
-					return (value * 100) + "%";
+				//rest: "label",
+				labels:{
+					first: "Course",
+					last: "Fine"
 				}
+				// gears,
+				// formatLabel: function (value) {
+				// 	first: "Course",
+				// 	last: "Finer"
+				// }
 			});
+			
 		});
 
 		//apeture
@@ -245,7 +262,35 @@ Application.ControlsPanel = (function () {
 				rest: "label",
 				labels: apvalues
 			});
+		
 		});
+
+		//focus checkbox
+		var checkboxfocus = document.createElement('input');
+		checkboxfocus.type= "checkbox";
+		checkboxfocus.name = "Show Focus";
+		checkboxfocus.value = "Show";
+		checkboxfocus.id = "checkboxfoc";
+
+		var label = document.createElement('label');
+		label.htmlFor = "Show Focus";
+		label.appendChild(document.createTextNode(" Show focus"));
+
+		focCheckbox.appendChild(checkboxfocus);
+		focCheckbox.appendChild(label);
+		
+		$("#checkboxfoc").change(function(){
+			if ($("#checkboxfoc").is(":checked")){
+				settings.showFocus.value = true;		
+	  	 	}
+	  	 	else {
+	  	 		settings.showFocus.value = false;
+	  	 	}
+	  	 	onSettingsChanged();
+		});
+
+
+
 	};
 
 	var privateMethods = Object.create(ControlsPanel.prototype);
@@ -379,10 +424,11 @@ Application.ControlsPanel = (function () {
  	privateMethods.preventkeys = function(){
  		$('select').bind('keydown', function(e){
  		
- 			if (e.keyCode === 38 || e.keyCode === 40 ){
+ 			if (e.keyCode >= 65 && e.keyCode <= 90){
  				//return false;
  				e.preventDefault();
  			} 
+
  		});
  	};
 
