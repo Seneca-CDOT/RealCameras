@@ -7,7 +7,7 @@ Application.ShaderPassConfigurator = (function () {
 	function ShaderPassConfigurator () {
 		var dvc = Application.DistanceValuesConvertor.getInstance();
 		store.near = dvc(0.01, "m");
-		store.far = dvc(100.0, "m");
+		store.far = dvc(30.0, "m");
 	};
 	
 	ShaderPassConfigurator.prototype.configuration = function (passId) {
@@ -43,7 +43,7 @@ Application.ShaderPassConfigurator = (function () {
 
 			focalDepth: {
 				value: 0.25 * (store.near + store.far),
-				range: {begin: store.near + offset, end: 0.5 * (store.near + store.far) - offset, step: dvc(0.001, "m")} 
+				range: {begin: store.near + offset, end: store.far - offset, step: dvc(0.001, "m")} 
 			},
 			aperture: {
 				value: 1.4,

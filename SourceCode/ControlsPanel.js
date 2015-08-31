@@ -1,6 +1,4 @@
 
-
-
 var Application = Application || {};
 
 Application.ControlsPanel = (function () {
@@ -88,13 +86,20 @@ Application.ControlsPanel = (function () {
 		this.gui.appendChild(ap);
 
 		//focus checkbox
-		// var focCheckTitle = document.createElement("p");
-		// focCheckTitle.innerHTML = "Focus Checkbox";
-		// this.gui.appendChild(focCheckTitle);
+		var chboxTitle = document.createElement("h4");
+		chboxTitle.innerHTML = "Show Focus";
+		this.gui.appendChild(chboxTitle);
 
 		var focCheckbox = document.createElement("div");
 		focCheckbox.setAttribute("id", "foccheck");
 		this.gui.appendChild(focCheckbox);
+
+		var checkboxfocus = document.createElement('input');
+		checkboxfocus.type= "checkbox";
+		checkboxfocus.name = "Show Focus";
+		checkboxfocus.value = "Show";
+		checkboxfocus.id = "checkboxfoc";
+		focCheckbox.appendChild(checkboxfocus);
 
 		//survey button at bottom
 		var survey = document.createElement("a");
@@ -266,31 +271,14 @@ Application.ControlsPanel = (function () {
 		});
 
 		//focus checkbox
-		var checkboxfocus = document.createElement('input');
-		checkboxfocus.type= "checkbox";
-		checkboxfocus.name = "Show Focus";
-		checkboxfocus.value = "Show";
-		checkboxfocus.id = "checkboxfoc";
-
-		var label = document.createElement('label');
-		label.htmlFor = "Show Focus";
-		label.appendChild(document.createTextNode(" Show focus"));
-
-		focCheckbox.appendChild(checkboxfocus);
-		focCheckbox.appendChild(label);
-		
 		$("#checkboxfoc").change(function(){
 			if ($("#checkboxfoc").is(":checked")){
 				settings.showFocus.value = true;		
-	  	 	}
-	  	 	else {
+	  	 	} else {
 	  	 		settings.showFocus.value = false;
 	  	 	}
 	  	 	onSettingsChanged();
 		});
-
-
-
 	};
 
 	var privateMethods = Object.create(ControlsPanel.prototype);
