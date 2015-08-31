@@ -132,7 +132,7 @@ Application.SceneLoader = (function () {
 					position: {
 						x: dvc(2.0, "m"),
 						y: dvc(0.0, "m"),
-						z: -dvc(20, "m")
+						z: -dvc(12, "m")
 					}
 				});
 				locations.push({
@@ -142,7 +142,7 @@ Application.SceneLoader = (function () {
 					position: {
 						x: -dvc(3.0, "m"),
 						y: dvc(0.0, "m"),
-						z: -dvc(25, "m")
+						z: -dvc(18, "m")
 					}
 				});
 
@@ -202,8 +202,8 @@ Application.SceneLoader = (function () {
 
 		var dvc = Application.DistanceValuesConvertor.getInstance();
 
-		var radius = dvc(60, "m");
-		var depthShiftBackward = dvc(20, "m");
+		var radius = dvc(24, "m");
+		var depthShiftBackward = dvc(2, "m");
 		var geometry = new THREE.SphereGeometry(radius, 32, 32);
 
 
